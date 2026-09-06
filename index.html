@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<meta name="theme-color" content="#0B0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hub">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -22,8 +26,23 @@
     --accent:#8B7FFF;
     --accent-soft:rgba(139,127,255,0.14);
     --amber:#F5A65B;
+    --ok:#5FB3A3;
+    --err:#E8735B;
     --radius-tile:14px;
     --radius-sm:6px;
+  }
+  :root[data-theme="light"]{
+    --bg:#F5F4F2;
+    --surface:#FFFFFF;
+    --surface-2:#EEECE8;
+    --border:#DEDBD5;
+    --border-soft:#E7E4DE;
+    --text:#1B1D22;
+    --text-muted:#63676F;
+    --text-faint:#9A9DA4;
+    --accent:#6C5CE0;
+    --accent-soft:rgba(108,92,224,0.10);
+    --amber:#B9752E;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -65,6 +84,29 @@
     font-size:13px;
     margin-top:4px;
   }
+  .sync-status{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:6px;
+  }
+  .theme-toggle{
+    position:fixed;
+    top:16px; right:16px;
+    z-index:60;
+    width:36px;height:36px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    font-size:15px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s ease;
+  }
+  .theme-toggle:hover{ transform:scale(1.06); }
   .nav-list{
     list-style:none;
     margin:0;padding:0;
@@ -138,9 +180,30 @@
     display:inline-block;
     width:6px;height:6px;
     border-radius:50%;
-    background:var(--amber);
-    margin-right:6px;
+    background:var(--text-faint);
+    flex-shrink:0;
   }
+  .sync-dot.ok{ background:var(--ok); }
+  .sync-dot.err{ background:var(--err); }
+  .sync-dot.pending{ background:var(--amber); }
+  .io-row{
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+  }
+  .io-btn{
+    flex:1;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    padding:7px 8px;
+    border-radius:7px;
+    font-size:11.5px;
+    font-family:inherit;
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .io-btn:hover{ border-color:var(--accent); color:var(--text); }
 
   /* ---------- Login screen ---------- */
   .login-screen{
@@ -302,18 +365,21 @@
     color:inherit;
     opacity:0;
     animation:rise .45s ease forwards;
-    transition:border-color .15s ease, transform .12s ease, background .15s ease;
+    transition:border-color .15s ease, transform .12s ease, background .15s ease, opacity .15s ease;
   }
   .tile:hover{
     border-color:var(--accent);
     transform:translateY(-2px);
     background:var(--surface-2);
   }
+  .tile.dragging{ opacity:0.35; }
+  .tile.drag-over{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
   @keyframes rise{
     from{ opacity:0; transform:translateY(8px); }
     to{ opacity:1; transform:translateY(0); }
   }
   .tile-icon{
+    position:relative;
     width:38px;height:38px;
     border-radius:9px;
     display:flex;align-items:center;justify-content:center;
@@ -321,6 +387,16 @@
     font-weight:600;
     font-size:16px;
     color:#0B0D12;
+    overflow:hidden;
+  }
+  .tile-icon-img{
+    position:absolute;
+    inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    background:#fff;
+    padding:7px;
+    box-sizing:border-box;
   }
   .tile-name{
     font-size:14px;
@@ -475,6 +551,37 @@
     cursor:pointer;
     padding:0;
   }
+  .confirm-modal{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    width:320px;
+    max-width:90vw;
+  }
+  .confirm-title{
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    margin-bottom:8px;
+  }
+  .confirm-body{
+    color:var(--text-muted);
+    font-size:13.5px;
+    line-height:1.5;
+    margin-bottom:20px;
+  }
+  .btn-danger{
+    background:var(--err);
+    border:none;
+    color:#fff;
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:'Sora',sans-serif;
+  }
 
   ::-webkit-scrollbar{ width:8px; }
   ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:8px; }
@@ -502,6 +609,8 @@
 </head>
 <body>
 
+<button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro">🌙</button>
+
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-title">Hub</div>
@@ -525,9 +634,16 @@
   <div class="brand">
     <div class="brand-title">Hub</div>
     <div class="brand-clock" id="clock"></div>
+    <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">A ligar…</span></div>
   </div>
   <ul class="nav-list" id="navList"></ul>
-  <div class="sidebar-footer" id="authArea"></div>
+  <div class="sidebar-footer">
+    <div id="authArea"></div>
+    <div class="io-row">
+      <button class="io-btn" id="exportBtn">Exportar</button>
+      <label class="io-btn" style="text-align:center;display:block;">Importar<input id="importInput" type="file" accept="application/json" style="display:none;"></label>
+    </div>
+  </div>
 </aside>
 
 <main class="main">
@@ -571,6 +687,17 @@
       <button class="btn-danger-text" id="deleteBtn" style="display:none;margin-right:auto;">Remover</button>
       <button class="btn-secondary" id="cancelBtn">Cancelar</button>
       <button class="btn-primary" id="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-title" id="confirmTitle">Remover aplicação?</div>
+    <div class="confirm-body" id="confirmBody">Esta ação não pode ser desfeita.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="confirmCancelBtn">Cancelar</button>
+      <button class="btn-danger" id="confirmOkBtn">Remover</button>
     </div>
   </div>
 </div>
@@ -631,6 +758,27 @@ const seed = [
   {id:cryptoId(), name:'Instagram', url:'https://instagram.com', category:'Social', color:COLORS[6], pinned:false},
 ];
 
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  try{ localStorage.setItem('hub-theme-pref', theme); }catch(e){}
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '🌙' : '☀️';
+}
+function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('hub-theme-pref'); }catch(e){}
+  applyTheme(saved || 'dark');
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'light' ? 'dark' : 'light');
+});
+initTheme();
+
+function setSyncStatus(state, text){
+  document.getElementById('syncDot').className = 'sync-dot' + (state ? ' ' + state : '');
+  document.getElementById('syncText').textContent = text;
+}
+
 function cryptoId(){
   return Math.random().toString(36).slice(2,10);
 }
@@ -650,10 +798,13 @@ function saveLocal(){
 async function persist(){
   saveLocal();
   if(fbEnabled && currentUser){
+    setSyncStatus('pending', 'A guardar…');
     try{
       await db.collection('hubs').doc(currentUser.uid).set({ apps });
+      setSyncStatus('ok', 'Sincronizado');
     }catch(e){
       console.error('Não foi possível sincronizar com a nuvem', e);
+      setSyncStatus('err', 'Falha ao sincronizar');
     }
   }
 }
@@ -693,10 +844,10 @@ function attemptSignIn(){
 
 async function init(){
   if(!fbEnabled){
-    // Sem Firebase configurado: acesso direto, apenas com armazenamento local.
     apps = loadLocal() || seed;
     showApp();
     render();
+    setSyncStatus('', 'Guardado só neste dispositivo');
     return;
   }
 
@@ -716,6 +867,7 @@ async function init(){
     renderAuthArea();
     apps = loadLocal() || seed;
     render();
+    setSyncStatus('pending', 'A ligar à base de dados…');
 
     const ref = db.collection('hubs').doc(user.uid);
     try{
@@ -727,16 +879,22 @@ async function init(){
       }
       saveLocal();
       render();
+      setSyncStatus('ok', 'Sincronizado');
 
       unsubscribeSnapshot = ref.onSnapshot(doc=>{
         if(doc.exists && !doc.metadata.hasPendingWrites){
           apps = doc.data().apps || apps;
           saveLocal();
           render();
+          setSyncStatus('ok', 'Sincronizado');
         }
+      }, err=>{
+        console.error(err);
+        setSyncStatus('err', 'Sem ligação à base de dados');
       });
     }catch(e){
       console.error('Erro a carregar dados da nuvem', e);
+      setSyncStatus('err', 'Sem ligação à base de dados');
     }
   });
 }
@@ -781,12 +939,15 @@ function tileHtml(app){
   let hostname = '';
   try{ hostname = new URL(app.url).hostname.replace('www.',''); }catch(e){ hostname = app.url; }
   return `
-    <div class="tile" style="animation-delay:${Math.random()*0.15}s" data-id="${app.id}">
+    <div class="tile" draggable="true" style="animation-delay:${Math.random()*0.15}s" data-id="${app.id}">
       ${app.pinned ? '<span class="tile-pin">★</span>' : ''}
       <div class="tile-actions">
         <button class="tile-action-btn" data-action="edit" data-id="${app.id}" title="Editar">✎</button>
       </div>
-      <div class="tile-icon" style="background:${app.color}">${escapeHtml(initial)}</div>
+      <div class="tile-icon" style="background:${app.color}">
+        ${escapeHtml(initial)}
+        ${hostname ? `<img class="tile-icon-img" alt="" loading="lazy" src="https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}" onerror="this.remove()">` : ''}
+      </div>
       <div>
         <div class="tile-name">${escapeHtml(app.name)}</div>
         <div class="tile-url">${escapeHtml(hostname)}</div>
@@ -840,6 +1001,37 @@ function render(){
       if(e.target.closest('[data-action="edit"]')) return;
       const app = apps.find(a=>a.id===tile.dataset.id);
       if(app) window.open(app.url, '_blank');
+    });
+    tile.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('text/plain', tile.dataset.id);
+      e.dataTransfer.effectAllowed = 'move';
+      tile.classList.add('dragging');
+    });
+    tile.addEventListener('dragend', ()=>{
+      tile.classList.remove('dragging');
+      content.querySelectorAll('.tile.drag-over').forEach(t=>t.classList.remove('drag-over'));
+    });
+    tile.addEventListener('dragover', (e)=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      tile.classList.add('drag-over');
+    });
+    tile.addEventListener('dragleave', ()=>{
+      tile.classList.remove('drag-over');
+    });
+    tile.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      tile.classList.remove('drag-over');
+      const sourceId = e.dataTransfer.getData('text/plain');
+      const targetId = tile.dataset.id;
+      if(!sourceId || sourceId === targetId) return;
+      const fromIndex = apps.findIndex(a=>a.id===sourceId);
+      const toIndex = apps.findIndex(a=>a.id===targetId);
+      if(fromIndex === -1 || toIndex === -1) return;
+      const [moved] = apps.splice(fromIndex, 1);
+      apps.splice(toIndex, 0, moved);
+      persist();
+      render();
     });
   });
   content.querySelectorAll('[data-action="edit"]').forEach(btn=>{
@@ -929,8 +1121,21 @@ document.getElementById('saveBtn').addEventListener('click', ()=>{
 });
 
 document.getElementById('deleteBtn').addEventListener('click', ()=>{
+  const app = apps.find(a=>a.id===editingId);
+  if(!app) return;
+  document.getElementById('confirmTitle').textContent = `Remover "${app.name}"?`;
+  document.getElementById('confirmBody').textContent = 'Esta ação não pode ser desfeita.';
+  document.getElementById('confirmOverlay').classList.add('open');
+});
+
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+});
+
+document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
   apps = apps.filter(a=>a.id !== editingId);
   persist();
+  document.getElementById('confirmOverlay').classList.remove('open');
   closeModal();
   if(activeCategory !== 'Todas' && !apps.some(a=>a.category===activeCategory)){
     activeCategory = 'Todas';
@@ -938,8 +1143,63 @@ document.getElementById('deleteBtn').addEventListener('click', ()=>{
   render();
 });
 
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
+  if(e.target === document.getElementById('confirmOverlay')) document.getElementById('confirmOverlay').classList.remove('open');
+});
+
 document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+  const tag = (e.target.tagName || '').toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+  if(e.key === 'Escape'){
+    if(document.getElementById('confirmOverlay').classList.contains('open')){
+      document.getElementById('confirmOverlay').classList.remove('open');
+    } else if(overlay.classList.contains('open')){
+      closeModal();
+    }
+    return;
+  }
+  if(e.key === '/' && !isTyping){
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+/* ---------- Exportar / Importar ---------- */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(apps, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hub-apps.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!Array.isArray(parsed)) throw new Error('formato inválido');
+      apps = parsed.map(a=>({
+        id: a.id || cryptoId(),
+        name: a.name || 'Sem nome',
+        url: a.url || '#',
+        category: a.category || 'Geral',
+        color: a.color || COLORS[0],
+        pinned: !!a.pinned
+      }));
+      persist();
+      render();
+    }catch(err){
+      alert('Não foi possível ler este ficheiro. Verifica se é uma cópia exportada por este hub.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
 });
 
 init();
