@@ -347,47 +347,46 @@
 
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(148px,1fr));
+    grid-template-columns:repeat(auto-fill, minmax(168px,1fr));
     gap:12px;
   }
 
   .tile{
     position:relative;
-    background:var(--surface);
-    border:1px solid var(--border);
+    border:1px solid rgba(0,0,0,0.12);
     border-radius:var(--radius-tile);
-    padding:16px 14px;
+    padding:20px 18px;
     cursor:pointer;
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap:14px;
     text-decoration:none;
-    color:inherit;
     opacity:0;
+    box-shadow:0 1px 2px rgba(0,0,0,0.15);
     animation:rise .45s ease forwards;
-    transition:border-color .15s ease, transform .12s ease, background .15s ease, opacity .15s ease;
+    transition:transform .12s ease, box-shadow .15s ease, filter .15s ease, opacity .15s ease;
   }
   .tile:hover{
-    border-color:var(--accent);
-    transform:translateY(-2px);
-    background:var(--surface-2);
+    transform:translateY(-3px);
+    box-shadow:0 12px 22px rgba(0,0,0,0.28);
+    filter:brightness(1.06);
   }
   .tile.dragging{ opacity:0.35; }
-  .tile.drag-over{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
+  .tile.drag-over{ box-shadow:0 0 0 3px var(--accent); }
   @keyframes rise{
     from{ opacity:0; transform:translateY(8px); }
     to{ opacity:1; transform:translateY(0); }
   }
   .tile-icon{
     position:relative;
-    width:38px;height:38px;
-    border-radius:9px;
+    width:50px;height:50px;
+    border-radius:13px;
     display:flex;align-items:center;justify-content:center;
     font-family:'Sora',sans-serif;
     font-weight:600;
-    font-size:16px;
-    color:#0B0D12;
+    font-size:19px;
     overflow:hidden;
+    flex-shrink:0;
   }
   .tile-icon-img{
     position:absolute;
@@ -395,17 +394,17 @@
     width:100%;height:100%;
     object-fit:cover;
     background:#fff;
-    padding:7px;
+    padding:9px;
     box-sizing:border-box;
   }
   .tile-name{
-    font-size:14px;
-    font-weight:500;
+    font-size:14.5px;
+    font-weight:600;
     line-height:1.3;
   }
   .tile-url{
     font-size:11.5px;
-    color:var(--text-faint);
+    opacity:0.7;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -423,18 +422,22 @@
     width:22px;height:22px;
     border-radius:6px;
     border:none;
-    background:rgba(0,0,0,0.35);
-    color:var(--text-muted);
+    background:rgba(0,0,0,0.4);
+    color:#fff;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
     font-size:12px;
   }
-  .tile-action-btn:hover{ background:rgba(0,0,0,0.55); color:var(--text); }
+  .tile-action-btn:hover{ background:rgba(0,0,0,0.6); }
   .tile-pin{
     position:absolute;
     top:9px; left:9px;
-    color:var(--amber);
-    font-size:12px;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.35);
+    color:#FFD166;
+    font-size:10.5px;
+    display:flex;align-items:center;justify-content:center;
   }
 
   .empty-state{
@@ -934,17 +937,26 @@ function renderNav(){
   });
 }
 
+function getContrastColor(hex){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+  const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return luminance > 0.62 ? '#12151C' : '#FFFFFF';
+}
+
 function tileHtml(app){
   const initial = app.name.trim().charAt(0).toUpperCase() || '?';
   let hostname = '';
   try{ hostname = new URL(app.url).hostname.replace('www.',''); }catch(e){ hostname = app.url; }
+  const textColor = getContrastColor(app.color);
+  const iconBg = textColor === '#FFFFFF' ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.12)';
   return `
-    <div class="tile" draggable="true" style="animation-delay:${Math.random()*0.15}s" data-id="${app.id}">
+    <div class="tile" draggable="true" style="animation-delay:${Math.random()*0.15}s; background:${app.color}; color:${textColor};" data-id="${app.id}">
       ${app.pinned ? '<span class="tile-pin">★</span>' : ''}
       <div class="tile-actions">
         <button class="tile-action-btn" data-action="edit" data-id="${app.id}" title="Editar">✎</button>
       </div>
-      <div class="tile-icon" style="background:${app.color}">
+      <div class="tile-icon" style="background:${iconBg};">
         ${escapeHtml(initial)}
         ${hostname ? `<img class="tile-icon-img" alt="" loading="lazy" src="https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}" onerror="this.remove()">` : ''}
       </div>
