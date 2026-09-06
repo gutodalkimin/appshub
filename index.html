@@ -501,6 +501,7 @@
   .field input:focus, .field select:focus{ border-color:var(--accent); }
   .color-row{
     display:flex;
+    flex-wrap:wrap;
     gap:8px;
     margin-top:2px;
   }
@@ -707,7 +708,13 @@
 
 <script>
 const LOCAL_KEY = 'hub-apps-v1';
-const COLORS = ['#8B7FFF','#F5A65B','#5FB3A3','#E8735B','#6FA8DC','#D48FD4','#C9A96E'];
+const COLORS = [
+  '#524656','#cf4747','#e4dccb','#a6c4bc',
+  '#66aba5','#fcf3d3','#e26b5a','#f1b04e',
+  '#91493b','#d87f4f','#0a8392','#a5c6c4',
+  '#6a87a5','#eae5d9','#c76e7a','#895570',
+  '#b53866','#64beb5','#e4ddbf','#298f9f'
+];
 
 /* ---------- Firebase ----------
    1. Cria um projeto em https://console.firebase.google.com
