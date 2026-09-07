@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0D12'/%3E%3Crect x='6' y='6' width='8' height='8' rx='2' fill='%238B7FFF'/%3E%3Crect x='18' y='6' width='8' height='8' rx='2' fill='%238B7FFF' opacity='0.55'/%3E%3Crect x='6' y='18' width='8' height='8' rx='2' fill='%238B7FFF' opacity='0.55'/%3E%3Crect x='18' y='18' width='8' height='8' rx='2' fill='%238B7FFF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<meta name="theme-color" content="#0B0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hub">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg:#0B0D12;
+    --surface:#12151C;
+    --surface-2:#191D26;
+    --border:#242933;
+    --border-soft:#1C202A;
+    --text:#EDEFF3;
+    --text-muted:#8A90A0;
+    --text-faint:#565C6B;
+    --accent:#8B7FFF;
+    --accent-soft:rgba(139,127,255,0.14);
+    --amber:#F5A65B;
+    --ok:#5FB3A3;
+    --err:#E8735B;
+    --radius-tile:14px;
+    --radius-sm:6px;
+  }
+  :root[data-theme="light"]{
+    --bg:#F5F4F2;
+    --surface:#FFFFFF;
+    --surface-2:#EEECE8;
+    --border:#DEDBD5;
+    --border-soft:#E7E4DE;
+    --text:#1B1D22;
+    --text-muted:#63676F;
+    --text-faint:#9A9DA4;
+    --accent:#6C5CE0;
+    --accent-soft:rgba(108,92,224,0.10);
+    --amber:#B9752E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--accent-soft);color:var(--text);}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:230px;
+    flex-shrink:0;
+    background:var(--surface);
+    border-right:1px solid var(--border-soft);
+    padding:28px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+    height:100vh;
+    position:sticky;
+    top:0;
+  }
+  .brand{
+    padding:0 8px;
+  }
+  .brand-title{
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:-0.02em;
+  }
+  .brand-clock{
+    color:var(--text-muted);
+    font-size:13px;
+    margin-top:4px;
+  }
+  .sync-status{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:6px;
+  }
+  .theme-toggle{
+    position:fixed;
+    top:16px; right:16px;
+    z-index:60;
+    width:36px;height:36px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    font-size:15px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s ease;
+  }
+  .theme-toggle:hover{ transform:scale(1.06); }
+  .nav-list{
+    list-style:none;
+    margin:0;padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:9px 10px;
+    border-radius:var(--radius-sm);
+    color:var(--text-muted);
+    font-size:14.5px;
+    cursor:pointer;
+    border-left:2px solid transparent;
+    transition:background .15s ease, color .15s ease;
+  }
+  .nav-item:hover{ background:var(--surface-2); color:var(--text); }
+  .nav-item.active{
+    color:var(--text);
+    border-left:2px solid var(--accent);
+    background:var(--accent-soft);
+  }
+  .nav-count{
+    font-size:12px;
+    color:var(--text-faint);
+  }
+  .nav-item.active .nav-count{ color:var(--accent); }
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding:0 8px;
+    color:var(--text-faint);
+    font-size:12.5px;
+    line-height:1.5;
+  }
+  .auth-btn{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:8px;
+    font-size:13px;
+    font-family:inherit;
+    cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .auth-btn:hover{ border-color:var(--accent); }
+  .auth-note{
+    color:var(--text-faint);
+    font-size:11.5px;
+    margin-top:6px;
+  }
+  .auth-user{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+    color:var(--text-muted);
+    font-size:13px;
+  }
+  .auth-avatar{
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--surface-2);
+  }
+  .sync-dot{
+    display:inline-block;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--text-faint);
+    flex-shrink:0;
+  }
+  .sync-dot.ok{ background:var(--ok); }
+  .sync-dot.err{ background:var(--err); }
+  .sync-dot.pending{ background:var(--amber); }
+  .io-row{
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+  }
+  .io-btn{
+    flex:1;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    padding:7px 8px;
+    border-radius:7px;
+    font-size:11.5px;
+    font-family:inherit;
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .io-btn:hover{ border-color:var(--accent); color:var(--text); }
+
+  /* ---------- Login screen ---------- */
+  .login-screen{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .login-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:42px 36px;
+    width:340px;
+    max-width:90vw;
+    text-align:center;
+  }
+  .login-title{
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:25px;
+    letter-spacing:-0.02em;
+    margin-bottom:8px;
+  }
+  .login-sub{
+    color:var(--text-muted);
+    font-size:14px;
+    line-height:1.55;
+    margin-bottom:30px;
+  }
+  .google-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    background:#fff;
+    color:#1f1f1f;
+    border:none;
+    padding:12px 16px;
+    border-radius:10px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    transition:filter .15s ease, transform .1s ease;
+  }
+  .google-btn:hover{ filter:brightness(0.96); }
+  .google-btn:active{ transform:scale(0.98); }
+  .login-note{
+    margin-top:18px;
+    color:var(--text-faint);
+    font-size:12px;
+    line-height:1.5;
+  }
+  .login-error{
+    margin-top:14px;
+    color:#E8735B;
+    font-size:12.5px;
+    display:none;
+  }
+  .app-shell{
+    display:none;
+    width:100%;
+  }
+
+  /* ---------- Main ---------- */
+  .main{
+    flex:1;
+    padding:32px 40px 60px;
+    max-width:1100px;
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:34px;
+  }
+  .search-wrap{
+    flex:1;
+    position:relative;
+  }
+  .search-input{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:11px 14px 11px 38px;
+    border-radius:10px;
+    font-size:14.5px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .search-input:focus{ border-color:var(--accent); }
+  .search-input::placeholder{ color:var(--text-faint); }
+  .search-icon{
+    position:absolute;
+    left:13px;
+    top:50%;
+    transform:translateY(-50%);
+    width:15px;height:15px;
+    color:var(--text-faint);
+  }
+  .add-btn{
+    background:var(--accent);
+    color:#0B0D12;
+    border:none;
+    padding:11px 18px;
+    border-radius:10px;
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:filter .15s ease, transform .1s ease;
+  }
+  .add-btn:hover{ filter:brightness(1.08); }
+  .add-btn:active{ transform:scale(0.97); }
+
+  .section{
+    margin-bottom:38px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .section-title{
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:17px;
+  }
+  .section-sub{
+    color:var(--text-faint);
+    font-size:13px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(168px,1fr));
+    gap:12px;
+  }
+
+  .tile{
+    position:relative;
+    border:1px solid rgba(0,0,0,0.12);
+    border-radius:var(--radius-tile);
+    padding:20px 18px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    text-decoration:none;
+    opacity:0;
+    box-shadow:0 1px 2px rgba(0,0,0,0.15);
+    animation:rise .45s ease forwards;
+    transition:transform .12s ease, box-shadow .15s ease, filter .15s ease, opacity .15s ease;
+  }
+  .tile:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 22px rgba(0,0,0,0.28);
+    filter:brightness(1.06);
+  }
+  .tile.dragging{ opacity:0.35; }
+  .tile.drag-over{ box-shadow:0 0 0 3px var(--accent); }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .tile-icon{
+    position:relative;
+    width:50px;height:50px;
+    border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:19px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .tile-icon-img{
+    position:absolute;
+    inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    background:#fff;
+    padding:9px;
+    box-sizing:border-box;
+  }
+  .tile-name{
+    font-size:14.5px;
+    font-weight:600;
+    line-height:1.3;
+  }
+  .tile-url{
+    font-size:11.5px;
+    opacity:0.7;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .tile-actions{
+    position:absolute;
+    top:8px; right:8px;
+    display:flex;
+    gap:4px;
+    opacity:0;
+    transition:opacity .12s ease;
+  }
+  .tile:hover .tile-actions{ opacity:1; }
+  .tile-action-btn{
+    width:22px;height:22px;
+    border-radius:6px;
+    border:none;
+    background:rgba(0,0,0,0.4);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:12px;
+  }
+  .tile-action-btn:hover{ background:rgba(0,0,0,0.6); }
+  .tile-pin{
+    position:absolute;
+    top:9px; left:9px;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.35);
+    color:#FFD166;
+    font-size:10.5px;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .empty-state{
+    border:1px dashed var(--border);
+    border-radius:var(--radius-tile);
+    padding:36px 20px;
+    text-align:center;
+    color:var(--text-muted);
+    font-size:14px;
+  }
+  .empty-state span{
+    display:block;
+    color:var(--text-faint);
+    font-size:12.5px;
+    margin-top:4px;
+  }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(6,7,10,0.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    backdrop-filter:blur(2px);
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:26px;
+    width:380px;
+    max-width:90vw;
+  }
+  .modal-title{
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    margin-bottom:18px;
+  }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--text-muted);
+    margin-bottom:6px;
+  }
+  .field input, .field select{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 11px;
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+  }
+  .field input:focus, .field select:focus{ border-color:var(--accent); }
+  .color-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:2px;
+  }
+  .color-dot{
+    width:24px;height:24px;
+    border-radius:50%;
+    cursor:pointer;
+    border:2px solid transparent;
+  }
+  .color-dot.selected{ border-color:var(--text); }
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13.5px;
+    color:var(--text-muted);
+    margin-bottom:18px;
+  }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+  }
+  .btn-secondary{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn-secondary:hover{ color:var(--text); border-color:var(--text-faint); }
+  .btn-primary{
+    background:var(--accent);
+    border:none;
+    color:#0B0D12;
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:'Sora',sans-serif;
+  }
+  .btn-danger-text{
+    color:#E8735B;
+    background:none;
+    border:none;
+    font-size:12.5px;
+    cursor:pointer;
+    padding:0;
+  }
+  .confirm-modal{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    width:320px;
+    max-width:90vw;
+  }
+  .confirm-title{
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    margin-bottom:8px;
+  }
+  .confirm-body{
+    color:var(--text-muted);
+    font-size:13.5px;
+    line-height:1.5;
+    margin-bottom:20px;
+  }
+  .btn-danger{
+    background:var(--err);
+    border:none;
+    color:#fff;
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:'Sora',sans-serif;
+  }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:8px; }
+
+  @media (max-width:720px){
+    body{ flex-direction:column; }
+    .sidebar{
+      width:100%;
+      height:auto;
+      position:static;
+      flex-direction:row;
+      align-items:center;
+      overflow-x:auto;
+      padding:16px;
+    }
+    .brand{ padding:0; flex-shrink:0; margin-right:16px; }
+    .brand-clock{ display:none; }
+    .nav-list{ flex-direction:row; }
+    .nav-item{ white-space:nowrap; border-left:none; border-bottom:2px solid transparent; }
+    .nav-item.active{ border-left:none; border-bottom:2px solid var(--accent); }
+    .sidebar-footer{ display:none; }
+    .main{ padding:24px 18px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro">🌙</button>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">Hub</div>
+    <div class="login-sub">Inicia sessão para acederes às tuas aplicações, sincronizadas em todos os dispositivos.</div>
+    <button class="google-btn" id="googleSignInBtn">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.96 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.97H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.03l3-2.33z"/>
+        <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.97l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/>
+      </svg>
+      Continuar com o Google
+    </button>
+    <div class="login-error" id="loginError">Não foi possível iniciar sessão. Tenta novamente.</div>
+    <div class="login-note">Os teus dados ficam associados só à tua conta.</div>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-title">Hub</div>
+    <div class="brand-clock" id="clock"></div>
+    <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">A ligar…</span></div>
+  </div>
+  <ul class="nav-list" id="navList"></ul>
+  <div class="sidebar-footer">
+    <div id="authArea"></div>
+    <div class="io-row">
+      <button class="io-btn" id="exportBtn">Exportar</button>
+      <label class="io-btn" style="text-align:center;display:block;">Importar<input id="importInput" type="file" accept="application/json" style="display:none;"></label>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="searchInput" placeholder="Procurar aplicações...">
+    </div>
+    <button class="add-btn" id="openAddBtn">+ Adicionar app</button>
+  </div>
+
+  <div id="content"></div>
+</main>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Nova aplicação</div>
+    <div class="field">
+      <label>Nome</label>
+      <input id="fName" placeholder="ex: Notion">
+    </div>
+    <div class="field">
+      <label>Endereço (URL)</label>
+      <input id="fUrl" placeholder="ex: https://notion.so">
+    </div>
+    <div class="field">
+      <label>Categoria</label>
+      <input id="fCategory" list="categoryList" placeholder="ex: Trabalho">
+      <datalist id="categoryList"></datalist>
+    </div>
+    <div class="field">
+      <label>Cor</label>
+      <div class="color-row" id="colorRow"></div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="fPin">
+      <label for="fPin" style="margin:0;">Fixar em acesso rápido</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger-text" id="deleteBtn" style="display:none;margin-right:auto;">Remover</button>
+      <button class="btn-secondary" id="cancelBtn">Cancelar</button>
+      <button class="btn-primary" id="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-title" id="confirmTitle">Remover aplicação?</div>
+    <div class="confirm-body" id="confirmBody">Esta ação não pode ser desfeita.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="confirmCancelBtn">Cancelar</button>
+      <button class="btn-danger" id="confirmOkBtn">Remover</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOCAL_KEY = 'hub-apps-v1';
+const COLORS = [
+  '#524656','#cf4747','#e4dccb','#a6c4bc',
+  '#66aba5','#fcf3d3','#e26b5a','#f1b04e',
+  '#91493b','#d87f4f','#0a8392','#a5c6c4',
+  '#6a87a5','#eae5d9','#c76e7a','#895570',
+  '#b53866','#64beb5','#e4ddbf','#298f9f'
+];
+
+/* ---------- Firebase ----------
+   1. Cria um projeto em https://console.firebase.google.com
+   2. Ativa Authentication > Sign-in method > Google
+   3. Cria uma base de dados em Firestore Database (modo produção)
+   4. Em Firestore > Regras, cola:
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /hubs/{userId} {
+              allow read, write: if request.auth != null && request.auth.uid == userId;
+            }
+          }
+        }
+   5. Em Definições do projeto > Geral, copia a config da app web e cola abaixo.
+------------------------------------ */
+const firebaseConfig = {
+  apiKey: "AIzaSyAE2W69g2EMObYj4dztEDIMYO82KaLIpSA",
+  authDomain: "planeador-viagem.firebaseapp.com",
+  projectId: "planeador-viagem",
+  storageBucket: "planeador-viagem.firebasestorage.app",
+  messagingSenderId: "901648697808",
+  appId: "1:901648697808:web:6e76ed1a9c9ff84db2d1d5"
+};
+
+let fbEnabled = false;
+try{
+  if(firebaseConfig.apiKey !== "COLOCA_AQUI"){
+    firebase.initializeApp(firebaseConfig);
+    fbEnabled = true;
+  }
+}catch(e){ console.warn('Firebase não configurado corretamente.', e); }
+
+const auth = fbEnabled ? firebase.auth() : null;
+const db = fbEnabled ? firebase.firestore() : null;
+let currentUser = null;
+let unsubscribeSnapshot = null;
+
+let apps = [];
+let activeCategory = 'Todas';
+let searchQuery = '';
+let editingId = null;
+
+const seed = [
+  {id:cryptoId(), name:'Gmail', url:'https://mail.google.com', category:'Trabalho', color:COLORS[0], pinned:true},
+  {id:cryptoId(), name:'Google Calendar', url:'https://calendar.google.com', category:'Trabalho', color:COLORS[5], pinned:true},
+  {id:cryptoId(), name:'Notion', url:'https://notion.so', category:'Trabalho', color:COLORS[1], pinned:false},
+  {id:cryptoId(), name:'GitHub', url:'https://github.com', category:'Dev', color:COLORS[2], pinned:true},
+  {id:cryptoId(), name:'Figma', url:'https://figma.com', category:'Dev', color:COLORS[3], pinned:false},
+  {id:cryptoId(), name:'Spotify', url:'https://open.spotify.com', category:'Pessoal', color:COLORS[2], pinned:false},
+  {id:cryptoId(), name:'Instagram', url:'https://instagram.com', category:'Social', color:COLORS[6], pinned:false},
+];
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  try{ localStorage.setItem('hub-theme-pref', theme); }catch(e){}
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '🌙' : '☀️';
+}
+function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('hub-theme-pref'); }catch(e){}
+  applyTheme(saved || 'dark');
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'light' ? 'dark' : 'light');
+});
+initTheme();
+
+function setSyncStatus(state, text){
+  document.getElementById('syncDot').className = 'sync-dot' + (state ? ' ' + state : '');
+  document.getElementById('syncText').textContent = text;
+}
+
+function cryptoId(){
+  return Math.random().toString(36).slice(2,10);
+}
+
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LOCAL_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return (parsed && parsed.length) ? parsed : null;
+  }catch(e){ return null; }
+}
+
+function saveLocal(){
+  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(apps)); }catch(e){}
+}
+
+async function persist(){
+  saveLocal();
+  if(fbEnabled && currentUser){
+    setSyncStatus('pending', 'A guardar…');
+    try{
+      await db.collection('hubs').doc(currentUser.uid).set({ apps });
+      setSyncStatus('ok', 'Sincronizado');
+    }catch(e){
+      console.error('Não foi possível sincronizar com a nuvem', e);
+      setSyncStatus('err', 'Falha ao sincronizar');
+    }
+  }
+}
+
+function showLogin(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'none';
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+}
+
+function renderAuthArea(){
+  const el = document.getElementById('authArea');
+  if(!currentUser) return;
+  el.innerHTML = `
+    <div class="auth-user">
+      ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" class="auth-avatar">` : ''}
+      <span>${escapeHtml(currentUser.displayName || currentUser.email || 'Sessão iniciada')}</span>
+    </div>
+    <button class="auth-btn" id="signOutBtn">Terminar sessão</button>
+  `;
+  document.getElementById('signOutBtn').addEventListener('click', ()=>auth.signOut());
+}
+
+function attemptSignIn(){
+  const errorEl = document.getElementById('loginError');
+  errorEl.style.display = 'none';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err=>{
+    console.error('Erro no login', err);
+    errorEl.style.display = 'block';
+  });
+}
+
+async function init(){
+  if(!fbEnabled){
+    apps = loadLocal() || seed;
+    showApp();
+    render();
+    setSyncStatus('', 'Guardado só neste dispositivo');
+    return;
+  }
+
+  document.getElementById('googleSignInBtn').addEventListener('click', attemptSignIn);
+
+  auth.onAuthStateChanged(async user=>{
+    currentUser = user;
+
+    if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+
+    if(!user){
+      showLogin();
+      return;
+    }
+
+    showApp();
+    renderAuthArea();
+    apps = loadLocal() || seed;
+    render();
+    setSyncStatus('pending', 'A ligar à base de dados…');
+
+    const ref = db.collection('hubs').doc(user.uid);
+    try{
+      const snap = await ref.get();
+      if(snap.exists && snap.data().apps && snap.data().apps.length){
+        apps = snap.data().apps;
+      } else {
+        await ref.set({ apps });
+      }
+      saveLocal();
+      render();
+      setSyncStatus('ok', 'Sincronizado');
+
+      unsubscribeSnapshot = ref.onSnapshot(doc=>{
+        if(doc.exists && !doc.metadata.hasPendingWrites){
+          apps = doc.data().apps || apps;
+          saveLocal();
+          render();
+          setSyncStatus('ok', 'Sincronizado');
+        }
+      }, err=>{
+        console.error(err);
+        setSyncStatus('err', 'Sem ligação à base de dados');
+      });
+    }catch(e){
+      console.error('Erro a carregar dados da nuvem', e);
+      setSyncStatus('err', 'Sem ligação à base de dados');
+    }
+  });
+}
+
+function getCategories(){
+  const set = [...new Set(apps.map(a=>a.category))];
+  return set.sort((a,b)=>a.localeCompare(b));
+}
+
+function updateClock(){
+  const now = new Date();
+  const days = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${days[now.getDay()]}, ${hh}:${mm}`;
+}
+updateClock();
+setInterval(updateClock, 1000*30);
+
+function renderNav(){
+  const categories = getCategories();
+  const navList = document.getElementById('navList');
+  const counts = {Todas: apps.length};
+  categories.forEach(c => counts[c] = apps.filter(a=>a.category===c).length);
+  const items = ['Todas', ...categories];
+  navList.innerHTML = items.map(cat => `
+    <li class="nav-item ${activeCategory===cat?'active':''}" data-cat="${escapeAttr(cat)}">
+      <span>${escapeHtml(cat)}</span>
+      <span class="nav-count">${counts[cat]}</span>
+    </li>
+  `).join('');
+  navList.querySelectorAll('.nav-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      activeCategory = el.dataset.cat;
+      render();
+    });
+  });
+}
+
+function hubIconFallback(img){
+  const stage = parseInt(img.dataset.stage || '0', 10);
+  const hostname = img.dataset.hostname;
+  const attempts = [
+    `https://${hostname}/favicon.svg`,
+    `https://${hostname}/favicon.png`,
+    `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}`
+  ];
+  if(stage < attempts.length){
+    img.dataset.stage = String(stage + 1);
+    img.src = attempts[stage];
+  } else {
+    img.remove();
+  }
+}
+
+function getContrastColor(hex){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+  const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return luminance > 0.62 ? '#12151C' : '#FFFFFF';
+}
+
+function tileHtml(app){
+  const initial = app.name.trim().charAt(0).toUpperCase() || '?';
+  let hostname = '';
+  try{ hostname = new URL(app.url).hostname.replace('www.',''); }catch(e){ hostname = app.url; }
+  const textColor = getContrastColor(app.color);
+  const iconBg = textColor === '#FFFFFF' ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.12)';
+  return `
+    <div class="tile" draggable="true" style="animation-delay:${Math.random()*0.15}s; background:${app.color}; color:${textColor};" data-id="${app.id}">
+      ${app.pinned ? '<span class="tile-pin">★</span>' : ''}
+      <div class="tile-actions">
+        <button class="tile-action-btn" data-action="edit" data-id="${app.id}" title="Editar">✎</button>
+      </div>
+      <div class="tile-icon" style="background:${iconBg};">
+        ${escapeHtml(initial)}
+        ${hostname ? `<img class="tile-icon-img" alt="" loading="lazy" data-hostname="${escapeAttr(hostname)}" data-stage="0" src="https://${hostname}/favicon.ico" onerror="hubIconFallback(this)">` : ''}
+      </div>
+      <div>
+        <div class="tile-name">${escapeHtml(app.name)}</div>
+        <div class="tile-url">${escapeHtml(hostname)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function render(){
+  renderNav();
+  const content = document.getElementById('content');
+  const q = searchQuery.trim().toLowerCase();
+
+  let filtered = apps.filter(a=>{
+    const matchesQuery = !q || a.name.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
+    return matchesQuery;
+  });
+
+  let html = '';
+
+  if(activeCategory === 'Todas'){
+    const pinned = filtered.filter(a=>a.pinned);
+    if(pinned.length){
+      html += `<div class="section"><div class="section-head"><div class="section-title">Acesso rápido</div></div>
+        <div class="grid">${pinned.map(tileHtml).join('')}</div></div>`;
+    }
+    const categories = getCategories();
+    categories.forEach(cat=>{
+      const inCat = filtered.filter(a=>a.category===cat);
+      if(!inCat.length) return;
+      html += `<div class="section"><div class="section-head"><div class="section-title">${escapeHtml(cat)}</div>
+        <div class="section-sub">${inCat.length}</div></div>
+        <div class="grid">${inCat.map(tileHtml).join('')}</div></div>`;
+    });
+    if(!filtered.length){
+      html = emptyStateHtml();
+    }
+  } else {
+    const inCat = filtered.filter(a=>a.category===activeCategory);
+    if(inCat.length){
+      html = `<div class="section"><div class="grid">${inCat.map(tileHtml).join('')}</div></div>`;
+    } else {
+      html = emptyStateHtml();
+    }
+  }
+
+  content.innerHTML = html;
+
+  content.querySelectorAll('.tile').forEach(tile=>{
+    tile.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-action="edit"]')) return;
+      const app = apps.find(a=>a.id===tile.dataset.id);
+      if(app) window.open(app.url, '_blank');
+    });
+    tile.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('text/plain', tile.dataset.id);
+      e.dataTransfer.effectAllowed = 'move';
+      tile.classList.add('dragging');
+    });
+    tile.addEventListener('dragend', ()=>{
+      tile.classList.remove('dragging');
+      content.querySelectorAll('.tile.drag-over').forEach(t=>t.classList.remove('drag-over'));
+    });
+    tile.addEventListener('dragover', (e)=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      tile.classList.add('drag-over');
+    });
+    tile.addEventListener('dragleave', ()=>{
+      tile.classList.remove('drag-over');
+    });
+    tile.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      tile.classList.remove('drag-over');
+      const sourceId = e.dataTransfer.getData('text/plain');
+      const targetId = tile.dataset.id;
+      if(!sourceId || sourceId === targetId) return;
+      const fromIndex = apps.findIndex(a=>a.id===sourceId);
+      const toIndex = apps.findIndex(a=>a.id===targetId);
+      if(fromIndex === -1 || toIndex === -1) return;
+      const [moved] = apps.splice(fromIndex, 1);
+      apps.splice(toIndex, 0, moved);
+      persist();
+      render();
+    });
+  });
+  content.querySelectorAll('[data-action="edit"]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openModal(btn.dataset.id);
+    });
+  });
+}
+
+function emptyStateHtml(){
+  return `<div class="empty-state">Sem aplicações aqui.<span>Experimenta outra categoria ou adiciona uma nova app.</span></div>`;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+/* ---------- Search ---------- */
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchQuery = e.target.value;
+  render();
+});
+
+/* ---------- Modal ---------- */
+const overlay = document.getElementById('overlay');
+const colorRow = document.getElementById('colorRow');
+let selectedColor = COLORS[0];
+
+function buildColorRow(){
+  colorRow.innerHTML = COLORS.map(c=>`<div class="color-dot ${c===selectedColor?'selected':''}" style="background:${c}" data-color="${c}"></div>`).join('');
+  colorRow.querySelectorAll('.color-dot').forEach(dot=>{
+    dot.addEventListener('click', ()=>{
+      selectedColor = dot.dataset.color;
+      buildColorRow();
+    });
+  });
+}
+
+function openModal(id){
+  editingId = id || null;
+  const app = id ? apps.find(a=>a.id===id) : null;
+  document.getElementById('modalTitle').textContent = app ? 'Editar aplicação' : 'Nova aplicação';
+  document.getElementById('fName').value = app ? app.name : '';
+  document.getElementById('fUrl').value = app ? app.url : '';
+  document.getElementById('fCategory').value = app ? app.category : '';
+  document.getElementById('fPin').checked = app ? !!app.pinned : false;
+  selectedColor = app ? app.color : COLORS[apps.length % COLORS.length];
+  buildColorRow();
+  document.getElementById('deleteBtn').style.display = app ? 'block' : 'none';
+
+  const datalist = document.getElementById('categoryList');
+  datalist.innerHTML = getCategories().map(c=>`<option value="${escapeAttr(c)}">`).join('');
+
+  overlay.classList.add('open');
+  document.getElementById('fName').focus();
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('openAddBtn').addEventListener('click', ()=>openModal(null));
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('fName').value.trim();
+  let url = document.getElementById('fUrl').value.trim();
+  const category = document.getElementById('fCategory').value.trim() || 'Geral';
+  const pinned = document.getElementById('fPin').checked;
+
+  if(!name || !url) return;
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  if(editingId){
+    const app = apps.find(a=>a.id===editingId);
+    Object.assign(app, {name, url, category, color:selectedColor, pinned});
+  } else {
+    apps.push({id:cryptoId(), name, url, category, color:selectedColor, pinned});
+  }
+  persist();
+  closeModal();
+  render();
+});
+
+document.getElementById('deleteBtn').addEventListener('click', ()=>{
+  const app = apps.find(a=>a.id===editingId);
+  if(!app) return;
+  document.getElementById('confirmTitle').textContent = `Remover "${app.name}"?`;
+  document.getElementById('confirmBody').textContent = 'Esta ação não pode ser desfeita.';
+  document.getElementById('confirmOverlay').classList.add('open');
+});
+
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+});
+
+document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
+  apps = apps.filter(a=>a.id !== editingId);
+  persist();
+  document.getElementById('confirmOverlay').classList.remove('open');
+  closeModal();
+  if(activeCategory !== 'Todas' && !apps.some(a=>a.category===activeCategory)){
+    activeCategory = 'Todas';
+  }
+  render();
+});
+
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
+  if(e.target === document.getElementById('confirmOverlay')) document.getElementById('confirmOverlay').classList.remove('open');
+});
+
+document.addEventListener('keydown', (e)=>{
+  const tag = (e.target.tagName || '').toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+  if(e.key === 'Escape'){
+    if(document.getElementById('confirmOverlay').classList.contains('open')){
+      document.getElementById('confirmOverlay').classList.remove('open');
+    } else if(overlay.classList.contains('open')){
+      closeModal();
+    }
+    return;
+  }
+  if(e.key === '/' && !isTyping){
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+/* ---------- Exportar / Importar ---------- */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(apps, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hub-apps.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!Array.isArray(parsed)) throw new Error('formato inválido');
+      apps = parsed.map(a=>({
+        id: a.id || cryptoId(),
+        name: a.name || 'Sem nome',
+        url: a.url || '#',
+        category: a.category || 'Geral',
+        color: a.color || COLORS[0],
+        pinned: !!a.pinned
+      }));
+      persist();
+      render();
+    }catch(err){
+      alert('Não foi possível ler este ficheiro. Verifica se é uma cópia exportada por este hub.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+init();
+</script>
+</body>
+</html>
