@@ -947,10 +947,11 @@ function renderNav(){
 
 function hubIconFallback(img){
   const stage = parseInt(img.dataset.stage || '0', 10);
+  const baseDir = img.dataset.basedir;
   const hostname = img.dataset.hostname;
   const attempts = [
-    `https://${hostname}/favicon.svg`,
-    `https://${hostname}/favicon.png`,
+    `${baseDir}favicon.svg`,
+    `${baseDir}favicon.png`,
     `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}`
   ];
   if(stage < attempts.length){
@@ -968,10 +969,25 @@ function getContrastColor(hex){
   return luminance > 0.62 ? '#12151C' : '#FFFFFF';
 }
 
+function getBaseDir(url){
+  try{
+    const u = new URL(url);
+    if(u.pathname.endsWith('/')) return u.origin + u.pathname;
+    const lastSegment = u.pathname.split('/').pop();
+    if(lastSegment && lastSegment.includes('.')){
+      // é um ficheiro (ex: index.html) — usa a pasta que o contém
+      return u.origin + u.pathname.substring(0, u.pathname.lastIndexOf('/') + 1);
+    }
+    // sem extensão no fim — trata como pasta (ex: /appshub/planeador-viagem)
+    return u.origin + u.pathname + '/';
+  }catch(e){ return ''; }
+}
+
 function tileHtml(app){
   const initial = app.name.trim().charAt(0).toUpperCase() || '?';
   let hostname = '';
   try{ hostname = new URL(app.url).hostname.replace('www.',''); }catch(e){ hostname = app.url; }
+  const baseDir = getBaseDir(app.url);
   const textColor = getContrastColor(app.color);
   const iconBg = textColor === '#FFFFFF' ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.12)';
   return `
@@ -982,7 +998,7 @@ function tileHtml(app){
       </div>
       <div class="tile-icon" style="background:${iconBg};">
         ${escapeHtml(initial)}
-        ${hostname ? `<img class="tile-icon-img" alt="" loading="lazy" data-hostname="${escapeAttr(hostname)}" data-stage="0" src="https://${hostname}/favicon.ico" onerror="hubIconFallback(this)">` : ''}
+        ${baseDir ? `<img class="tile-icon-img" alt="" loading="lazy" data-hostname="${escapeAttr(hostname)}" data-basedir="${escapeAttr(baseDir)}" data-stage="0" src="${baseDir}favicon.ico" onerror="hubIconFallback(this)">` : ''}
       </div>
       <div>
         <div class="tile-name">${escapeHtml(app.name)}</div>
