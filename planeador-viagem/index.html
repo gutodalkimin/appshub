@@ -319,6 +319,20 @@
     .user-badge span { display: none; }
     .user-badge { right: 62px; padding: 5px; }
   }
+
+  @media (max-width: 640px) {
+    .theme-toggle { width: 34px; height: 34px; font-size: 15px; }
+    .user-badge { top: 14px; right: 56px; }
+    header { padding-top: 56px; }
+    .tabbar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab { white-space: nowrap; flex-shrink: 0; }
+    .trip-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .trip-card-body { padding: 10px 12px 12px; }
+    .trip-card-body h3 { font-size: 14.5px; }
+    .trip-card .cover, .trip-card .cover-placeholder { height: 96px; }
+    h1 { font-size: 26px; }
+    #tripNameInput { font-size: 26px; }
+  }
 </style>
 </head>
 <body>
