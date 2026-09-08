@@ -595,6 +595,7 @@
 
   @media (max-width:720px){
     body{ flex-direction:column; }
+    .app-shell{ flex-direction:column; }
     .theme-toggle{ top:auto; bottom:16px; right:16px; }
     .sidebar{
       width:100%;
@@ -624,6 +625,12 @@
     .io-row{ margin-top:0; }
     .topbar{ flex-wrap:wrap; }
     .add-btn{ flex:1 1 auto; }
+    .grid{ grid-template-columns:repeat(auto-fill, minmax(118px,1fr)); gap:10px; }
+    .tile{ padding:13px 12px; gap:9px; }
+    .tile-icon{ width:36px; height:36px; border-radius:9px; font-size:14px; }
+    .tile-name{ font-size:13px; }
+    .tile-url{ font-size:10.5px; }
+    .section-title{ font-size:15.5px; }
     .main{ padding:24px 18px 70px; }
   }
 </style>
