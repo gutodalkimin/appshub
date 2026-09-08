@@ -474,6 +474,8 @@
     padding:26px;
     width:380px;
     max-width:90vw;
+    max-height:85vh;
+    overflow-y:auto;
   }
   .modal-title{
     font-family:'Sora',sans-serif;
@@ -593,6 +595,7 @@
 
   @media (max-width:720px){
     body{ flex-direction:column; }
+    .theme-toggle{ top:auto; bottom:16px; right:16px; }
     .sidebar{
       width:100%;
       height:auto;
@@ -604,11 +607,24 @@
     }
     .brand{ padding:0; flex-shrink:0; margin-right:16px; }
     .brand-clock{ display:none; }
-    .nav-list{ flex-direction:row; }
+    .nav-list{ flex-direction:row; flex-shrink:0; }
     .nav-item{ white-space:nowrap; border-left:none; border-bottom:2px solid transparent; }
     .nav-item.active{ border-left:none; border-bottom:2px solid var(--accent); }
-    .sidebar-footer{ display:none; }
-    .main{ padding:24px 18px 50px; }
+    .sidebar-footer{
+      display:flex;
+      flex-direction:row;
+      align-items:center;
+      gap:10px;
+      flex-shrink:0;
+      margin-left:16px;
+      padding-left:16px;
+      border-left:1px solid var(--border-soft);
+    }
+    .auth-user{ margin-bottom:0; white-space:nowrap; }
+    .io-row{ margin-top:0; }
+    .topbar{ flex-wrap:wrap; }
+    .add-btn{ flex:1 1 auto; }
+    .main{ padding:24px 18px 70px; }
   }
 </style>
 </head>
@@ -865,9 +881,9 @@ async function init(){
   document.getElementById('googleSignInBtn').addEventListener('click', attemptSignIn);
 
   auth.onAuthStateChanged(async user=>{
-    currentUser = user;
-
     if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+
+    currentUser = user;
 
     if(!user){
       showLogin();
