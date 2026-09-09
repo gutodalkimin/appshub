@@ -556,10 +556,6 @@
     <button class="ghost unlink-btn" id="unlinkBtn" style="display:none;" title="Desvincular arquivo">Desvincular</button>
   </div>
 
-  <div class="banner" id="storageBanner" style="display:none;">
-    ℹ Seus dados já são salvos automaticamente neste navegador. Vincular uma planilha (recurso do Chrome/Edge no computador) é opcional — use "Exportar Excel" quando quiser gerar um arquivo para compartilhar ou arquivar.
-  </div>
-
   <div class="table-shell" id="tableShell">
     <!-- filled by JS -->
   </div>
@@ -1121,15 +1117,12 @@ function updateLinkUI(){
   const row = document.getElementById('linkStatusRow');
   const text = document.getElementById('linkStatusText');
   const unlinkBtn = document.getElementById('unlinkBtn');
-  const banner = document.getElementById('storageBanner');
 
   if(!supportsFS){
     btn.style.display = 'none';
     row.style.display = 'none';
-    banner.style.display = 'block';
     return;
   }
-  banner.style.display = 'none';
   row.style.display = 'flex';
 
   if(linkState === 'linked' && fileHandle){
