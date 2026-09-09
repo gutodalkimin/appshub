@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carteira B3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1016'/%3E%3Cpath d='M7 22 L12 14 L17 18 L25 8' stroke='%233ddc97' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='25' cy='8' r='2' fill='%233ddc97'/%3E%3C/svg%3E">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Firebase (SDK "compat") -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+  // >>> TROQUE pelo firebaseConfig do SEU projeto (Firebase Console > Configurações > Seus apps) <<<
+  const firebaseConfig = {
+    apiKey: "AIzaSyCWgUl1cxjY3W7DO_Bf6Orqe6stQpfssWw",
+    authDomain: "carteira-7c100.firebaseapp.com",
+    projectId: "carteira-7c100",
+    storageBucket: "carteira-7c100.firebasestorage.app",
+    messagingSenderId: "743874427208",
+    appId: "1:743874427208:web:f1e2fbdc8ad06cdd259b7d"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  db.enablePersistence({ synchronizeTabs: true }).catch(err=>{
+    console.warn('Persistência offline do Firestore não pôde ser ativada:', err.code);
+  });
+</script>
+
+<style>
+  *{box-sizing:border-box;}
+  :root{
+    --bg: #0b0f16;
+    --panel: #121821;
+    --panel-2: #171f2b;
+    --border: #232d3c;
+    --text: #e7ecf3;
+    --text-muted: #8996a8;
+    --accent: #3ddc97;
+    --accent-dim: #1f5c46;
+    --up: #3ddc97;
+    --down: #ff6b6b;
+    --warn: #f0b429;
+    --danger: #e8607a;
+    --mono: 'Consolas', 'SFMono-Regular', 'Cascadia Mono', ui-monospace, monospace;
+    --display: 'Segoe UI', -apple-system, sans-serif;
+    --body: 'Segoe UI', -apple-system, sans-serif;
+  }
+  body.light{
+    --bg:#eceef1; --panel:#ffffff; --panel-2:#f2f3f6; --border:#d3d8e0;
+    --text:#161b22; --text-muted:#5a6473; --accent-dim:#d3f3e5;
+  }
+  html,body{height:100%;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:var(--body);font-size:14px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1400px;margin:0 auto;padding:26px 28px 60px;}
+
+  /* ---------- Login ---------- */
+  .auth-gate{
+    position:fixed;inset:0;z-index:200;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .auth-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:16px;
+    padding:36px 32px;max-width:380px;width:100%;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .auth-logo{display:flex;justify-content:center;margin-bottom:16px;}
+  .auth-title{font-family:var(--display);font-size:22px;font-weight:700;margin:0 0 10px;}
+  .auth-sub{font-size:13px;color:var(--text-muted);line-height:1.5;margin:0 0 24px;}
+  .google-btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;background:#fff;color:#1f1f1f;border:1px solid #dadce0;
+    border-radius:8px;padding:11px 16px;font-size:14px;font-weight:500;
+    font-family:var(--body);cursor:pointer;
+  }
+  .google-btn:hover{box-shadow:0 1px 6px rgba(0,0,0,0.2);}
+  .auth-error{
+    margin-top:16px;font-size:12.5px;color:var(--danger);
+    background:rgba(232,96,122,0.08);border:1px solid var(--danger);
+    border-radius:8px;padding:9px 12px;text-align:left;
+  }
+  .user-bar{
+    position:fixed;top:14px;right:20px;z-index:150;
+    display:flex;align-items:center;gap:10px;
+    background:var(--panel);border:1px solid var(--border);border-radius:24px;
+    padding:5px 8px 5px 6px;box-shadow:0 6px 20px rgba(0,0,0,0.25);
+  }
+  .user-avatar{width:26px;height:26px;border-radius:50%;background:var(--panel-2);}
+  .user-email{font-size:12px;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .user-bar button{padding:5px 12px;font-size:12px;}
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--border);
+    padding-bottom:20px;margin-bottom:22px;
+  }
+  .title-block{flex:0 1 320px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+    color:var(--accent);text-transform:uppercase;margin-bottom:6px;
+  }
+  h1{font-family:var(--display);font-size:28px;font-weight:700;margin:0;letter-spacing:-0.01em;}
+  .subtitle{color:var(--text-muted);font-size:13.5px;margin-top:6px;}
+
+  /* ---------- Barra de cotações ---------- */
+  .quotes-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .quote-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:10px 16px;min-width:118px;text-align:center;position:relative;
+  }
+  .quote-card .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+  .quote-card .val{font-family:var(--mono);font-size:17px;font-weight:600;margin-top:3px;}
+  .quote-card .chg{font-family:var(--mono);font-size:11px;margin-top:2px;}
+  .quote-card .chg.up{color:var(--up);}
+  .quote-card .chg.down{color:var(--down);}
+  .quote-refresh-btn{
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:0 14px;cursor:pointer;color:var(--text-muted);font-size:15px;
+    display:flex;align-items:center;justify-content:center;align-self:stretch;
+  }
+  .quote-refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .quote-refresh-btn.spinning{animation:spin 0.8s linear infinite;}
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .quotes-updated{font-size:10.5px;color:var(--text-muted);margin-top:4px;text-align:right;}
+
+  /* ---------- Resumo da carteira ---------- */
+  .summary-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+  .summary-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:14px 20px;flex:1;min-width:170px;
+  }
+  .summary-card .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;}
+  .summary-card .val{font-family:var(--mono);font-size:22px;font-weight:700;margin-top:6px;}
+  .summary-card .val.up{color:var(--up);}
+  .summary-card .val.down{color:var(--down);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  .search{
+    flex:1;min-width:200px;background:var(--panel);border:1px solid var(--border);
+    border-radius:10px;padding:10px 14px;color:var(--text);font-size:13.5px;
+  }
+  .search:focus{outline:none;border-color:var(--accent);}
+  button{
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+    font-family:var(--body);font-size:13.5px;font-weight:600;
+    padding:9px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;
+  }
+  button:hover{border-color:var(--accent);}
+  button:active{transform:translateY(1px);}
+  button.primary{background:var(--accent);color:#06130d;border-color:var(--accent);}
+  button.primary:hover{background:#4ce8a5;}
+  button.ghost{background:transparent;}
+  button.danger-ghost{color:var(--danger);border-color:var(--border);}
+  button.danger-ghost:hover{border-color:var(--danger);}
+  input[type=file]{display:none;}
+
+  /* ---------- Tabela ---------- */
+  .table-shell{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    overflow-x:auto;
+  }
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--text-muted);background:var(--panel-2);
+    padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap;
+    cursor:pointer;user-select:none;
+  }
+  thead th:hover{color:var(--text);}
+  td{padding:0;vertical-align:middle;}
+  tbody tr{border-bottom:1px solid var(--border);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,0.015);}
+  td.idx{font-family:var(--mono);color:var(--text-muted);font-size:12.5px;padding:12px 14px;text-align:center;}
+  td.readonly-cell{font-family:var(--mono);font-size:13px;padding:12px 14px;text-align:right;}
+  td.readonly-cell.up{color:var(--up);}
+  td.readonly-cell.down{color:var(--down);}
+  td.actions{padding:12px 14px;text-align:center;white-space:nowrap;}
+  .cell-input{
+    width:100%;background:transparent;border:1px solid transparent;
+    color:var(--text);font-family:var(--body);font-size:13.5px;
+    padding:12px 14px;border-radius:0;text-align:left;
+  }
+  input.cell-input.mono, input.cell-input.num{font-family:var(--mono);font-size:13px;}
+  input.cell-input.num{text-align:right;}
+  .cell-input:focus{
+    outline:none;background:var(--panel-2);border:1px solid var(--accent);
+    border-radius:6px;padding:11px 13px;
+  }
+  select.cell-input{
+    appearance:none;-webkit-appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%238996a8'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='%238996a8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;
+  }
+  .del-btn, .dup-btn{
+    background:transparent;border:none;color:var(--text-muted);
+    cursor:pointer;font-size:15px;padding:4px 7px;border-radius:6px;
+  }
+  .del-btn:hover{color:var(--danger);background:rgba(232,96,122,0.08);}
+  .dup-btn:hover{color:var(--accent);background:rgba(61,220,151,0.08);}
+  .empty{padding:70px 20px;text-align:center;color:var(--text-muted);}
+  .empty .big{font-size:16px;color:var(--text);margin-bottom:8px;}
+  .drop{
+    margin-top:18px;border:1.5px dashed var(--border);border-radius:12px;
+    padding:22px;font-size:12.5px;color:var(--text-muted);
+  }
+  .drop.drag{border-color:var(--accent);color:var(--accent);}
+
+  footer{
+    display:flex;justify-content:space-between;color:var(--text-muted);
+    font-size:11.5px;margin-top:14px;flex-wrap:wrap;gap:6px;
+  }
+
+  @media (max-width:760px){
+    thead{display:none;}
+    table, tbody, tr, td{display:block;width:100%;}
+    tbody tr{border:1px solid var(--border);border-radius:10px;margin-bottom:12px;padding:6px 0;}
+    td.idx{display:inline-block;width:auto;padding:10px 14px 0;}
+    td.actions{text-align:right;padding:6px 14px 10px;}
+    td.readonly-cell{text-align:left;}
+    td::before{
+      content:attr(data-label);display:block;font-family:var(--mono);
+      font-size:10px;color:var(--text-muted);text-transform:uppercase;
+      letter-spacing:.06em;padding:8px 14px 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Tela de login -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg viewBox="0 0 32 32" width="40" height="40"><rect width="32" height="32" rx="7" fill="#0c1016"/><path d="M7 22 L12 14 L17 18 L25 8" stroke="#3ddc97" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="25" cy="8" r="2" fill="#3ddc97"/></svg>
+    </div>
+    <h1 class="auth-title">Carteira B3</h1>
+    <p class="auth-sub">Entre com sua conta Google para acessar sua carteira — privada, sua e guardada na nuvem.</p>
+    <button id="googleSignInBtn" class="google-btn">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.12-.84 2.07-1.8 2.71v2.26h2.9c1.7-1.57 2.7-3.87 2.7-6.61z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.55-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.34C2.47 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.95 10.7c-.18-.55-.28-1.13-.28-1.7s.1-1.15.28-1.7V4.96H.98A8.996 8.996 0 000 9c0 1.45.35 2.83.98 4.04l2.97-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.47 2.02.98 4.96l2.97 2.34C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      Entrar com Google
+    </button>
+    <div class="auth-error" id="authError" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- Barra do usuário logado -->
+<div class="user-bar" id="userBar" style="display:none;">
+  <img id="userAvatar" class="user-avatar" src="" alt="">
+  <span id="userEmail" class="user-email"></span>
+  <button id="themeBtn" class="ghost" title="Alternar tema claro/escuro">&#9788;</button>
+  <button id="signOutBtn" class="ghost" title="Sair da conta">Sair</button>
+</div>
+
+<div class="wrap" id="appWrap" style="display:none;">
+
+  <header class="top">
+    <div class="title-block">
+      <div class="eyebrow">Carteira &middot; Renda Variável</div>
+      <h1>Meus Ativos</h1>
+      <div class="subtitle">Ações, FIIs e ETFs da B3 — cotações via brapi.dev, câmbio via AwesomeAPI.</div>
+    </div>
+    <div>
+      <div class="quotes-bar" id="quotesBar">
+        <div class="quote-card" id="quoteUSD"><div class="lbl">USD/BRL</div><div class="val">—</div><div class="chg">—</div></div>
+        <div class="quote-card" id="quoteEUR"><div class="lbl">EUR/BRL</div><div class="val">—</div><div class="chg">—</div></div>
+        <div class="quote-card" id="quoteBTC"><div class="lbl">Bitcoin (BRL)</div><div class="val">—</div><div class="chg">—</div></div>
+        <button class="quote-refresh-btn" id="refreshQuotesBtn" title="Atualizar cotações de câmbio/Bitcoin">&#8635;</button>
+      </div>
+      <div class="quotes-updated" id="quotesUpdated"></div>
+    </div>
+  </header>
+
+  <div class="summary-row" id="summaryRow">
+    <div class="summary-card"><div class="lbl">Total Investido</div><div class="val" id="sumInvestido">R$ 0,00</div></div>
+    <div class="summary-card"><div class="lbl">Valor Atual</div><div class="val" id="sumAtual">R$ 0,00</div></div>
+    <div class="summary-card"><div class="lbl">Rentabilidade</div><div class="val" id="sumRentReais">R$ 0,00</div></div>
+    <div class="summary-card"><div class="lbl">Rentabilidade %</div><div class="val" id="sumRentPct">0,00%</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search" id="searchBox" type="text" placeholder="Buscar por ticker...">
+    <button class="primary" id="addRowBtn">+ Novo ativo</button>
+    <button id="refreshAssetQuotesBtn" title="Buscar cotação atual de cada ativo na brapi.dev">&#8635; Atualizar cotações</button>
+    <button id="importBtn">&#8593; Importar Excel</button>
+    <button id="exportBtn">&#8595; Exportar Excel</button>
+    <button id="brapiTokenBtn" title="Configurar token opcional da brapi.dev">&#9881; Token brapi</button>
+    <button class="danger-ghost ghost" id="clearBtn">Limpar tudo</button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+  </div>
+
+  <div class="table-shell" id="tableShell">
+    <!-- preenchido via JS -->
+  </div>
+
+  <footer>
+    <span>Colunas: <span id="footCols">Ticker · Tipo · Quantidade · Preço Médio</span></span>
+    <span id="footStatus"></span>
+  </footer>
+
+</div>
+
+<script>
+// ---------- Helpers ----------
+function genId(){
+  return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('id_' + Date.now() + '_' + Math.random().toString(36).slice(2));
+}
+function normalize(str){
+  return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+function esc(v){
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatBRL(n, decimals){
+  if(typeof decimals !== 'number') decimals = 2;
+  return 'R$ ' + Number(n||0).toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+function parseNum(v){
+  if(v === '' || v === null || v === undefined) return '';
+  const n = parseFloat(String(v).replace(/\./g,'').replace(',', '.'));
+  // Se não tinha vírgula (formato já em ponto, ex: vindo de planilha), tenta direto
+  const direct = parseFloat(v);
+  return isNaN(n) ? (isNaN(direct) ? 0 : direct) : n;
+}
+
+// ---------- Estado ----------
+let currentUser = null;
+const TIPO_OPTIONS = ['Ação','FII','ETF'];
+let assets = [];
+let sortKey = null, sortDir = 'asc';
+let saveTimeout = null;
+let brapiToken = '';
+
+// ---------- Firestore ----------
+function userDoc(uid){ return db.collection('users').doc(uid); }
+
+async function loadAssets(){
+  assets = [];
+  if(!currentUser) return;
+  try{
+    const snap = await userDoc(currentUser.uid).collection('portfolio').doc('ativos').get();
+    if(snap.exists && Array.isArray(snap.data().items)) assets = snap.data().items;
+  }catch(err){ console.error('Falha ao carregar carteira', err); }
+  assets.forEach(a=>{ if(!a.__id) a.__id = genId(); });
+}
+async function saveAssetsNow(){
+  if(!currentUser) return;
+  setSaveIndicator('pending');
+  try{
+    await userDoc(currentUser.uid).collection('portfolio').doc('ativos').set({ items: assets });
+    setSaveIndicator('ok');
+  }catch(err){
+    console.error('Falha ao salvar carteira', err);
+    setSaveIndicator('error');
+  }
+}
+function scheduleSave(){
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveAssetsNow, 500);
+}
+function setSaveIndicator(state){
+  const el = document.getElementById('footStatus');
+  if(!el) return;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  if(state === 'pending') el.textContent = 'salvando...';
+  else if(state === 'ok') el.textContent = `salvo às ${hh}:${mm}`;
+  else if(state === 'error') el.textContent = 'falha ao salvar — verifique sua conexão';
+}
+
+async function loadBrapiToken(){
+  brapiToken = '';
+  if(!currentUser) return;
+  try{
+    const snap = await userDoc(currentUser.uid).collection('config').doc('settings').get();
+    if(snap.exists) brapiToken = snap.data().brapiToken || '';
+  }catch(err){ console.error('Falha ao carregar token brapi', err); }
+}
+
+// ---------- Renderização ----------
+function render(){
+  const shell = document.getElementById('tableShell');
+  const filter = normalize(document.getElementById('searchBox').value);
+
+  if(assets.length === 0){
+    shell.innerHTML = `
+      <div class="empty">
+        <div class="big">Nenhum ativo cadastrado</div>
+        <div>Adicione seus ativos manualmente ou importe uma planilha.</div>
+        <div class="drop" id="dropZone">arraste um arquivo .xlsx / .csv aqui</div>
+      </div>`;
+    setupDropZone();
+    updateSummary();
+    return;
+  }
+
+  let rows = '';
+  let visibleCount = 0;
+  assets.forEach((a, i)=>{
+    const hay = normalize([a.ticker, a.tipo].join(' '));
+    if(filter && !hay.includes(filter)) return;
+    visibleCount++;
+
+    const quantidade = a.quantidade === '' || a.quantidade === undefined ? 0 : a.quantidade;
+    const precoMedio = a.precoMedio === '' || a.precoMedio === undefined ? 0 : a.precoMedio;
+    const cotacaoAtual = a.cotacaoAtual || 0;
+    const temCotacao = cotacaoAtual > 0;
+    const valorInvestido = quantidade * precoMedio;
+    const valorAtual = temCotacao ? quantidade * cotacaoAtual : valorInvestido;
+    const rentReais = valorAtual - valorInvestido;
+    const rentPct = valorInvestido > 0 ? (rentReais / valorInvestido * 100) : 0;
+    const upDown = rentReais >= 0 ? 'up' : 'down';
+
+    rows += `
+      <tr data-i="${i}">
+        <td class="idx" data-label="#">${String(i+1).padStart(2,'0')}</td>
+        <td data-label="Ticker"><input class="cell-input mono" data-field="ticker" value="${esc(a.ticker)}" style="text-transform:uppercase;" placeholder="ex: PETR4"></td>
+        <td data-label="Tipo"><select class="cell-input" data-field="tipo">${TIPO_OPTIONS.map(o=>`<option value="${o}" ${a.tipo===o?'selected':''}>${o}</option>`).join('')}</select></td>
+        <td data-label="Quantidade"><input class="cell-input num" data-field="quantidade" value="${a.quantidade===''||a.quantidade===undefined?'':a.quantidade}" placeholder="0"></td>
+        <td data-label="Preço Médio"><input class="cell-input num" data-field="precoMedio" value="${a.precoMedio===''||a.precoMedio===undefined?'':a.precoMedio}" placeholder="0,00"></td>
+        <td class="readonly-cell" data-label="Cotação Atual">${temCotacao ? formatBRL(cotacaoAtual) : '—'}</td>
+        <td class="readonly-cell" data-label="Valor Investido">${formatBRL(valorInvestido)}</td>
+        <td class="readonly-cell" data-label="Valor Atual">${temCotacao ? formatBRL(valorAtual) : '—'}</td>
+        <td class="readonly-cell ${temCotacao ? upDown : ''}" data-label="Rentabilidade">${temCotacao ? (rentReais>=0?'+':'') + formatBRL(rentReais) + ' (' + rentPct.toFixed(2) + '%)' : 'aguardando cotação'}</td>
+        <td class="actions" data-label="">
+          <button class="dup-btn" title="Duplicar">&#10064;</button>
+          <button class="del-btn" title="Remover">&#10005;</button>
+        </td>
+      </tr>`;
+  });
+
+  shell.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th data-sort="ticker">Ticker${sortArrow('ticker')}</th>
+          <th data-sort="tipo">Tipo${sortArrow('tipo')}</th>
+          <th data-sort="quantidade">Quantidade${sortArrow('quantidade')}</th>
+          <th data-sort="precoMedio">Preço Médio${sortArrow('precoMedio')}</th>
+          <th data-sort="cotacaoAtual">Cotação Atual${sortArrow('cotacaoAtual')}</th>
+          <th data-sort="valorInvestido">Valor Investido${sortArrow('valorInvestido')}</th>
+          <th data-sort="valorAtual">Valor Atual${sortArrow('valorAtual')}</th>
+          <th data-sort="rentPct">Rentabilidade${sortArrow('rentPct')}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows || `<tr><td colspan="10" style="padding:40px;text-align:center;color:var(--text-muted);">Nenhum resultado para essa busca.</td></tr>`}</tbody>
+    </table>`;
+
+  shell.querySelectorAll('input.cell-input, select.cell-input').forEach(el=>{
+    el.addEventListener('input', onEdit);
+    el.addEventListener('change', onEdit);
+  });
+  shell.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const i = Number(e.target.closest('tr').dataset.i);
+      assets.splice(i,1);
+      render();
+      scheduleSave();
+    });
+  });
+  shell.querySelectorAll('.dup-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const i = Number(e.target.closest('tr').dataset.i);
+      const copy = Object.assign({}, assets[i]);
+      copy.__id = genId();
+      assets.splice(i+1, 0, copy);
+      render();
+      scheduleSave();
+    });
+  });
+  shell.querySelectorAll('th[data-sort]').forEach(th=>{
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', ()=> sortAssets(th.dataset.sort));
+  });
+
+  updateSummary();
+  const foot = document.getElementById('footStatus');
+  if(foot && !foot.textContent.includes('salvo') && !foot.textContent.includes('salvando')){
+    foot.textContent = `${assets.length} ativo(s) carregado(s).`;
+  }
+}
+function sortArrow(key){
+  if(sortKey !== key) return '';
+  return sortDir === 'asc' ? ' ↑' : ' ↓';
+}
+
+function onEdit(e){
+  const tr = e.target.closest('tr');
+  const i = Number(tr.dataset.i);
+  const field = e.target.dataset.field;
+  let val = e.target.value;
+
+  if(field === 'ticker'){
+    val = val.toUpperCase();
+    e.target.value = val;
+    assets[i][field] = val;
+  } else if(field === 'quantidade' || field === 'precoMedio'){
+    assets[i][field] = val === '' ? '' : parseNum(val);
+  } else {
+    assets[i][field] = val;
+  }
+
+  updateRowComputedCells(tr, assets[i]);
+  updateSummary();
+  scheduleSave();
+}
+
+function updateRowComputedCells(tr, a){
+  const quantidade = a.quantidade === '' || a.quantidade === undefined ? 0 : a.quantidade;
+  const precoMedio = a.precoMedio === '' || a.precoMedio === undefined ? 0 : a.precoMedio;
+  const cotacaoAtual = a.cotacaoAtual || 0;
+  const temCotacao = cotacaoAtual > 0;
+  const valorInvestido = quantidade * precoMedio;
+  const valorAtual = temCotacao ? quantidade * cotacaoAtual : valorInvestido;
+  const rentReais = valorAtual - valorInvestido;
+  const rentPct = valorInvestido > 0 ? (rentReais / valorInvestido * 100) : 0;
+
+  const cells = tr.querySelectorAll('td.readonly-cell');
+  cells[1].textContent = formatBRL(valorInvestido);
+  cells[2].textContent = temCotacao ? formatBRL(valorAtual) : '—';
+  cells[3].textContent = temCotacao ? ((rentReais>=0?'+':'') + formatBRL(rentReais) + ' (' + rentPct.toFixed(2) + '%)') : 'aguardando cotação';
+  cells[3].classList.remove('up','down');
+  if(temCotacao) cells[3].classList.add(rentReais >= 0 ? 'up' : 'down');
+}
+
+function sortAssets(key){
+  if(sortKey === key) sortDir = (sortDir === 'asc') ? 'desc' : 'asc';
+  else { sortKey = key; sortDir = 'asc'; }
+  const dir = sortDir === 'asc' ? 1 : -1;
+  const collator = new Intl.Collator('pt-BR', { sensitivity:'base', numeric:true });
+
+  function getVal(a){
+    const quantidade = a.quantidade === '' || a.quantidade === undefined ? 0 : a.quantidade;
+    const precoMedio = a.precoMedio === '' || a.precoMedio === undefined ? 0 : a.precoMedio;
+    const cotacaoAtual = a.cotacaoAtual || 0;
+    const vi = quantidade * precoMedio;
+    const va = cotacaoAtual > 0 ? quantidade * cotacaoAtual : vi;
+    if(key === 'valorInvestido') return vi;
+    if(key === 'valorAtual') return va;
+    if(key === 'rentPct') return vi > 0 ? (va - vi) / vi * 100 : 0;
+    return a[key];
+  }
+
+  assets.sort((a,b)=>{
+    const va = getVal(a), vb = getVal(b);
+    if(typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+    return collator.compare(String(va||''), String(vb||'')) * dir;
+  });
+  render();
+}
+
+function updateSummary(){
+  let totalInvestido = 0, totalAtual = 0, pendentes = 0;
+  assets.forEach(a=>{
+    const quantidade = a.quantidade === '' || a.quantidade === undefined ? 0 : a.quantidade;
+    const precoMedio = a.precoMedio === '' || a.precoMedio === undefined ? 0 : a.precoMedio;
+    const valorInvestidoLinha = quantidade * precoMedio;
+    totalInvestido += valorInvestidoLinha;
+    // Enquanto não há cotação buscada para o ativo, ele entra "a custo" (rentabilidade
+    // neutra) no total — evita que a carteira pareça artificialmente no prejuízo.
+    if(a.cotacaoAtual > 0){
+      totalAtual += quantidade * a.cotacaoAtual;
+    } else {
+      totalAtual += valorInvestidoLinha;
+      if(a.ticker) pendentes++;
+    }
+  });
+  const rentReais = totalAtual - totalInvestido;
+  const rentPct = totalInvestido > 0 ? (rentReais / totalInvestido * 100) : 0;
+
+  document.getElementById('sumInvestido').textContent = formatBRL(totalInvestido);
+  document.getElementById('sumAtual').textContent = formatBRL(totalAtual) + (pendentes>0 ? ` (${pendentes} sem cotação)` : '');
+  const rEl = document.getElementById('sumRentReais');
+  rEl.textContent = (rentReais>=0?'+':'') + formatBRL(rentReais);
+  rEl.className = 'val ' + (rentReais>=0?'up':'down');
+  const pEl = document.getElementById('sumRentPct');
+  pEl.textContent = (rentPct>=0?'+':'') + rentPct.toFixed(2) + '%';
+  pEl.className = 'val ' + (rentPct>=0?'up':'down');
+}
+
+// ---------- Cotações de câmbio / Bitcoin (AwesomeAPI — gratuita, sem chave) ----------
+async function refreshCurrencyQuotes(){
+  const btn = document.getElementById('refreshQuotesBtn');
+  btn.classList.add('spinning');
+  try{
+    const res = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,BTC-BRL');
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    updateQuoteCard('quoteUSD', data.USDBRL);
+    updateQuoteCard('quoteEUR', data.EURBRL);
+    updateQuoteCard('quoteBTC', data.BTCBRL, 0);
+    const now = new Date();
+    document.getElementById('quotesUpdated').textContent = 'atualizado às ' + now.toLocaleTimeString('pt-BR').slice(0,5);
+  }catch(err){
+    console.error('Falha ao buscar cotações de câmbio', err);
+    document.getElementById('quotesUpdated').textContent = 'falha ao atualizar — tente de novo';
+  }finally{
+    btn.classList.remove('spinning');
+  }
+}
+function updateQuoteCard(id, d, decimals){
+  const card = document.getElementById(id);
+  if(!d){ card.querySelector('.val').textContent = '—'; return; }
+  const bid = parseFloat(d.bid);
+  const pct = parseFloat(d.pctChange);
+  card.querySelector('.val').textContent = formatBRL(bid, typeof decimals === 'number' ? decimals : 2);
+  const chg = card.querySelector('.chg');
+  if(!isNaN(pct)){
+    chg.textContent = (pct>=0?'+':'') + pct.toFixed(2) + '%';
+    chg.className = 'chg ' + (pct>=0?'up':'down');
+  }
+}
+document.getElementById('refreshQuotesBtn').addEventListener('click', refreshCurrencyQuotes);
+
+// ---------- Cotações dos ativos (brapi.dev) ----------
+async function refreshAssetQuotes(){
+  const tickers = [...new Set(assets.map(a=>String(a.ticker||'').trim().toUpperCase()).filter(Boolean))];
+  if(tickers.length === 0){
+    alert('Adicione ao menos um ativo com o ticker preenchido primeiro.');
+    return;
+  }
+  const btn = document.getElementById('refreshAssetQuotesBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Buscando...';
+  btn.disabled = true;
+  try{
+    const tokenParam = brapiToken ? `&token=${encodeURIComponent(brapiToken)}` : '';
+    const url = `https://brapi.dev/api/quote/${tickers.join(',')}?range=1d&interval=1d${tokenParam}`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if(json.error){
+      alert('A brapi.dev recusou o pedido: ' + (json.message || 'tente configurar um token gratuito em brapi.dev.'));
+      return;
+    }
+    const priceMap = {};
+    (json.results || []).forEach(r=>{ priceMap[r.symbol] = r.regularMarketPrice; });
+    let updatedCount = 0;
+    assets.forEach(a=>{
+      const t = String(a.ticker||'').trim().toUpperCase();
+      if(priceMap[t] !== undefined){ a.cotacaoAtual = priceMap[t]; updatedCount++; }
+    });
+    render();
+    scheduleSave();
+    document.getElementById('footStatus').textContent = `${updatedCount} de ${tickers.length} cotação(ões) atualizada(s).`;
+  }catch(err){
+    console.error('Falha ao buscar cotações da brapi.dev', err);
+    alert('Não foi possível buscar as cotações agora. Verifique sua conexão e tente novamente.');
+  }finally{
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+document.getElementById('refreshAssetQuotesBtn').addEventListener('click', refreshAssetQuotes);
+
+document.getElementById('brapiTokenBtn').addEventListener('click', async ()=>{
+  const val = prompt('Token opcional da brapi.dev (gratuito em brapi.dev/dashboard — aumenta o limite de chamadas por dia). Deixe em branco para continuar sem token:', brapiToken);
+  if(val === null) return;
+  brapiToken = val.trim();
+  if(currentUser){
+    try{ await userDoc(currentUser.uid).collection('config').doc('settings').set({ brapiToken }); }
+    catch(err){ console.error('Falha ao salvar token', err); }
+  }
+});
+
+// ---------- Ações principais ----------
+document.getElementById('addRowBtn').addEventListener('click', ()=>{
+  assets.push({ __id: genId(), ticker:'', tipo:'Ação', quantidade:'', precoMedio:'', cotacaoAtual:0 });
+  render();
+  scheduleSave();
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('tbody tr:last-child input.cell-input');
+    if(inputs[0]) inputs[0].focus();
+  }, 0);
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(assets.length === 0) return;
+  const n = assets.length;
+  const resposta = prompt(`Isso vai apagar ${n} ativo(s) permanentemente da carteira.\n\nDigite CONFIRMAR (em maiúsculas) para continuar:`);
+  if(resposta === 'CONFIRMAR'){
+    assets = [];
+    render();
+    scheduleSave();
+  }
+});
+
+document.getElementById('searchBox').addEventListener('input', render);
+
+document.getElementById('themeBtn').addEventListener('click', ()=>{
+  const on = document.body.classList.toggle('light');
+  localStorage.setItem('carteira-b3-theme', on ? 'light' : 'dark');
+});
+
+// ---------- Importar / Exportar Excel ----------
+const IMPORT_FIELD_MATCH = {
+  ticker: ['ticker','codigo','código','ativo','papel','symbol'],
+  tipo: ['tipo','categoria'],
+  quantidade: ['quantidade','qtd','qtde','quantity'],
+  precoMedio: ['preco medio','preço médio','preco médio','preço medio','pm','preco de compra','preço de compra','avg price','average price'],
+};
+function buildHeaderMap(headers){
+  const map = {};
+  const normHeaders = headers.map(h=>normalize(h));
+  Object.entries(IMPORT_FIELD_MATCH).forEach(([field, keywords])=>{
+    for(const kw of keywords){
+      const nk = normalize(kw);
+      const idx = normHeaders.findIndex(h => h === nk || h.includes(nk));
+      if(idx >= 0){ map[field] = headers[idx]; break; }
+    }
+  });
+  return map;
+}
+function handleFile(file){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const wb = XLSX.read(e.target.result, { type:'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { defval:'' });
+      if(json.length === 0){ alert('A planilha está vazia.'); return; }
+      const headers = Object.keys(json[0]);
+      const headerMap = buildHeaderMap(headers);
+      if(!headerMap.ticker){
+        alert('Não encontrei uma coluna de Ticker nessa planilha. Verifique se existe uma coluna chamada "Ticker", "Código" ou "Ativo".');
+        return;
+      }
+      const imported = json.map(row=>{
+        const a = { __id: genId(), ticker:'', tipo:'Ação', quantidade:0, precoMedio:0, cotacaoAtual:0 };
+        if(headerMap.ticker) a.ticker = String(row[headerMap.ticker]||'').trim().toUpperCase();
+        if(headerMap.tipo){
+          const t = String(row[headerMap.tipo]||'').trim();
+          a.tipo = TIPO_OPTIONS.includes(t) ? t : 'Ação';
+        }
+        if(headerMap.quantidade) a.quantidade = parseNum(row[headerMap.quantidade]);
+        if(headerMap.precoMedio) a.precoMedio = parseNum(row[headerMap.precoMedio]);
+        return a;
+      }).filter(a => a.ticker);
+
+      if(imported.length === 0){ alert('Nenhuma linha com ticker válido foi encontrada.'); return; }
+      if(assets.length > 0 && !confirm(`Importar ${imported.length} ativo(s)? Isso vai substituir os ${assets.length} ativo(s) já cadastrados.`)) return;
+
+      assets = imported;
+      render();
+      scheduleSave();
+    }catch(err){
+      console.error('Falha ao importar planilha', err);
+      alert('Não consegui ler esse arquivo. Confira se é um .xlsx, .xls ou .csv válido.');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function setupDropZone(){
+  const dz = document.getElementById('dropZone');
+  if(!dz) return;
+  ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev, e=>{ e.preventDefault(); dz.classList.remove('drag'); }));
+  dz.addEventListener('drop', e=>{
+    const file = e.dataTransfer.files[0];
+    if(file) handleFile(file);
+  });
+}
+document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(file) handleFile(file);
+  e.target.value = '';
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  if(assets.length === 0){ alert('Não há ativos para exportar.'); return; }
+  const exportData = assets.map(a=>{
+    const quantidade = a.quantidade === '' || a.quantidade === undefined ? 0 : a.quantidade;
+    const precoMedio = a.precoMedio === '' || a.precoMedio === undefined ? 0 : a.precoMedio;
+    const valorInvestido = quantidade * precoMedio;
+    const valorAtual = quantidade * (a.cotacaoAtual || 0);
+    const rentPct = valorInvestido > 0 ? ((valorAtual - valorInvestido) / valorInvestido * 100) : 0;
+    return {
+      'Ticker': a.ticker, 'Tipo': a.tipo, 'Quantidade': quantidade, 'Preço Médio': precoMedio,
+      'Cotação Atual': a.cotacaoAtual || 0, 'Valor Investido': valorInvestido, 'Valor Atual': valorAtual,
+      'Rentabilidade %': Number(rentPct.toFixed(2)),
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  ws['!cols'] = [16,10,12,14,14,16,14,16].map(w=>({wch:w}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Carteira');
+  const stamp = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `carteira-b3-${stamp}.xlsx`);
+});
+
+// ---------- Login (Google) ----------
+document.getElementById('googleSignInBtn').addEventListener('click', async ()=>{
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+  try{
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  }catch(err){
+    console.error('Erro no login', err);
+    errEl.textContent = 'Não foi possível entrar: ' + (err.message || err.code || 'erro desconhecido');
+    errEl.style.display = 'block';
+  }
+});
+document.getElementById('signOutBtn').addEventListener('click', async ()=>{
+  await auth.signOut();
+});
+
+async function startApp(){
+  await loadAssets();
+  await loadBrapiToken();
+  if(localStorage.getItem('carteira-b3-theme') === 'light') document.body.classList.add('light');
+  render();
+  refreshCurrencyQuotes(); // AwesomeAPI é gratuita e sem limite prático — pode buscar sozinha ao abrir
+}
+
+auth.onAuthStateChanged(async (user)=>{
+  if(user){
+    currentUser = user;
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('userBar').style.display = 'flex';
+    document.getElementById('appWrap').style.display = '';
+    document.getElementById('userEmail').textContent = user.email || user.displayName || '';
+    document.getElementById('userAvatar').src = user.photoURL || '';
+    try{
+      await startApp();
+    }catch(err){
+      console.error('Falha ao iniciar a aplicação', err);
+    }
+  } else {
+    currentUser = null;
+    assets = [];
+    document.getElementById('authGate').style.display = 'flex';
+    document.getElementById('userBar').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
