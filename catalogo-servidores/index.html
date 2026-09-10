@@ -472,7 +472,12 @@
   }
   .user-avatar{width:26px;height:26px;border-radius:50%;background:var(--panel-2);}
   .user-email{font-size:12px;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .user-bar button{padding:5px 12px;font-size:12px;}
+  .user-bar button{padding:5px 12px;font-size:12px;border-radius:16px;}
+  .theme-icon-btn{
+    width:26px;height:26px;padding:0 !important;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50% !important;font-size:13px;
+  }
 </style>
 </head>
 <body>
@@ -497,7 +502,7 @@
 <div class="user-bar" id="userBar" style="display:none;">
   <img id="userAvatar" class="user-avatar" src="" alt="">
   <span id="userEmail" class="user-email"></span>
-  <button id="themeBtn" class="ghost" title="Alternar tema claro/escuro">&#9788; Tema</button>
+  <button id="themeBtn" class="ghost theme-icon-btn" title="Alternar tema claro/escuro">&#9788;</button>
   <button id="signOutBtn" class="ghost" title="Sair da conta">Sair</button>
 </div>
 
@@ -517,12 +522,7 @@
     <div class="stats">
       <div class="stats-row">
         <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl" id="statTotalLbl">Servidores</div></div>
-        <div class="stat" id="statCriticoBox" data-filter="critico"><div class="num" id="statCritico">0</div><div class="lbl">Críticos</div></div>
-        <div class="stat" id="statAltoBox" data-filter="alto"><div class="num" id="statAlto">0</div><div class="lbl">Alto</div></div>
-        <div class="stat" id="statMedioBox" data-filter="medio"><div class="num" id="statMedio">0</div><div class="lbl">Médio</div></div>
-        <div class="stat" id="statBaixoBox" data-filter="baixo"><div class="num" id="statBaixo">0</div><div class="lbl">Baixo</div></div>
-        <div class="stat" id="statNaoNecessarioBox" data-filter="nao-necessario"><div class="num" id="statNaoNecessario">0</div><div class="lbl">N/A</div></div>
-        <div class="stat warn" id="statSemBackupBox" data-filter="vazio"><div class="num" id="statSemBackup">0</div><div class="lbl">Sem backup</div></div>
+        <span id="statBackupBoxes" style="display:contents"></span>
         <button class="stat-chart-btn" id="backupChartBtn" title="Ver gráfico de criticidade de backup">&#128202;</button>
       </div>
       <div class="stats-row" id="statOsRow">
@@ -729,8 +729,13 @@ function backupCategory(rawValue){
   return 'outro';
 }
 function isUnclassified(cat){ return cat === 'vazio' || cat === 'outro'; }
-function matchesStatFilter(cat, filterVal){
-  if(filterVal === 'vazio') return isUnclassified(cat);
+function matchesStatFilter(row, filterVal){
+  const cat = backupCategory(row.backup);
+  if(filterVal === 'vazio') return cat === 'vazio';
+  if(filterVal && filterVal.indexOf('custom:') === 0){
+    const label = filterVal.slice(7);
+    return cat === 'outro' && (row.backup||'').toString().trim() === label;
+  }
   return cat === filterVal;
 }
 
@@ -770,8 +775,13 @@ function osCategory(rawValue){
   if(linuxKeywords.some(k => v.includes(k))) return 'linux';
   return 'outro';
 }
-function matchesOsFilter(cat, filterVal){
-  if(filterVal === 'vazio') return isUnclassified(cat);
+function matchesOsFilter(row, filterVal){
+  const cat = osCategory(row.versaoSO);
+  if(filterVal === 'vazio') return cat === 'vazio';
+  if(filterVal && filterVal.indexOf('custom:') === 0){
+    const label = filterVal.slice(7);
+    return cat === 'outro' && (row.versaoSO||'').toString().trim() === label;
+  }
   return cat === filterVal;
 }
 
@@ -1251,8 +1261,8 @@ function render(){
   data.forEach((row, i) => {
     const hay = normalize(Object.values(row).join(' '));
     if(filter && !hay.includes(filter)) return;
-    if(activeStatFilter && hasBackupCol && !matchesStatFilter(backupCategory(row.backup), activeStatFilter)) return;
-    if(activeOsFilter && hasOsCol && !matchesOsFilter(osCategory(row.versaoSO), activeOsFilter)) return;
+    if(activeStatFilter && hasBackupCol && !matchesStatFilter(row, activeStatFilter)) return;
+    if(activeOsFilter && hasOsCol && !matchesOsFilter(row, activeOsFilter)) return;
     visibleCount++;
     visibleIds.add(row.__id);
     const cat = hasBackupCol ? backupCategory(row.backup) : null;
@@ -1529,68 +1539,129 @@ function onEdit(e){
   scheduleSave();
 }
 
+const BACKUP_ORDER = [
+  { cat:'critico', label:'Críticos' },
+  { cat:'alto', label:'Alto' },
+  { cat:'medio', label:'Médio' },
+  { cat:'baixo', label:'Baixo' },
+  { cat:'nao-necessario', label:'N/A' },
+];
+
+function renderBackupStats(){
+  const container = document.getElementById('statBackupBoxes');
+  if(!container) return;
+  const hasBackup = visibleColumns().some(c=>c.key==='backup');
+  if(!hasBackup){ container.innerHTML = ''; return; }
+
+  const knownCounts = {};
+  BACKUP_ORDER.forEach(c=>{ knownCounts[c.cat] = 0; });
+  const customCounts = {};
+  let semBackup = 0;
+
+  data.forEach(r=>{
+    const cat = backupCategory(r.backup);
+    if(cat === 'vazio'){ semBackup++; return; }
+    if(cat === 'outro'){
+      const label = (r.backup||'').toString().trim();
+      if(label) customCounts[label] = (customCounts[label]||0) + 1;
+      return;
+    }
+    knownCounts[cat]++;
+  });
+
+  let html = '';
+  BACKUP_ORDER.forEach(c=>{
+    const n = knownCounts[c.cat];
+    if(n <= 0) return;
+    const active = activeStatFilter === c.cat ? ' active' : '';
+    html += `<div class="stat${active}" data-filter="${c.cat}"><div class="num">${n}</div><div class="lbl">${esc(c.label)}</div></div>`;
+  });
+  Object.keys(customCounts).sort((a,b)=>customCounts[b]-customCounts[a]).forEach(label=>{
+    const filterVal = 'custom:' + label;
+    const active = activeStatFilter === filterVal ? ' active' : '';
+    html += `<div class="stat${active}" data-filter="${esc(filterVal)}"><div class="num">${customCounts[label]}</div><div class="lbl">${esc(label)}</div></div>`;
+  });
+  if(semBackup > 0){
+    const active = activeStatFilter === 'vazio' ? ' active' : '';
+    html += `<div class="stat warn${active}" data-filter="vazio"><div class="num">${semBackup}</div><div class="lbl">Sem backup</div></div>`;
+  }
+  container.innerHTML = html;
+
+  container.querySelectorAll('.stat[data-filter]').forEach(box=>{
+    box.style.cursor = 'pointer';
+    box.addEventListener('click', ()=>{
+      const val = box.dataset.filter;
+      activeStatFilter = (activeStatFilter === val) ? null : val;
+      render();
+    });
+  });
+}
+
+function renderOsStatCards(){
+  const rowEl = document.getElementById('statOsRow');
+  if(!rowEl) return;
+  const hasOs = visibleColumns().some(c=>c.key==='versaoSO');
+  if(!hasOs){ rowEl.style.display = 'none'; rowEl.innerHTML = ''; return; }
+  rowEl.style.display = '';
+
+  const segs = getOsSegments();
+  const knownCounts = {}; segs.forEach(s=>{ knownCounts[s.key] = 0; });
+  let linuxCount = 0;
+  const customCounts = {};
+  let vazioCount = 0;
+
+  data.forEach(r=>{
+    const cat = osCategory(r.versaoSO);
+    if(cat === 'vazio'){ vazioCount++; return; }
+    if(cat === 'linux'){ linuxCount++; return; }
+    if(cat === 'outro'){
+      const label = (r.versaoSO||'').toString().trim();
+      if(label) customCounts[label] = (customCounts[label]||0) + 1;
+      return;
+    }
+    if(knownCounts.hasOwnProperty(cat)) knownCounts[cat]++;
+  });
+
+  let html = '';
+  segs.forEach(seg=>{
+    const n = knownCounts[seg.key];
+    if(n <= 0) return;
+    const active = activeOsFilter === seg.key ? ' active' : '';
+    html += `<div class="stat${active}" data-os-filter="${seg.key}"><div class="num">${n}</div><div class="lbl">${esc(seg.label)}</div></div>`;
+  });
+  if(linuxCount > 0){
+    const active = activeOsFilter === 'linux' ? ' active' : '';
+    html += `<div class="stat${active}" data-os-filter="linux"><div class="num">${linuxCount}</div><div class="lbl">Linux</div></div>`;
+  }
+  Object.keys(customCounts).sort((a,b)=>customCounts[b]-customCounts[a]).forEach(label=>{
+    const filterVal = 'custom:' + label;
+    const active = activeOsFilter === filterVal ? ' active' : '';
+    html += `<div class="stat${active}" data-os-filter="${esc(filterVal)}"><div class="num">${customCounts[label]}</div><div class="lbl">${esc(label)}</div></div>`;
+  });
+  if(vazioCount > 0){
+    const active = activeOsFilter === 'vazio' ? ' active' : '';
+    html += `<div class="stat warn${active}" data-os-filter="vazio"><div class="num">${vazioCount}</div><div class="lbl">Sem S.O.</div></div>`;
+  }
+  html += `<button class="stat-chart-btn" id="chartBtn" title="Ver gráfico de versões">&#128202;</button>`;
+  rowEl.innerHTML = html;
+
+  rowEl.querySelectorAll('.stat[data-os-filter]').forEach(box=>{
+    box.style.cursor = 'pointer';
+    box.addEventListener('click', ()=>{
+      const val = box.dataset.osFilter;
+      activeOsFilter = (activeOsFilter === val) ? null : val;
+      render();
+    });
+  });
+  const chartBtn = document.getElementById('chartBtn');
+  if(chartBtn) chartBtn.addEventListener('click', openChartModal);
+}
+
 function updateStats(){
   document.getElementById('statTotal').textContent = data.length;
 
-  const hasBackup = visibleColumns().some(c=>c.key==='backup');
-  const backupTypeBoxes = ['statCriticoBox','statAltoBox','statMedioBox','statBaixoBox','statNaoNecessarioBox','statSemBackupBox'];
-  if(hasBackup){
-    backupTypeBoxes.forEach(id => { document.getElementById(id).style.display = ''; });
-
-    const BACKUP_CATEGORIES = [
-      { id:'statCritico', cat:'critico' },
-      { id:'statAlto', cat:'alto' },
-      { id:'statMedio', cat:'medio' },
-      { id:'statBaixo', cat:'baixo' },
-      { id:'statNaoNecessario', cat:'nao-necessario' },
-    ];
-    const counts = { statCritico:0, statAlto:0, statMedio:0, statBaixo:0, statNaoNecessario:0 };
-    let semClassificar = 0;
-    data.forEach(r=>{
-      const cat = backupCategory(r.backup);
-      if(cat === 'vazio' || cat === 'outro'){ semClassificar++; return; }
-      const found = BACKUP_CATEGORIES.find(c => c.cat === cat);
-      if(found) counts[found.id]++;
-    });
-    Object.entries(counts).forEach(([id, n]) => { document.getElementById(id).textContent = n; });
-    document.getElementById('statSemBackup').textContent = semClassificar;
-  } else {
-    backupTypeBoxes.forEach(id => { document.getElementById(id).style.display = 'none'; });
-  }
-
-  const hasOs = visibleColumns().some(c=>c.key==='versaoSO');
-  const osRow = document.getElementById('statOsRow');
-  if(hasOs){
-    osRow.style.display = '';
-    const segs = getOsSegments();
-    const counts = {}; segs.forEach(s=>{ counts[s.key] = 0; });
-    let linuxCount = 0;
-    let osOutros = 0;
-    data.forEach(r=>{
-      const cat = osCategory(r.versaoSO);
-      if(isUnclassified(cat)){ osOutros++; return; }
-      if(cat === 'linux'){ linuxCount++; return; }
-      if(counts.hasOwnProperty(cat)) counts[cat]++;
-    });
-    segs.forEach(s=>{
-      const el = document.getElementById('statOs_' + s.key);
-      if(el) el.textContent = counts[s.key];
-    });
-    const linuxEl = document.getElementById('statOs_linux');
-    if(linuxEl) linuxEl.textContent = linuxCount;
-    const outrosEl = document.getElementById('statOsOutros');
-    if(outrosEl) outrosEl.textContent = osOutros;
-  } else {
-    osRow.style.display = 'none';
-  }
-
-  // Destaca visualmente o filtro ativo (se houver) e permite limpar clicando de novo
-  document.querySelectorAll('.stat[data-filter]').forEach(box=>{
-    box.classList.toggle('active', activeStatFilter === box.dataset.filter);
-  });
-  document.querySelectorAll('.stat[data-os-filter]').forEach(box=>{
-    box.classList.toggle('active', activeOsFilter === box.dataset.osFilter);
-  });
+  renderBackupStats();
+  renderOsStatCards();
 
   const chartModal = document.getElementById('chartModalOverlay');
   if(chartModal && chartModal.classList.contains('open')) renderVersionChart();
@@ -1962,28 +2033,7 @@ document.getElementById('backupChartModalOverlay').addEventListener('click', (e)
 });
 
 // ---------- Troca de página (Servidores ↔ Máquinas) ----------
-function renderOsStatCards(){
-  const row = document.getElementById('statOsRow');
-  if(!row) return;
-  const segs = getOsSegments();
-  const cardsHtml = segs.map(seg=>
-    `<div class="stat" id="statOs_${seg.key}Box" data-os-filter="${seg.key}"><div class="num" id="statOs_${seg.key}">0</div><div class="lbl">${esc(seg.label)}</div></div>`
-  ).join('')
-  + `<div class="stat" id="statOs_linuxBox" data-os-filter="linux"><div class="num" id="statOs_linux">0</div><div class="lbl">Linux</div></div>`
-  + `<div class="stat warn" id="statOsOutrosBox" data-os-filter="vazio"><div class="num" id="statOsOutros">0</div><div class="lbl">Outros</div></div>`
-  + `<button class="stat-chart-btn" id="chartBtn" title="Ver gráfico de versões">&#128202;</button>`;
-  row.innerHTML = cardsHtml;
-
-  row.querySelectorAll('.stat[data-os-filter]').forEach(box=>{
-    box.style.cursor = 'pointer';
-    box.addEventListener('click', ()=>{
-      activeOsFilter = (activeOsFilter === box.dataset.osFilter) ? null : box.dataset.osFilter;
-      render();
-    });
-  });
-  const chartBtn = document.getElementById('chartBtn');
-  if(chartBtn) chartBtn.addEventListener('click', openChartModal);
-}
+// (renderOsStatCards já definida acima, junto de renderBackupStats)
 
 const ITEM_LABELS = {
   servidores: { singular: 'servidor', novoLabel: 'Novo servidor' },
@@ -2036,11 +2086,14 @@ document.getElementById('printBtn').addEventListener('click', ()=>{
   window.print();
 });
 
-// ---------- Modo compacto ----------
 // ---------- Tema claro/escuro ----------
+function updateThemeIcon(){
+  document.getElementById('themeBtn').innerHTML = document.body.classList.contains('light') ? '&#127769;' : '&#9788;';
+}
 document.getElementById('themeBtn').addEventListener('click', async ()=>{
   const on = document.body.classList.toggle('light');
   await idbSetPref('light', on);
+  updateThemeIcon();
 });
 
 // Colunas visíveis na tabela/exportação — colunas desativadas continuam existindo
@@ -2359,8 +2412,8 @@ function getVisibleRows(){
   return data.filter(row=>{
     const hay = normalize(Object.values(row).join(' '));
     if(filter && !hay.includes(filter)) return false;
-    if(activeStatFilter && hasBackupCol && !matchesStatFilter(backupCategory(row.backup), activeStatFilter)) return false;
-    if(activeOsFilter && hasOsCol && !matchesOsFilter(osCategory(row.versaoSO), activeOsFilter)) return false;
+    if(activeStatFilter && hasBackupCol && !matchesStatFilter(row, activeStatFilter)) return false;
+    if(activeOsFilter && hasOsCol && !matchesOsFilter(row, activeOsFilter)) return false;
     return true;
   });
 }
@@ -2435,6 +2488,7 @@ async function startApp(){
   updateLinkUI();
   const light = await idbGetPref('light');
   if(light) document.body.classList.add('light');
+  updateThemeIcon();
   render();
 
   await maybeOfferLocalImport();
@@ -2515,7 +2569,7 @@ auth.onAuthStateChanged(async (user)=>{
     document.getElementById('authGate').style.display = 'none';
     document.getElementById('userBar').style.display = 'flex';
     document.getElementById('appWrap').style.display = '';
-    document.getElementById('userEmail').textContent = user.email || user.displayName || '';
+    document.getElementById('userEmail').textContent = user.displayName || user.email || '';
     document.getElementById('userAvatar').src = user.photoURL || '';
     try{
       await startApp();
