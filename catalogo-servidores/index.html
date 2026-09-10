@@ -472,7 +472,7 @@
   }
   .user-avatar{width:26px;height:26px;border-radius:50%;background:var(--panel-2);}
   .user-email{font-size:12px;color:var(--text-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .user-bar #signOutBtn{padding:5px 12px;font-size:12px;}
+  .user-bar button{padding:5px 12px;font-size:12px;}
 </style>
 </head>
 <body>
@@ -497,6 +497,7 @@
 <div class="user-bar" id="userBar" style="display:none;">
   <img id="userAvatar" class="user-avatar" src="" alt="">
   <span id="userEmail" class="user-email"></span>
+  <button id="themeBtn" class="ghost" title="Alternar tema claro/escuro">&#9788; Tema</button>
   <button id="signOutBtn" class="ghost" title="Sair da conta">Sair</button>
 </div>
 
@@ -539,7 +540,6 @@
     <button id="exportBtn">&#8595; Exportar Excel</button>
     <button id="historyBtn" title="Ver e restaurar versões anteriores salvas automaticamente">&#128337; Histórico</button>
     <button id="printBtn" title="Gerar relatório para impressão / PDF">&#128196; Relatório</button>
-    <button id="themeBtn" title="Alternar tema claro/escuro">&#9788; Tema</button>
     <button class="danger-ghost ghost" id="clearBtn">Limpar tudo</button>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
   </div>
