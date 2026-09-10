@@ -368,19 +368,19 @@
 
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(168px,1fr));
-    gap:12px;
+    grid-template-columns:repeat(auto-fill, minmax(140px,1fr));
+    gap:10px;
   }
 
   .tile{
     position:relative;
     border:1px solid rgba(0,0,0,0.12);
     border-radius:var(--radius-tile);
-    padding:20px 18px;
+    padding:15px 14px;
     cursor:pointer;
     display:flex;
     flex-direction:column;
-    gap:14px;
+    gap:11px;
     text-decoration:none;
     opacity:0;
     box-shadow:0 1px 2px rgba(0,0,0,0.15);
@@ -400,12 +400,12 @@
   }
   .tile-icon{
     position:relative;
-    width:50px;height:50px;
-    border-radius:13px;
+    width:40px;height:40px;
+    border-radius:11px;
     display:flex;align-items:center;justify-content:center;
     font-family:'Sora',sans-serif;
     font-weight:600;
-    font-size:19px;
+    font-size:16px;
     overflow:hidden;
     flex-shrink:0;
   }
@@ -415,7 +415,7 @@
     width:100%;height:100%;
     object-fit:cover;
     background:#fff;
-    padding:9px;
+    padding:7px;
     box-sizing:border-box;
   }
   .tile-name{
@@ -654,9 +654,9 @@
     }
     .topbar{ flex-wrap:wrap; padding-left:44px; }
     .add-btn{ flex:1 1 auto; }
-    .grid{ grid-template-columns:repeat(auto-fill, minmax(118px,1fr)); gap:10px; }
-    .tile{ padding:13px 12px; gap:9px; }
-    .tile-icon{ width:36px; height:36px; border-radius:9px; font-size:14px; }
+    .grid{ grid-template-columns:repeat(auto-fill, minmax(104px,1fr)); gap:8px; }
+    .tile{ padding:11px 10px; gap:8px; }
+    .tile-icon{ width:32px; height:32px; border-radius:9px; font-size:13px; }
     .tile-name{ font-size:13px; }
     .tile-url{ font-size:10.5px; }
     .section-title{ font-size:15.5px; }
@@ -1014,11 +1014,9 @@ function renderNav(){
 function hubIconFallback(img){
   const stage = parseInt(img.dataset.stage || '0', 10);
   const baseDir = img.dataset.basedir;
-  const hostname = img.dataset.hostname;
   const attempts = [
     `${baseDir}favicon.svg`,
-    `${baseDir}favicon.png`,
-    `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}`
+    `${baseDir}favicon.png`
   ];
   if(stage < attempts.length){
     img.dataset.stage = String(stage + 1);
