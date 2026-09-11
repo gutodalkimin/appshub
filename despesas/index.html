@@ -1066,6 +1066,7 @@ function renderMonthSelect(){
   const months = [...new Set(expenses.map(e=>monthKey(e.date)).filter(Boolean))].sort().reverse();
   const current = todayISO().slice(0,7);
   if(!months.includes(current)) months.unshift(current);
+  if(selectedMonth && !months.includes(selectedMonth)) months.push(selectedMonth);
   if(selectedMonth === '' && !sel.dataset.initialized){
     selectedMonth = current;
   }
@@ -1420,10 +1421,11 @@ async function handleSave(){
   if(file && fbEnabled && currentUser){
     try{
       const storageRef = firebase.storage().ref(`receipts/${currentUser.uid}/${expObj.id}-${file.name}`);
-      await storageRef.put(file);
-      expObj.receiptUrl = await storageRef.getDownloadURL();
+      const uploadPromise = storageRef.put(file).then(()=>storageRef.getDownloadURL());
+      const timeoutPromise = new Promise((_, reject)=> setTimeout(()=>reject(new Error('tempo esgotado a carregar o recibo')), 8000));
+      expObj.receiptUrl = await Promise.race([uploadPromise, timeoutPromise]);
     }catch(err){
-      console.warn('Não foi possível carregar o recibo (confirma se o Storage está ativado)', err);
+      console.warn('Não foi possível carregar o recibo — a despesa foi guardada na mesma, só sem o anexo. Confirma se o Storage está ativado no Firebase.', err);
     }
   }
 
@@ -1443,14 +1445,19 @@ document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
   document.getElementById('confirmOverlay').classList.remove('open');
 });
 document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
-  expenses = expenses.filter(a=>a.id !== editingId);
-  persist();
-  document.getElementById('confirmOverlay').classList.remove('open');
-  closeModal();
-  if(activeCategory !== 'Todas' && !expenses.some(a=>a.category===activeCategory)){
-    activeCategory = 'Todas';
+  try{
+    expenses = expenses.filter(a=>a.id !== editingId);
+    persist();
+    document.getElementById('confirmOverlay').classList.remove('open');
+    closeModal();
+    if(activeCategory !== 'Todas' && !expenses.some(a=>a.category===activeCategory)){
+      activeCategory = 'Todas';
+    }
+    render();
+  }catch(err){
+    console.error('Erro ao remover despesa:', err);
+    alert('Ocorreu um erro ao remover. Abre a consola (F12) e diz-me o que aparece.');
   }
-  render();
 });
 document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
   if(e.target === document.getElementById('confirmOverlay')) document.getElementById('confirmOverlay').classList.remove('open');
