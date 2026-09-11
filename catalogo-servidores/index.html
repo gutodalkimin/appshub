@@ -1929,7 +1929,7 @@ function renderVersionChart(){
   const pctGoal = Math.round(counts[meta.goalKey] / total * 100);
   centerNum.textContent = pctGoal + '%';
 
-  legend.innerHTML = meta.segments.map(seg=>{
+  legend.innerHTML = meta.segments.filter(seg => counts[seg.key] > 0).map(seg=>{
     const n = counts[seg.key];
     const pct = total>0 ? Math.round(n/total*100) : 0;
     return `
@@ -1959,14 +1959,15 @@ document.getElementById('chartModalOverlay').addEventListener('click', (e)=>{
 });
 
 // ---------- Gráfico de criticidade de backup ----------
-const BACKUP_CHART_SEGMENTS = [
+const BACKUP_CHART_KNOWN = [
   { cat:'critico', label:'Crítico', color:'#ff6b6b' },
   { cat:'alto', label:'Alto', color:'#f0b429' },
   { cat:'medio', label:'Médio', color:'#5da8ff' },
   { cat:'baixo', label:'Baixo', color:'#3ddc97' },
   { cat:'nao-necessario', label:'N/A', color:'#8996a8' },
-  { cat:'semBackup', label:'Sem backup', color:'#e8607a' },
 ];
+const CUSTOM_CHART_COLORS = ['#c792ea','#82aaff','#89ddff','#c3e88d','#f78c6c','#ffcb6b','#bb80b3','#7fdbca'];
+
 function renderBackupChart(){
   const donut = document.getElementById('backupChart');
   const legend = document.getElementById('backupChartLegend');
@@ -1982,36 +1983,49 @@ function renderBackupChart(){
     return;
   }
 
-  const counts = { critico:0, alto:0, medio:0, baixo:0, 'nao-necessario':0, semBackup:0 };
+  const knownCounts = {}; BACKUP_CHART_KNOWN.forEach(s=>{ knownCounts[s.cat] = 0; });
+  const customCounts = {};
+  let semBackup = 0;
+
   data.forEach(r=>{
     const cat = backupCategory(r.backup);
-    if(isUnclassified(cat)) counts.semBackup++;
-    else if(counts.hasOwnProperty(cat)) counts[cat]++;
+    if(cat === 'vazio'){ semBackup++; return; }
+    if(cat === 'outro'){
+      const label = (r.backup||'').toString().trim();
+      if(label) customCounts[label] = (customCounts[label]||0) + 1;
+      return;
+    }
+    knownCounts[cat]++;
   });
+
+  const customLabels = Object.keys(customCounts).sort((a,b)=>customCounts[b]-customCounts[a]);
+  const segments = BACKUP_CHART_KNOWN
+    .filter(s => knownCounts[s.cat] > 0)
+    .map(s => ({ label:s.label, color:s.color, n:knownCounts[s.cat] }))
+    .concat(customLabels.map((label,i) => ({ label, color:CUSTOM_CHART_COLORS[i % CUSTOM_CHART_COLORS.length], n:customCounts[label] })));
+  if(semBackup > 0) segments.push({ label:'Sem backup', color:'#e8607a', n:semBackup });
+
   const total = data.length;
 
   let acc = 0;
   const gradientParts = [];
-  BACKUP_CHART_SEGMENTS.forEach(seg=>{
-    const n = counts[seg.cat];
-    if(n === 0) return;
-    const pct = n / total * 100;
+  segments.forEach(seg=>{
+    const pct = seg.n / total * 100;
     gradientParts.push(`${seg.color} ${acc}% ${acc + pct}%`);
     acc += pct;
   });
   donut.style.background = `conic-gradient(${gradientParts.join(', ')})`;
 
-  const pctSemBackup = Math.round(counts.semBackup / total * 100);
+  const pctSemBackup = Math.round(semBackup / total * 100);
   centerNum.textContent = pctSemBackup + '%';
 
-  legend.innerHTML = BACKUP_CHART_SEGMENTS.map(seg=>{
-    const n = counts[seg.cat];
-    const pct = total>0 ? Math.round(n/total*100) : 0;
+  legend.innerHTML = segments.map(seg=>{
+    const pct = total>0 ? Math.round(seg.n/total*100) : 0;
     return `
       <div class="legend-row">
         <span class="legend-dot" style="background:${seg.color}"></span>
-        <span class="legend-label">${seg.label}</span>
-        <span class="legend-value">${n} (${pct}%)</span>
+        <span class="legend-label">${esc(seg.label)}</span>
+        <span class="legend-value">${seg.n} (${pct}%)</span>
       </div>`;
   }).join('') + `
     <div class="legend-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:10px;">
