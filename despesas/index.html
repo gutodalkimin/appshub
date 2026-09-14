@@ -6,7 +6,6 @@
 <title>Despesas</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
-<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <meta name="theme-color" content="#0B0D12">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1584,12 +1583,6 @@ document.getElementById('importInput').addEventListener('change', (e)=>{
   reader.readAsText(file);
   e.target.value = '';
 });
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  });
-}
 
 init();
 </script>
