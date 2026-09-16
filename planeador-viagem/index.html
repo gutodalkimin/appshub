@@ -256,6 +256,12 @@
   .stop-time { font-family: 'IBM Plex Mono', monospace; color: var(--air-blue); font-weight: 600; white-space: nowrap; }
   .stop-title { font-weight: 500; }
   .stop-note { color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
+  .stop-actions { display: flex; align-items: center; gap: 4px; }
+  .stop-thumb { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; cursor: pointer; border: 1px solid var(--kraft-line); }
+  .modal.wide { max-width: 440px; }
+  .photo-preview { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; display: block; }
+  .photo-input-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .photo-input-row input[type="file"] { flex: 1; min-width: 160px; font-size: 12.5px; }
   .add-stop-row { display: grid; grid-template-columns: 70px 1fr 1fr auto; gap: 8px; margin-top: 10px; }
   @media (max-width: 640px) { .add-stop-row { grid-template-columns: 1fr 1fr; } }
   .add-stop-row input { font-size: 13px; padding: 7px 8px; }
@@ -860,10 +866,10 @@
     renderItinerary();
   }
 
-  async function addStop(dayId, time, title, note) {
+  async function addStop(dayId, time, title, note, photo) {
     const day = itinerary.find(d => d.id === dayId);
     if (!day || !title.trim()) return;
-    const stop = { id: uid(), time: time.trim(), title: title.trim(), note: note.trim(), lat: null, lng: null, geoStatus: 'pending' };
+    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null };
     day.stops.push(stop);
     saveItinerary();
     renderItinerary();
@@ -885,6 +891,134 @@
     day.stops = day.stops.filter(s => s.id !== stopId);
     saveItinerary();
     renderItinerary();
+  }
+
+  function compressImageToDataUrl(file, maxDim = 1000, quality = 0.65) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else if (height >= width && height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function openStopEditor(dayId, stopId) {
+    const day = itinerary.find(d => d.id === dayId);
+    if (!day) return;
+    const stop = stopId ? day.stops.find(s => s.id === stopId) : null;
+    const root = document.getElementById('modalRoot');
+
+    root.innerHTML = `
+      <div class="modal-backdrop" id="stopModalBackdrop">
+        <div class="modal wide">
+          <h3>${stop ? 'Editar atividade' : 'Nova atividade'}</h3>
+          <div class="new-trip-form">
+            <div class="row">
+              <input type="time" id="stopTimeInput" value="${stop ? escapeHtml(stop.time || '') : ''}" style="flex:0 0 110px;">
+              <input type="text" id="stopTitleInput" placeholder="O quê? (ex: Torre de Belém)" value="${stop ? escapeHtml(stop.title || '') : ''}">
+            </div>
+            <textarea id="stopNoteInput" placeholder="Nota (opcional)" rows="2" style="width:100%;margin-top:10px;box-sizing:border-box;">${stop ? escapeHtml(stop.note || '') : ''}</textarea>
+            <div style="margin-top:14px;">
+              <div id="stopPhotoPreviewWrap">
+                ${stop && stop.photo ? `<img src="${stop.photo}" class="photo-preview" id="stopPhotoPreview">` : ''}
+              </div>
+              <div class="photo-input-row">
+                <input type="file" accept="image/*" id="stopPhotoInput">
+                ${stop && stop.photo ? `<button type="button" class="ghost" id="removePhotoBtn">Remover foto</button>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:18px;">
+            ${stop ? `<button class="danger" id="stopDeleteBtn" style="margin-right:auto;">Remover atividade</button>` : ''}
+            <button class="ghost" id="stopCancelBtn">Cancelar</button>
+            <button class="primary" id="stopSaveBtn">Guardar</button>
+          </div>
+        </div>
+      </div>`;
+
+    let pendingPhoto = stop ? (stop.photo || null) : null;
+    let photoRemoved = false;
+
+    const close = () => { root.innerHTML = ''; };
+    document.getElementById('stopCancelBtn').onclick = close;
+    document.getElementById('stopModalBackdrop').addEventListener('click', (e) => { if (e.target.id === 'stopModalBackdrop') close(); });
+
+    document.getElementById('stopPhotoInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        pendingPhoto = await compressImageToDataUrl(file);
+        photoRemoved = false;
+        document.getElementById('stopPhotoPreviewWrap').innerHTML = `<img src="${pendingPhoto}" class="photo-preview" id="stopPhotoPreview">`;
+      } catch (err) {
+        console.error(err);
+        alert('Não foi possível processar esta imagem.');
+      }
+    });
+
+    const removeBtn = document.getElementById('removePhotoBtn');
+    if (removeBtn) {
+      removeBtn.onclick = () => {
+        pendingPhoto = null;
+        photoRemoved = true;
+        document.getElementById('stopPhotoPreviewWrap').innerHTML = '';
+        removeBtn.remove();
+      };
+    }
+
+    if (stop) {
+      document.getElementById('stopDeleteBtn').onclick = () => {
+        close();
+        removeStop(dayId, stop.id);
+      };
+    }
+
+    document.getElementById('stopSaveBtn').onclick = async () => {
+      const time = document.getElementById('stopTimeInput').value;
+      const title = document.getElementById('stopTitleInput').value.trim();
+      const note = document.getElementById('stopNoteInput').value.trim();
+      if (!title) { alert('Escreve pelo menos o nome da atividade.'); return; }
+
+      if (stop) {
+        const changedTitle = title !== stop.title;
+        stop.time = time;
+        stop.title = title;
+        stop.note = note;
+        stop.photo = photoRemoved ? null : (pendingPhoto || stop.photo || null);
+        if (changedTitle) { stop.geoStatus = 'pending'; stop.lat = null; stop.lng = null; }
+        saveItinerary();
+        renderItinerary();
+        close();
+        if (changedTitle) {
+          const trip = trips.find(t => t.id === currentTripId);
+          const bias = trip && trip.destination ? `, ${trip.destination}` : '';
+          const coords = await queueGeocode(stop.title + bias);
+          const stillThere = itinerary.find(d => d.id === dayId)?.stops.find(s => s.id === stop.id);
+          if (!stillThere) return;
+          stillThere.geoStatus = coords ? 'ok' : 'notfound';
+          if (coords) { stillThere.lat = coords.lat; stillThere.lng = coords.lng; }
+          saveItinerary();
+          renderItinerary();
+        }
+      } else {
+        close();
+        await addStop(dayId, time, title, note, pendingPhoto);
+      }
+    };
   }
 
   function renderItinerary() {
@@ -913,7 +1047,11 @@
                 }</div>
                 ${s.note ? `<div class="stop-note">${escapeHtml(s.note)}</div>` : ''}
               </div>
-              <button class="icon-btn" title="Remover" onclick="removeStop('${day.id}','${s.id}')">✕</button>
+              <div class="stop-actions">
+                ${s.photo ? `<img src="${s.photo}" class="stop-thumb" title="Ver/editar foto" onclick="openStopEditor('${day.id}','${s.id}')">` : ''}
+                <button class="icon-btn" title="Editar" onclick="openStopEditor('${day.id}','${s.id}')">✎</button>
+                <button class="icon-btn" title="Remover" onclick="removeStop('${day.id}','${s.id}')">✕</button>
+              </div>
             </div>
           `).join('')
         }
@@ -924,7 +1062,7 @@
             : ''
         }
         <div class="add-stop-row">
-          <input type="text" placeholder="Hora" class="stop-time-input" />
+          <input type="time" class="stop-time-input" />
           <input type="text" placeholder="O quê? (ex: Torre de Belém)" class="stop-title-input" />
           <input type="text" placeholder="Nota (opcional)" class="stop-note-input" />
           <button class="ghost" onclick="submitStop('${day.id}', this)">+</button>
