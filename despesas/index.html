@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <meta name="theme-color" content="#0B0D12">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Despesas">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -861,24 +862,26 @@ function ensureRecurringForCurrentMonth(){
   expenses.forEach(e=>{
     if(e.recurring){
       const gid = e.recurringGroupId || e.id;
-      if(!groups[gid] || groups[gid].date < e.date) groups[gid] = e;
+      if(!groups[gid]) groups[gid] = [];
+      groups[gid].push(e);
     }
   });
   let created = false;
-  Object.values(groups).forEach(latest=>{
-    if(monthKey(latest.date) !== currentMonth){
-      const day = latest.date.slice(8,10);
-      let newDate = `${currentMonth}-${day}`;
-      if(isNaN(new Date(newDate).getTime())){ newDate = `${currentMonth}-01`; }
-      expenses.push({
-        ...latest,
-        id: cryptoId(),
-        date: newDate,
-        recurringGroupId: latest.recurringGroupId || latest.id,
-        receiptUrl: null
-      });
-      created = true;
-    }
+  Object.entries(groups).forEach(([gid, items])=>{
+    const alreadyHasCurrentMonth = items.some(it => monthKey(it.date) === currentMonth);
+    if(alreadyHasCurrentMonth) return;
+    const latest = items.slice().sort((a,b)=> (a.date||'').localeCompare(b.date||'')).pop();
+    const day = latest.date.slice(8,10);
+    let newDate = `${currentMonth}-${day}`;
+    if(isNaN(new Date(newDate).getTime())){ newDate = `${currentMonth}-01`; }
+    expenses.push({
+      ...latest,
+      id: cryptoId(),
+      date: newDate,
+      recurringGroupId: gid,
+      receiptUrl: null
+    });
+    created = true;
   });
   if(created) persist();
 }
@@ -955,7 +958,6 @@ async function init(){
     const loaded = loadLocal();
     expenses = loaded ? loaded.items : seed;
     budgets = loaded ? (loaded.budgets || {}) : {};
-    ensureRecurringForCurrentMonth();
     render();
     setSyncStatus('pending', 'A ligar à base de dados…');
 
