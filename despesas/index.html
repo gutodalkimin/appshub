@@ -671,8 +671,16 @@
       <label>Notas (opcional)</label>
       <input id="fNotes" placeholder="ex: cartão final 4417">
     </div>
+    <div class="field" id="currentReceiptRow" style="display:none;">
+      <label>Recibo atual</label>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <span style="font-size:13px;color:var(--text-muted);">📎 Anexado</span>
+        <button type="button" class="btn-danger-text" id="viewReceiptBtn" style="color:var(--text-muted);">Ver</button>
+        <button type="button" class="btn-danger-text" id="removeReceiptBtn">Remover</button>
+      </div>
+    </div>
     <div class="field">
-      <label>Recibo (opcional)</label>
+      <label id="receiptFieldLabel">Recibo (opcional)</label>
       <input id="fReceipt" type="file" accept="image/*">
     </div>
     <div class="modal-actions">
@@ -770,6 +778,7 @@ let searchQuery = '';
 let selectedMonth = '';
 let editingId = null;
 let selectedColor = COLORS[0];
+let removeReceiptFlag = false;
 let customRangeActive = false;
 let customRange = { from:'', to:'' };
 
@@ -1321,6 +1330,9 @@ function openModal(id){
   document.getElementById('fRecurring').checked = exp ? !!exp.recurring : false;
   document.getElementById('fNotes').value = exp ? (exp.notes || '') : '';
   document.getElementById('fReceipt').value = '';
+  removeReceiptFlag = false;
+  document.getElementById('currentReceiptRow').style.display = (exp && exp.hasReceipt) ? 'block' : 'none';
+  document.getElementById('receiptFieldLabel').textContent = (exp && exp.hasReceipt) ? 'Substituir recibo (opcional)' : 'Recibo (opcional)';
 
   selectedColor = exp ? exp.color : COLORS[expenses.length % COLORS.length];
   buildColorRow();
@@ -1395,6 +1407,12 @@ async function handleSave(){
 
   if(!description || isNaN(amount)) return;
 
+  const saveBtnEl = document.getElementById('saveBtn');
+  const originalSaveText = saveBtnEl.textContent;
+  saveBtnEl.disabled = true;
+  saveBtnEl.textContent = 'A guardar…';
+  saveBtnEl.style.opacity = '0.7';
+
   let expObj;
   try{
     if(editingId){
@@ -1409,6 +1427,11 @@ async function handleSave(){
       expenses.push(expObj);
     }
 
+    if(removeReceiptFlag && expObj.hasReceipt && fbEnabled && currentUser){
+      db.collection('despesas').doc(currentUser.uid).collection('receipts').doc(expObj.id).delete().catch(()=>{});
+      expObj.hasReceipt = false;
+    }
+
     const fileInput = document.getElementById('fReceipt');
     const file = fileInput.files && fileInput.files[0];
     if(file && fbEnabled && currentUser){
@@ -1417,12 +1440,16 @@ async function handleSave(){
         if(dataUrl.length > 950000){
           console.warn('A imagem ficou demasiado grande mesmo depois de comprimida — recibo não guardado.');
         } else {
-          const timeoutPromise = new Promise((_, reject)=> setTimeout(()=>reject(new Error('tempo esgotado a guardar o recibo')), 8000));
-          await Promise.race([
-            db.collection('despesas').doc(currentUser.uid).collection('receipts').doc(expObj.id).set({ dataUrl }),
-            timeoutPromise
-          ]);
-          expObj.hasReceipt = true;
+          const writePromise = db.collection('despesas').doc(currentUser.uid).collection('receipts').doc(expObj.id).set({ dataUrl });
+          writePromise.then(()=>{
+            console.log('[recibo] guardado com sucesso (pode ter chegado depois do aviso de limite de tempo).');
+          }).catch(err=>{
+            console.error('[recibo] motivo real da falha:', err && (err.code || err.message) || err);
+          });
+          const timeoutPromise = new Promise((resolve)=> setTimeout(()=>resolve('timeout'), 8000));
+          const result = await Promise.race([writePromise.then(()=>'ok'), timeoutPromise]);
+          if(result === 'ok'){ expObj.hasReceipt = true; }
+          else { console.warn('A guardar o recibo está a demorar mais do que 8s — a despesa foi guardada na mesma, o recibo continua a tentar em segundo plano. Vê a mensagem "[recibo] motivo real da falha" na consola daqui a pouco.'); }
         }
       }catch(err){
         console.warn('Não foi possível guardar o recibo — a despesa foi guardada na mesma, só sem o anexo.', err);
@@ -1434,8 +1461,20 @@ async function handleSave(){
     persist();
     closeModal();
     render();
+    saveBtnEl.disabled = false;
+    saveBtnEl.textContent = originalSaveText;
+    saveBtnEl.style.opacity = '';
   }
 }
+
+document.getElementById('viewReceiptBtn').addEventListener('click', ()=>{
+  if(editingId) openReceipt(editingId);
+});
+document.getElementById('removeReceiptBtn').addEventListener('click', ()=>{
+  removeReceiptFlag = true;
+  document.getElementById('currentReceiptRow').style.display = 'none';
+  document.getElementById('receiptFieldLabel').textContent = 'Recibo (opcional)';
+});
 
 document.getElementById('duplicateBtn').addEventListener('click', ()=>{
   if(!editingId) return;
