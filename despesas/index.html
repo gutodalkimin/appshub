@@ -16,7 +16,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
 <style>
   :root{
     --bg:#0B0D12;
@@ -614,8 +613,6 @@
     </div>
   </div>
 
-  <div class="people-row" id="peopleRow"></div>
-
   <div class="summary-row">
     <div class="summary-card">
       <div class="summary-label" id="sumMonthLabel">Total do período</div>
@@ -667,13 +664,6 @@
       <label>Cor</label>
       <div class="color-row" id="colorRow"></div>
     </div>
-    <div class="field">
-      <label>Pago por</label>
-      <div class="pill-row" id="paidByRow"></div>
-    </div>
-    <div class="checkbox-row">
-      <input type="checkbox" id="fShared"><label for="fShared">Despesa partilhada (divide 50/50)</label>
-    </div>
     <div class="checkbox-row">
       <input type="checkbox" id="fRecurring"><label for="fRecurring">Repete todos os meses</label>
     </div>
@@ -683,7 +673,7 @@
     </div>
     <div class="field">
       <label>Recibo (opcional)</label>
-      <input id="fReceipt" type="file" accept="image/*,.pdf">
+      <input id="fReceipt" type="file" accept="image/*">
     </div>
     <div class="modal-actions">
       <div style="display:flex;gap:16px;margin-right:auto;">
@@ -721,8 +711,6 @@
 <script>
 const LOCAL_KEY = 'despesas-v1';
 const ALLOWED_EMAILS = ['gutodalkimin@gmail.com','anatebet10@gmail.com'];
-const USER_NAMES = { 'gutodalkimin@gmail.com':'Guto', 'anatebet10@gmail.com':'Ana' };
-const PAID_BY_LIST = Object.values(USER_NAMES);
 const COLORS = [
   '#524656','#cf4747','#e4dccb','#a6c4bc',
   '#66aba5','#fcf3d3','#e26b5a','#f1b04e',
@@ -744,22 +732,16 @@ const COLORS = [
                 && request.auth.uid == userId
                 && request.auth.token.email in ['gutodalkimin@gmail.com','anatebet10@gmail.com'];
             }
-          }
-        }
-   5. Se quiseres anexar fotos de recibos, ativa também o Storage e cola nas
-      regras de Storage:
-        rules_version = '2';
-        service firebase.storage {
-          match /b/{bucket}/o {
-            match /receipts/{userId}/{fileName} {
+            match /despesas/{userId}/receipts/{receiptId} {
               allow read, write: if request.auth != null
                 && request.auth.uid == userId
                 && request.auth.token.email in ['gutodalkimin@gmail.com','anatebet10@gmail.com'];
             }
           }
         }
-      Sem isto configurado, a app continua a funcionar normalmente — só não
-      guarda o anexo do recibo.
+   5. Os recibos são fotos comprimidas no browser e guardadas como documentos
+      na Firestore (não precisam do Firebase Storage, por isso funcionam no
+      plano gratuito Spark, sem cartão de crédito).
 ------------------------------------ */
 const firebaseConfig = {
   apiKey: "AIzaSyD9sq-ZxYlDizGQqHGsECIkwXeTGjdc6Pc",
@@ -788,7 +770,6 @@ let searchQuery = '';
 let selectedMonth = '';
 let editingId = null;
 let selectedColor = COLORS[0];
-let selectedPaidBy = PAID_BY_LIST[0];
 let customRangeActive = false;
 let customRange = { from:'', to:'' };
 
@@ -804,8 +785,8 @@ sidebarBackdrop.addEventListener('click', closeSidebar);
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 
 const seed = [
-  {id:cryptoId(), description:'Supermercado', amount:54.30, category:'Alimentação', date:todayISO(), color:COLORS[4], paidBy:PAID_BY_LIST[0], shared:true, recurring:false, recurringGroupId:null, notes:'', receiptUrl:null},
-  {id:cryptoId(), description:'Combustível', amount:40, category:'Transporte', date:todayISO(), color:COLORS[6], paidBy:PAID_BY_LIST[1], shared:false, recurring:false, recurringGroupId:null, notes:'', receiptUrl:null}
+  {id:cryptoId(), description:'Supermercado', amount:54.30, category:'Alimentação', date:todayISO(), color:COLORS[4], recurring:false, recurringGroupId:null, notes:'', hasReceipt:false},
+  {id:cryptoId(), description:'Combustível', amount:40, category:'Transporte', date:todayISO(), color:COLORS[6], recurring:false, recurringGroupId:null, notes:'', hasReceipt:false}
 ];
 
 function applyTheme(theme){
@@ -882,7 +863,7 @@ function ensureRecurringForCurrentMonth(){
       id: cryptoId(),
       date: newDate,
       recurringGroupId: gid,
-      receiptUrl: null
+      hasReceipt: false
     });
     created = true;
   });
@@ -1209,53 +1190,41 @@ function renderTrend(){
   }).join('');
 }
 
-function renderPeopleRow(){
-  const el = document.getElementById('peopleRow');
-  const scope = currentScopeItems();
-  if(!scope.length){ el.innerHTML=''; return; }
-
-  const spentBy = {}; PAID_BY_LIST.forEach(n=>spentBy[n]=0);
-  scope.forEach(e=>{ if(e.paidBy) spentBy[e.paidBy] = (spentBy[e.paidBy]||0) + Number(e.amount||0); });
-
-  const [p1,p2] = PAID_BY_LIST;
-  let net = 0;
-  scope.forEach(e=>{
-    if(e.shared){
-      const half = Number(e.amount||0)/2;
-      if(e.paidBy===p1) net += half;
-      else if(e.paidBy===p2) net -= half;
+async function openReceipt(id){
+  if(!fbEnabled || !currentUser){ return; }
+  const w = window.open('', '_blank');
+  if(w){ w.document.write('A carregar recibo…'); }
+  try{
+    const snap = await db.collection('despesas').doc(currentUser.uid).collection('receipts').doc(id).get();
+    if(!snap.exists){
+      if(w) w.document.write('Recibo não encontrado.');
+      return;
     }
-  });
-
-  let balanceHtml;
-  if(Math.abs(net) < 0.005){
-    balanceHtml = `<span class="balance-note">Contas certas entre ${p1} e ${p2}</span>`;
-  } else if(net > 0){
-    balanceHtml = `<span class="balance-note due">${p2} deve ${formatCurrency(net)} a ${p1}</span>`;
-  } else {
-    balanceHtml = `<span class="balance-note due">${p1} deve ${formatCurrency(-net)} a ${p2}</span>`;
+    const dataUrl = snap.data().dataUrl;
+    if(w){
+      w.document.open();
+      w.document.write(`<title>Recibo</title><body style="margin:0;background:#0B0D12;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${dataUrl}" style="max-width:100%;max-height:100vh;"></body>`);
+      w.document.close();
+    }
+  }catch(err){
+    console.error('Não foi possível carregar o recibo', err);
+    if(w) w.document.write('Não foi possível carregar o recibo.');
   }
-
-  el.innerHTML = PAID_BY_LIST.map((n,i)=>`
-    <span class="people-chip"><span class="people-dot" style="background:${i===0?'var(--accent)':'var(--amber)'}"></span>${escapeHtml(n)}: ${formatCurrency(spentBy[n])}</span>
-  `).join('') + balanceHtml;
 }
 
 function expenseRowHtml(e){
   const note = e.notes ? `<div class="expense-note">${escapeHtml(e.notes)}</div>` : '';
-  const sharedTag = e.shared ? ' · partilhada' : '';
-  const paidTag = e.paidBy ? ` · ${escapeHtml(e.paidBy)}` : '';
   return `
     <div class="expense-row" data-id="${e.id}">
       <div class="expense-dot" style="background:${e.color}"></div>
       <div class="expense-main">
         <div class="expense-desc">${escapeHtml(e.description)}${e.recurring ? ' 🔁' : ''}</div>
-        <div class="expense-meta">${escapeHtml(e.category)} · ${formatDate(e.date)}${paidTag}${sharedTag}</div>
+        <div class="expense-meta">${escapeHtml(e.category)} · ${formatDate(e.date)}</div>
         ${note}
       </div>
       <div class="expense-amount">${formatCurrency(e.amount)}</div>
       <div class="expense-actions">
-        ${e.receiptUrl ? `<a href="${e.receiptUrl}" target="_blank" rel="noopener" class="tile-action-btn" data-action="receipt" title="Ver recibo">📎</a>` : ''}
+        ${e.hasReceipt ? `<button class="tile-action-btn" data-action="receipt" data-id="${e.id}" title="Ver recibo">📎</button>` : ''}
       </div>
     </div>
   `;
@@ -1278,7 +1247,6 @@ function render(){
   updateSummary(filtered);
   renderChart();
   renderTrend();
-  renderPeopleRow();
 
   let html = '';
   if(filtered.length){
@@ -1294,8 +1262,11 @@ function render(){
       openModal(row.dataset.id);
     });
   });
-  content.querySelectorAll('[data-action="receipt"]').forEach(a=>{
-    a.addEventListener('click', (e)=> e.stopPropagation());
+  content.querySelectorAll('[data-action="receipt"]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openReceipt(btn.dataset.id);
+    });
   });
 }
 
@@ -1318,7 +1289,7 @@ document.getElementById('searchInput').addEventListener('input', (e)=>{
 function duplicateExpense(id){
   const src = expenses.find(e=>e.id===id);
   if(!src) return;
-  const copy = {...src, id:cryptoId(), date: todayISO(), recurring:false, recurringGroupId:null, receiptUrl:null};
+  const copy = {...src, id:cryptoId(), date: todayISO(), recurring:false, recurringGroupId:null, hasReceipt:false};
   expenses.push(copy);
   persist();
   render();
@@ -1338,13 +1309,6 @@ function buildColorRow(){
     });
   });
 }
-function buildPaidByRow(){
-  const row = document.getElementById('paidByRow');
-  row.innerHTML = PAID_BY_LIST.map(n=>`<button type="button" class="pill-btn ${n===selectedPaidBy?'selected':''}" data-name="${escapeAttr(n)}">${escapeHtml(n)}</button>`).join('');
-  row.querySelectorAll('.pill-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ selectedPaidBy = btn.dataset.name; buildPaidByRow(); });
-  });
-}
 
 function openModal(id){
   editingId = id || null;
@@ -1354,15 +1318,12 @@ function openModal(id){
   document.getElementById('fAmount').value = exp ? exp.amount : '';
   document.getElementById('fDate').value = exp ? exp.date : todayISO();
   document.getElementById('fCategory').value = exp ? exp.category : '';
-  document.getElementById('fShared').checked = exp ? !!exp.shared : false;
   document.getElementById('fRecurring').checked = exp ? !!exp.recurring : false;
   document.getElementById('fNotes').value = exp ? (exp.notes || '') : '';
   document.getElementById('fReceipt').value = '';
 
   selectedColor = exp ? exp.color : COLORS[expenses.length % COLORS.length];
-  selectedPaidBy = exp ? (exp.paidBy || PAID_BY_LIST[0]) : (currentUser && USER_NAMES[currentUser.email] ? USER_NAMES[currentUser.email] : PAID_BY_LIST[0]);
   buildColorRow();
-  buildPaidByRow();
   document.getElementById('deleteBtn').style.display = exp ? 'inline' : 'none';
   document.getElementById('duplicateBtn').style.display = exp ? 'inline' : 'none';
 
@@ -1389,13 +1350,46 @@ document.querySelectorAll('.quick-amt-btn').forEach(btn=>{
   });
 });
 
+function fileToCompressedDataUrl(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Não foi possível ler o ficheiro'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Não foi possível processar a imagem'));
+      img.onload = () => {
+        let { width, height } = img;
+        const maxDim = 1280;
+        if(width > maxDim || height > maxDim){
+          if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        let quality = 0.72;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        let attempts = 0;
+        while(dataUrl.length > 900000 && attempts < 5){
+          quality = Math.max(quality - 0.12, 0.3);
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+          attempts++;
+        }
+        resolve(dataUrl);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 document.getElementById('saveBtn').addEventListener('click', handleSave);
 async function handleSave(){
   const description = document.getElementById('fDesc').value.trim();
   const amount = parseFloat(document.getElementById('fAmount').value);
   const date = document.getElementById('fDate').value || todayISO();
   const category = document.getElementById('fCategory').value.trim() || 'Geral';
-  const shared = document.getElementById('fShared').checked;
   const recurring = document.getElementById('fRecurring').checked;
   const notes = document.getElementById('fNotes').value.trim();
 
@@ -1406,12 +1400,12 @@ async function handleSave(){
     if(editingId){
       expObj = expenses.find(a=>a.id===editingId);
       const wasRecurring = expObj.recurring;
-      Object.assign(expObj, {description, amount, date, category, color:selectedColor, paidBy:selectedPaidBy, shared, recurring, notes});
+      Object.assign(expObj, {description, amount, date, category, color:selectedColor, recurring, notes});
       if(recurring && !expObj.recurringGroupId) expObj.recurringGroupId = expObj.id;
       if(!recurring && !wasRecurring) expObj.recurringGroupId = null;
     } else {
       const id = cryptoId();
-      expObj = {id, description, amount, date, category, color:selectedColor, paidBy:selectedPaidBy, shared, recurring, recurringGroupId: recurring ? id : null, notes, receiptUrl:null};
+      expObj = {id, description, amount, date, category, color:selectedColor, recurring, recurringGroupId: recurring ? id : null, notes, hasReceipt:false};
       expenses.push(expObj);
     }
 
@@ -1419,15 +1413,19 @@ async function handleSave(){
     const file = fileInput.files && fileInput.files[0];
     if(file && fbEnabled && currentUser){
       try{
-        const storage = firebase.storage();
-        storage.maxUploadRetryTime = 4000;
-        storage.maxOperationRetryTime = 4000;
-        const storageRef = storage.ref(`receipts/${currentUser.uid}/${expObj.id}-${file.name}`);
-        const uploadPromise = storageRef.put(file).then(()=>storageRef.getDownloadURL());
-        const timeoutPromise = new Promise((_, reject)=> setTimeout(()=>reject(new Error('tempo esgotado a carregar o recibo')), 6000));
-        expObj.receiptUrl = await Promise.race([uploadPromise, timeoutPromise]);
+        const dataUrl = await fileToCompressedDataUrl(file);
+        if(dataUrl.length > 950000){
+          console.warn('A imagem ficou demasiado grande mesmo depois de comprimida — recibo não guardado.');
+        } else {
+          const timeoutPromise = new Promise((_, reject)=> setTimeout(()=>reject(new Error('tempo esgotado a guardar o recibo')), 8000));
+          await Promise.race([
+            db.collection('despesas').doc(currentUser.uid).collection('receipts').doc(expObj.id).set({ dataUrl }),
+            timeoutPromise
+          ]);
+          expObj.hasReceipt = true;
+        }
       }catch(err){
-        console.warn('Não foi possível carregar o recibo — a despesa foi guardada na mesma, só sem o anexo. Confirma se o Storage está ativado no Firebase.', err);
+        console.warn('Não foi possível guardar o recibo — a despesa foi guardada na mesma, só sem o anexo.', err);
       }
     }
   }catch(err){
@@ -1458,8 +1456,12 @@ document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
 });
 document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
   try{
+    const removed = expenses.find(a=>a.id===editingId);
     expenses = expenses.filter(a=>a.id !== editingId);
     persist();
+    if(removed && removed.hasReceipt && fbEnabled && currentUser){
+      db.collection('despesas').doc(currentUser.uid).collection('receipts').doc(removed.id).delete().catch(()=>{});
+    }
     document.getElementById('confirmOverlay').classList.remove('open');
     closeModal();
     if(activeCategory !== 'Todas' && !expenses.some(a=>a.category===activeCategory)){
@@ -1551,9 +1553,9 @@ function csvEscape(v){
   return v;
 }
 document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
-  const header = ['Data','Descrição','Categoria','Valor','Pago por','Partilhada','Recorrente','Notas'];
+  const header = ['Data','Descrição','Categoria','Valor','Recorrente','Notas'];
   const rows = expenses.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(e=>[
-    e.date, e.description, e.category, String(e.amount).replace('.',','), e.paidBy||'', e.shared?'Sim':'Não', e.recurring?'Sim':'Não', e.notes||''
+    e.date, e.description, e.category, String(e.amount).replace('.',','), e.recurring?'Sim':'Não', e.notes||''
   ]);
   const csv = [header, ...rows].map(r=>r.map(csvEscape).join(';')).join('\n');
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
@@ -1579,12 +1581,10 @@ document.getElementById('importInput').addEventListener('change', (e)=>{
         date: a.date || todayISO(),
         category: a.category || 'Geral',
         color: a.color || COLORS[0],
-        paidBy: a.paidBy || PAID_BY_LIST[0],
-        shared: !!a.shared,
         recurring: !!a.recurring,
         recurringGroupId: a.recurringGroupId || null,
         notes: a.notes || '',
-        receiptUrl: a.receiptUrl || null
+        hasReceipt: !!a.hasReceipt
       }));
       if(!Array.isArray(parsed) && parsed.budgets) budgets = parsed.budgets;
       persist();
