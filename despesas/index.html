@@ -686,7 +686,10 @@
       <input id="fReceipt" type="file" accept="image/*,.pdf">
     </div>
     <div class="modal-actions">
-      <button class="btn-danger-text" id="deleteBtn" style="display:none;margin-right:auto;">Remover</button>
+      <div style="display:flex;gap:16px;margin-right:auto;">
+        <button class="btn-danger-text" id="deleteBtn" style="display:none;">Remover</button>
+        <button class="btn-danger-text" id="duplicateBtn" style="display:none;color:var(--text-muted);">Duplicar</button>
+      </div>
       <button class="btn-secondary" id="cancelBtn">Cancelar</button>
       <button class="btn-primary" id="saveBtn">Guardar</button>
     </div>
@@ -1253,7 +1256,6 @@ function expenseRowHtml(e){
       <div class="expense-amount">${formatCurrency(e.amount)}</div>
       <div class="expense-actions">
         ${e.receiptUrl ? `<a href="${e.receiptUrl}" target="_blank" rel="noopener" class="tile-action-btn" data-action="receipt" title="Ver recibo">📎</a>` : ''}
-        <button class="tile-action-btn" data-action="duplicate" data-id="${e.id}" title="Duplicar">⧉</button>
       </div>
     </div>
   `;
@@ -1290,12 +1292,6 @@ function render(){
     row.addEventListener('click', (e)=>{
       if(e.target.closest('[data-action]')) return;
       openModal(row.dataset.id);
-    });
-  });
-  content.querySelectorAll('[data-action="duplicate"]').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      duplicateExpense(btn.dataset.id);
     });
   });
   content.querySelectorAll('[data-action="receipt"]').forEach(a=>{
@@ -1367,7 +1363,8 @@ function openModal(id){
   selectedPaidBy = exp ? (exp.paidBy || PAID_BY_LIST[0]) : (currentUser && USER_NAMES[currentUser.email] ? USER_NAMES[currentUser.email] : PAID_BY_LIST[0]);
   buildColorRow();
   buildPaidByRow();
-  document.getElementById('deleteBtn').style.display = exp ? 'block' : 'none';
+  document.getElementById('deleteBtn').style.display = exp ? 'inline' : 'none';
+  document.getElementById('duplicateBtn').style.display = exp ? 'inline' : 'none';
 
   const datalist = document.getElementById('categoryList');
   datalist.innerHTML = getCategories().map(c=>`<option value="${escapeAttr(c)}">`).join('');
@@ -1405,35 +1402,49 @@ async function handleSave(){
   if(!description || isNaN(amount)) return;
 
   let expObj;
-  if(editingId){
-    expObj = expenses.find(a=>a.id===editingId);
-    const wasRecurring = expObj.recurring;
-    Object.assign(expObj, {description, amount, date, category, color:selectedColor, paidBy:selectedPaidBy, shared, recurring, notes});
-    if(recurring && !expObj.recurringGroupId) expObj.recurringGroupId = expObj.id;
-    if(!recurring && !wasRecurring) expObj.recurringGroupId = null;
-  } else {
-    const id = cryptoId();
-    expObj = {id, description, amount, date, category, color:selectedColor, paidBy:selectedPaidBy, shared, recurring, recurringGroupId: recurring ? id : null, notes, receiptUrl:null};
-    expenses.push(expObj);
-  }
-
-  const fileInput = document.getElementById('fReceipt');
-  const file = fileInput.files && fileInput.files[0];
-  if(file && fbEnabled && currentUser){
-    try{
-      const storageRef = firebase.storage().ref(`receipts/${currentUser.uid}/${expObj.id}-${file.name}`);
-      const uploadPromise = storageRef.put(file).then(()=>storageRef.getDownloadURL());
-      const timeoutPromise = new Promise((_, reject)=> setTimeout(()=>reject(new Error('tempo esgotado a carregar o recibo')), 8000));
-      expObj.receiptUrl = await Promise.race([uploadPromise, timeoutPromise]);
-    }catch(err){
-      console.warn('Não foi possível carregar o recibo — a despesa foi guardada na mesma, só sem o anexo. Confirma se o Storage está ativado no Firebase.', err);
+  try{
+    if(editingId){
+      expObj = expenses.find(a=>a.id===editingId);
+      const wasRecurring = expObj.recurring;
+      Object.assign(expObj, {description, amount, date, category, color:selectedColor, paidBy:selectedPaidBy, shared, recurring, notes});
+      if(recurring && !expObj.recurringGroupId) expObj.recurringGroupId = expObj.id;
+      if(!recurring && !wasRecurring) expObj.recurringGroupId = null;
+    } else {
+      const id = cryptoId();
+      expObj = {id, description, amount, date, category, color:selectedColor, paidBy:selectedPaidBy, shared, recurring, recurringGroupId: recurring ? id : null, notes, receiptUrl:null};
+      expenses.push(expObj);
     }
-  }
 
-  persist();
-  closeModal();
-  render();
+    const fileInput = document.getElementById('fReceipt');
+    const file = fileInput.files && fileInput.files[0];
+    if(file && fbEnabled && currentUser){
+      try{
+        const storage = firebase.storage();
+        storage.maxUploadRetryTime = 4000;
+        storage.maxOperationRetryTime = 4000;
+        const storageRef = storage.ref(`receipts/${currentUser.uid}/${expObj.id}-${file.name}`);
+        const uploadPromise = storageRef.put(file).then(()=>storageRef.getDownloadURL());
+        const timeoutPromise = new Promise((_, reject)=> setTimeout(()=>reject(new Error('tempo esgotado a carregar o recibo')), 6000));
+        expObj.receiptUrl = await Promise.race([uploadPromise, timeoutPromise]);
+      }catch(err){
+        console.warn('Não foi possível carregar o recibo — a despesa foi guardada na mesma, só sem o anexo. Confirma se o Storage está ativado no Firebase.', err);
+      }
+    }
+  }catch(err){
+    console.error('Erro inesperado ao guardar a despesa:', err);
+  }finally{
+    persist();
+    closeModal();
+    render();
+  }
 }
+
+document.getElementById('duplicateBtn').addEventListener('click', ()=>{
+  if(!editingId) return;
+  const id = editingId;
+  closeModal();
+  duplicateExpense(id);
+});
 
 document.getElementById('deleteBtn').addEventListener('click', ()=>{
   const exp = expenses.find(a=>a.id===editingId);
