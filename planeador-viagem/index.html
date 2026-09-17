@@ -966,7 +966,7 @@
               </div>
               <div class="photo-input-row">
                 <input type="file" accept="image/*" id="stopPhotoInput">
-                ${stop && stop.photo ? `<button type="button" class="ghost" id="removePhotoBtn">Remover foto</button>` : ''}
+                ${stop && stop.photo ? `<button type="button" class="ghost" id="stopRemovePhotoBtn">Remover foto</button>` : ''}
               </div>
             </div>
           </div>
@@ -998,7 +998,7 @@
       }
     });
 
-    const removeBtn = document.getElementById('removePhotoBtn');
+    const removeBtn = document.getElementById('stopRemovePhotoBtn');
     if (removeBtn) {
       removeBtn.onclick = () => {
         pendingPhoto = null;
