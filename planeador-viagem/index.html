@@ -877,10 +877,11 @@
     renderItinerary();
   }
 
-  async function addStop(dayId, time, title, note, photo) {
+  async function addStop(dayId, time, title, note, photo, expenseAmount) {
     const day = itinerary.find(d => d.id === dayId);
     if (!day || !title.trim()) return;
-    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null };
+    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null };
+    syncStopExpense(stop, expenseAmount);
     day.stops.push(stop);
     saveItinerary();
     renderItinerary();
@@ -944,6 +945,35 @@
     });
   }
 
+  function syncStopExpense(stop, amount) {
+    const valid = !isNaN(amount) && amount > 0;
+    if (valid) {
+      let exp = stop.expenseId ? expenses.find(x => x.id === stop.expenseId) : null;
+      if (exp) {
+        exp.amount = amount;
+        exp.desc = exp.desc || stop.title;
+      } else {
+        exp = {
+          id: uid(),
+          desc: stop.title,
+          amount,
+          payer: (currentUser && (currentUser.displayName || currentUser.email)) || '',
+          category: 'Atividades',
+          date: new Date().toISOString().slice(0, 10)
+        };
+        expenses.push(exp);
+        stop.expenseId = exp.id;
+      }
+      stop.expenseAmount = amount;
+    } else if (stop.expenseId) {
+      expenses = expenses.filter(x => x.id !== stop.expenseId);
+      stop.expenseId = null;
+      stop.expenseAmount = null;
+    }
+    saveExpenses();
+    renderExpensesAll();
+  }
+
   function openStopEditor(dayId, stopId) {
     const day = itinerary.find(d => d.id === dayId);
     if (!day) return;
@@ -968,6 +998,11 @@
                 <input type="file" accept="image/*" id="stopPhotoInput">
                 ${stop && stop.photo ? `<button type="button" class="ghost" id="stopRemovePhotoBtn">Remover foto</button>` : ''}
               </div>
+            </div>
+            <div style="margin-top:14px;">
+              <label for="stopExpenseInput" style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;">Valor da despesa (opcional)</label>
+              <div class="amount-field"><input type="number" step="0.01" min="0" id="stopExpenseInput" placeholder="0,00" value="${stop && stop.expenseAmount ? stop.expenseAmount : ''}"></div>
+              <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">${stop && stop.expenseId ? 'Já existe uma despesa ligada a esta atividade — edita os restantes detalhes em Despesas.' : 'Se preencheres, cria automaticamente uma despesa na aba Despesas.'}</div>
             </div>
           </div>
           <div class="row" style="margin-top:18px;">
@@ -1023,10 +1058,12 @@
 
       if (stop) {
         const changedTitle = title !== stop.title;
+        const expenseAmount = parseFloat(document.getElementById('stopExpenseInput').value);
         stop.time = time;
         stop.title = title;
         stop.note = note;
         stop.photo = photoRemoved ? null : (pendingPhoto || stop.photo || null);
+        syncStopExpense(stop, expenseAmount);
         if (changedTitle) { stop.geoStatus = 'pending'; stop.lat = null; stop.lng = null; }
         saveItinerary();
         renderItinerary();
@@ -1043,8 +1080,9 @@
           renderItinerary();
         }
       } else {
+        const expenseAmount = parseFloat(document.getElementById('stopExpenseInput').value);
         close();
-        await addStop(dayId, time, title, note, pendingPhoto);
+        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount);
       }
     };
   }
@@ -1089,12 +1127,7 @@
             ? '<div class="day-map-empty">Assim que uma atividade tiver localização encontrada, a rota deste dia aparece aqui.</div>'
             : ''
         }
-        <div class="add-stop-row">
-          <input type="time" class="stop-time-input" />
-          <input type="text" placeholder="O quê? (ex: Torre de Belém)" class="stop-title-input" />
-          <input type="text" placeholder="Nota (opcional)" class="stop-note-input" />
-          <button class="ghost" onclick="submitStop('${day.id}', this)">+</button>
-        </div>
+        <button class="ghost" style="width:100%;margin-top:10px;" onclick="openStopEditor('${day.id}', null)">+ Adicionar atividade</button>
       </div>
     `;
     }).join('');
@@ -1129,17 +1162,6 @@
       } else { map.setView(latlngs[0], 14); }
       dayMaps[day.id] = map;
     });
-  }
-
-  function submitStop(dayId, btn) {
-    const row = btn.closest('.add-stop-row');
-    const time = row.querySelector('.stop-time-input').value;
-    const title = row.querySelector('.stop-title-input').value;
-    const note = row.querySelector('.stop-note-input').value;
-    addStop(dayId, time, title, note);
-    row.querySelector('.stop-time-input').value = '';
-    row.querySelector('.stop-title-input').value = '';
-    row.querySelector('.stop-note-input').value = '';
   }
 
   // ================= PLACES =================
