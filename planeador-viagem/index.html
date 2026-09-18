@@ -179,7 +179,7 @@
   .empty { color: var(--ink-soft); font-size: 14px; padding: 12px 0; }
 
   .ticket-row {
-    display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 14px; align-items: center;
+    display: grid; grid-template-columns: 1fr auto auto auto auto auto; gap: 14px; align-items: center;
     padding: 13px 4px; border-bottom: 1px dashed var(--kraft-line); font-size: 14px;
   }
   .ticket-row:last-child { border-bottom: none; }
@@ -415,7 +415,6 @@
 
       <div class="tabbar">
         <button class="tab active" data-tab="itinerary">Itinerário</button>
-        <button class="tab" data-tab="places">Locais</button>
         <button class="tab" data-tab="expenses">Despesas</button>
         <button class="tab" data-tab="notes">Notas</button>
       </div>
@@ -425,25 +424,6 @@
           <h2>Itinerário <small>organiza a viagem dia a dia</small></h2>
           <div id="itineraryDays"></div>
           <button class="ghost" style="margin-top: 4px;" id="addDayBtn">+ Adicionar dia</button>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="panel-places">
-        <div class="grid">
-          <div class="card">
-            <h2>Adicionar local</h2>
-            <form id="placeForm">
-              <label for="placeName">Nome do local</label>
-              <input id="placeName" type="text" placeholder="Ex: Torre de Belém" required maxlength="80" />
-              <label for="placeNote">Nota (opcional)</label>
-              <input id="placeNote" type="text" placeholder="Ex: comprar bilhete online antes" maxlength="140" />
-              <button class="primary" type="submit">Adicionar local</button>
-            </form>
-          </div>
-          <div class="card">
-            <h2>Locais a visitar</h2>
-            <div id="placesList"><div class="empty">Ainda não adicionaste locais.</div></div>
-          </div>
         </div>
       </div>
 
@@ -831,7 +811,7 @@
     if (name === 'itinerary') requestAnimationFrame(() => Object.values(dayMaps).forEach(m => m.invalidateSize()));
   }
 
-  function renderAll() { renderItinerary(); renderPlaces(); renderNotes(); renderExpensesAll(); }
+  function renderAll() { renderItinerary(); renderNotes(); renderExpensesAll(); }
 
   // ================= ITINERARY =================
   function saveItinerary() { updateTripField(currentTripId, { itinerary }); }
@@ -1164,38 +1144,6 @@
     });
   }
 
-  // ================= PLACES =================
-  function savePlaces() { updateTripField(currentTripId, { places }); }
-  document.getElementById('placeForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('placeName').value.trim();
-    const note = document.getElementById('placeNote').value.trim();
-    if (!name) return;
-    places.push({ id: uid(), name, note, visited: false });
-    savePlaces();
-    document.getElementById('placeName').value = '';
-    document.getElementById('placeNote').value = '';
-    renderPlaces();
-  });
-  function togglePlace(id) {
-    const p = places.find(x => x.id === id);
-    if (p) { p.visited = !p.visited; savePlaces(); renderPlaces(); }
-  }
-  function removePlace(id) { places = places.filter(x => x.id !== id); savePlaces(); renderPlaces(); }
-  function renderPlaces() {
-    const root = document.getElementById('placesList');
-    if (places.length === 0) { root.innerHTML = '<div class="empty">Ainda não adicionaste locais.</div>'; return; }
-    root.innerHTML = places.map(p => `
-      <div class="place-row ${p.visited ? 'visited' : ''}">
-        <input type="checkbox" ${p.visited ? 'checked' : ''} onchange="togglePlace('${p.id}')" />
-        <div class="body">
-          <div class="name">${escapeHtml(p.name)}</div>
-          ${p.note ? `<div class="note">${escapeHtml(p.note)}</div>` : ''}
-        </div>
-        <button class="icon-btn" title="Remover" onclick="removePlace('${p.id}')">✕</button>
-      </div>`).join('');
-  }
-
   // ================= NOTES =================
   function saveNotes() { updateTripField(currentTripId, { notes }); }
   document.getElementById('addNoteBtn').addEventListener('click', () => {
@@ -1295,8 +1243,66 @@
         <span class="t-cat">${escapeHtml(x.category)}</span>
         <span class="t-user">${escapeHtml(x.payer)}</span>
         <span class="t-amt">${fmt(x.amount)}</span>
+        <button class="icon-btn" title="Editar" onclick="openExpenseEditor('${x.id}')">✎</button>
         <button class="icon-btn" title="Remover" onclick="deleteExpense('${x.id}')">✕</button>
       </div>`).join('');
+  }
+
+  function openExpenseEditor(id) {
+    const exp = expenses.find(x => x.id === id);
+    if (!exp) return;
+    const root = document.getElementById('modalRoot');
+    root.innerHTML = `
+      <div class="modal-backdrop" id="expenseModalBackdrop">
+        <div class="modal wide">
+          <h3>Editar despesa</h3>
+          <div class="new-trip-form">
+            <label for="expDescInput">Descrição</label>
+            <input id="expDescInput" type="text" maxlength="80" value="${escapeHtml(exp.desc || '')}">
+            <label for="expAmountInput">Valor</label>
+            <div class="amount-field"><input id="expAmountInput" type="number" step="0.01" min="0.01" value="${exp.amount}"></div>
+            <label for="expPayerInput">Pago por</label>
+            <input id="expPayerInput" type="text" maxlength="40" value="${escapeHtml(exp.payer || '')}">
+            <label for="expCategoryInput">Categoria</label>
+            <select id="expCategoryInput">
+              <option${exp.category === 'Transporte' ? ' selected' : ''}>Transporte</option>
+              <option${exp.category === 'Alojamento' ? ' selected' : ''}>Alojamento</option>
+              <option${exp.category === 'Alimentação' ? ' selected' : ''}>Alimentação</option>
+              <option${exp.category === 'Atividades' ? ' selected' : ''}>Atividades</option>
+              <option${exp.category === 'Outros' ? ' selected' : ''}>Outros</option>
+            </select>
+            <label for="expDateInput">Data</label>
+            <input id="expDateInput" type="date" value="${exp.date || ''}">
+          </div>
+          <div class="row" style="margin-top:18px;">
+            <button class="danger" id="expDeleteBtn" style="margin-right:auto;">Remover despesa</button>
+            <button class="ghost" id="expCancelBtn">Cancelar</button>
+            <button class="primary" id="expSaveBtn">Guardar</button>
+          </div>
+        </div>
+      </div>`;
+
+    const close = () => { root.innerHTML = ''; };
+    document.getElementById('expCancelBtn').onclick = close;
+    document.getElementById('expenseModalBackdrop').addEventListener('click', (e) => { if (e.target.id === 'expenseModalBackdrop') close(); });
+
+    document.getElementById('expDeleteBtn').onclick = () => {
+      close();
+      deleteExpense(exp.id);
+    };
+
+    document.getElementById('expSaveBtn').onclick = () => {
+      const desc = document.getElementById('expDescInput').value.trim();
+      const amount = parseFloat(document.getElementById('expAmountInput').value);
+      const payer = document.getElementById('expPayerInput').value.trim();
+      const category = document.getElementById('expCategoryInput').value;
+      const date = document.getElementById('expDateInput').value || exp.date;
+      if (!desc || !payer || isNaN(amount) || amount <= 0) { alert('Preenche a descrição, valor e quem pagou.'); return; }
+      exp.desc = desc; exp.amount = amount; exp.payer = payer; exp.category = category; exp.date = date;
+      saveExpenses();
+      renderExpensesAll();
+      close();
+    };
   }
 
   function updateUserList() {
