@@ -194,6 +194,24 @@
 
   .footer-note { margin-top: 28px; font-size: 12px; color: var(--ink-soft); text-align: center; }
 
+  .cal-month { margin-bottom: 30px; }
+  .cal-month-title { font-family: 'Fraunces', serif; font-size: 17px; margin-bottom: 12px; text-transform: capitalize; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-weekdays { margin-bottom: 6px; }
+  .cal-weekday { font-size: 11px; text-align: center; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; }
+  .cal-cell { min-height: 76px; border: 1px solid var(--kraft-line); border-radius: 6px; padding: 6px; background: var(--surface); }
+  .cal-cell.empty { border: none; background: transparent; }
+  .cal-cell.in-trip { background: var(--paper-raised); }
+  .cal-cell.has-day { cursor: pointer; border-color: var(--air-blue); transition: transform 0.1s ease, box-shadow 0.15s ease; }
+  .cal-cell.has-day:hover { transform: translateY(-2px); box-shadow: 0 6px 14px var(--shadow); }
+  .cal-daynum { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); }
+  .cal-day-label { font-size: 11px; font-weight: 600; color: var(--air-red); margin-top: 3px; }
+  .cal-count { font-size: 10.5px; color: var(--ink-soft); margin-top: 2px; }
+  @media (max-width: 560px) {
+    .cal-cell { min-height: 54px; padding: 4px; }
+    .cal-day-label { display: none; }
+  }
+
   .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
   .trip-card {
     background: var(--paper-raised); border: 1px solid var(--kraft-line); border-radius: 10px;
@@ -415,6 +433,7 @@
 
       <div class="tabbar">
         <button class="tab active" data-tab="itinerary">Itinerário</button>
+        <button class="tab" data-tab="calendar">Calendário</button>
         <button class="tab" data-tab="expenses">Despesas</button>
         <button class="tab" data-tab="notes">Notas</button>
       </div>
@@ -424,6 +443,13 @@
           <h2>Itinerário <small>organiza a viagem dia a dia</small></h2>
           <div id="itineraryDays"></div>
           <button class="ghost" style="margin-top: 4px;" id="addDayBtn">+ Adicionar dia</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-calendar">
+        <div class="card">
+          <h2>Calendário <small>o que vais fazer, dia a dia</small></h2>
+          <div id="calendarRoot"></div>
         </div>
       </div>
 
@@ -809,9 +835,10 @@
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
     if (name === 'itinerary') requestAnimationFrame(() => Object.values(dayMaps).forEach(m => m.invalidateSize()));
+    if (name === 'calendar') renderCalendarTab();
   }
 
-  function renderAll() { renderItinerary(); renderNotes(); renderExpensesAll(); }
+  function renderAll() { renderItinerary(); renderCalendarTab(); renderNotes(); renderExpensesAll(); }
 
   // ================= ITINERARY =================
   function saveItinerary() { updateTripField(currentTripId, { itinerary }); }
@@ -1076,7 +1103,7 @@
     root.innerHTML = itinerary.map(day => {
       const geoPoints = day.stops.filter(s => s.lat != null && s.lng != null);
       return `
-      <div class="day-card">
+      <div class="day-card" id="day-${day.id}">
         <div class="day-head">
           <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
           <button class="icon-btn" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
@@ -1142,6 +1169,138 @@
       } else { map.setView(latlngs[0], 14); }
       dayMaps[day.id] = map;
     });
+  }
+
+  // ================= CALENDAR =================
+  const CAL_WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const CAL_MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+  function getCalendarDayMap() {
+    const trip = trips.find(t => t.id === currentTripId);
+    const map = {};
+    if (!trip || !trip.startDate) return map;
+    const start = new Date(trip.startDate + 'T00:00:00');
+    itinerary.forEach((day, idx) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + idx);
+      const key = d.toISOString().slice(0, 10);
+      map[key] = { dayId: day.id, label: day.label, stops: day.stops };
+    });
+    return map;
+  }
+
+  function renderCalendarMonth(year, month, dayMap, tripStart, tripEnd) {
+    const firstOfMonth = new Date(year, month, 1);
+    const startWeekday = firstOfMonth.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    let cells = '';
+    for (let i = 0; i < startWeekday; i++) cells += '<div class="cal-cell empty"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateObj = new Date(year, month, d);
+      const key = dateObj.toISOString().slice(0, 10);
+      const inTrip = dateObj >= tripStart && dateObj <= tripEnd;
+      const info = dayMap[key];
+      const stopsCount = info ? info.stops.length : 0;
+      cells += `
+        <div class="cal-cell ${inTrip ? 'in-trip' : ''} ${info ? 'has-day' : ''}" ${info ? `data-key="${key}"` : ''}>
+          <div class="cal-daynum">${d}</div>
+          ${info ? `<div class="cal-day-label">${escapeHtml(info.label)}</div>` : ''}
+          ${stopsCount > 0 ? `<div class="cal-count">${stopsCount} ativ.</div>` : ''}
+        </div>`;
+    }
+    const totalCells = startWeekday + daysInMonth;
+    const trailing = (7 - (totalCells % 7)) % 7;
+    for (let i = 0; i < trailing; i++) cells += '<div class="cal-cell empty"></div>';
+
+    return `
+      <div class="cal-month">
+        <div class="cal-month-title">${CAL_MONTHS[month]} ${year}</div>
+        <div class="cal-grid cal-weekdays">${CAL_WEEKDAYS.map(w => `<div class="cal-weekday">${w}</div>`).join('')}</div>
+        <div class="cal-grid">${cells}</div>
+      </div>`;
+  }
+
+  function renderCalendarTab() {
+    const root = document.getElementById('calendarRoot');
+    if (!root) return;
+    const trip = trips.find(t => t.id === currentTripId);
+    if (!trip || !trip.startDate) {
+      root.innerHTML = '<div class="empty">Define a data de início da viagem (no topo da página) para veres o calendário.</div>';
+      return;
+    }
+
+    const dayMap = getCalendarDayMap();
+    const start = new Date(trip.startDate + 'T00:00:00');
+    let end;
+    if (trip.endDate) {
+      end = new Date(trip.endDate + 'T00:00:00');
+    } else if (itinerary.length > 0) {
+      end = new Date(start);
+      end.setDate(end.getDate() + itinerary.length - 1);
+    } else {
+      end = new Date(start);
+    }
+    if (end < start) end = new Date(start);
+
+    let html = '';
+    let cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+    const lastMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+    let guard = 0;
+    while (cursor <= lastMonth && guard < 24) {
+      html += renderCalendarMonth(cursor.getFullYear(), cursor.getMonth(), dayMap, start, end);
+      cursor.setMonth(cursor.getMonth() + 1);
+      guard++;
+    }
+    root.innerHTML = html;
+
+    root.querySelectorAll('.cal-cell[data-key]').forEach(cell => {
+      cell.addEventListener('click', () => openCalendarDayModal(cell.dataset.key));
+    });
+  }
+
+  function openCalendarDayModal(key) {
+    const dayMap = getCalendarDayMap();
+    const info = dayMap[key];
+    if (!info) return;
+    const root = document.getElementById('modalRoot');
+    const dateLabel = new Date(key + 'T00:00:00').toLocaleDateString('pt-PT', { weekday: 'long', day: '2-digit', month: 'long' });
+
+    root.innerHTML = `
+      <div class="modal-backdrop" id="calModalBackdrop">
+        <div class="modal wide">
+          <h3>${escapeHtml(info.label)}</h3>
+          <p style="text-transform:capitalize;">${escapeHtml(dateLabel)}</p>
+          ${info.stops.length === 0
+            ? '<div class="empty">Sem atividades planeadas para este dia.</div>'
+            : [...info.stops].sort((a, b) => (a.time || '').localeCompare(b.time || '')).map(s => `
+              <div class="stop-row" style="grid-template-columns:60px 1fr;">
+                <div class="stop-time">${escapeHtml(s.time || '—')}</div>
+                <div>
+                  <div class="stop-title">${escapeHtml(s.title)}</div>
+                  ${s.note ? `<div class="stop-note">${escapeHtml(s.note)}</div>` : ''}
+                </div>
+              </div>`).join('')
+          }
+          <div class="row" style="margin-top:18px;">
+            <button class="ghost" id="calCloseBtn">Fechar</button>
+            <button class="primary" id="calGoToDayBtn">Ver no Itinerário</button>
+          </div>
+        </div>
+      </div>`;
+
+    const close = () => { root.innerHTML = ''; };
+    document.getElementById('calCloseBtn').onclick = close;
+    document.getElementById('calModalBackdrop').addEventListener('click', (e) => { if (e.target.id === 'calModalBackdrop') close(); });
+    document.getElementById('calGoToDayBtn').onclick = () => {
+      close();
+      const tabBtn = document.querySelector('.tab[data-tab="itinerary"]');
+      if (tabBtn) tabBtn.click();
+      setTimeout(() => {
+        const el = document.getElementById('day-' + info.dayId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    };
   }
 
   // ================= NOTES =================
