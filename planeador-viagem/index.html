@@ -884,10 +884,10 @@
     renderItinerary();
   }
 
-  async function addStop(dayId, time, title, note, photo, expenseAmount) {
+  async function addStop(dayId, time, title, note, photo, expenseAmount, address) {
     const day = itinerary.find(d => d.id === dayId);
     if (!day || !title.trim()) return;
-    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null };
+    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), address: (address||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null };
     syncStopExpense(stop, expenseAmount);
     day.stops.push(stop);
     saveItinerary();
@@ -895,7 +895,7 @@
 
     const trip = trips.find(t => t.id === currentTripId);
     const bias = trip && trip.destination ? `, ${trip.destination}` : '';
-    const coords = await queueGeocode(stop.title + bias);
+    const coords = await queueGeocode((stop.address || stop.title) + bias);
     const stillThere = itinerary.find(d => d.id === dayId)?.stops.find(s => s.id === stop.id);
     if (!stillThere) return;
     stillThere.geoStatus = coords ? 'ok' : 'notfound';
@@ -998,6 +998,11 @@
             </div>
             <textarea id="stopNoteInput" placeholder="Nota (opcional)" rows="2" style="width:100%;margin-top:10px;box-sizing:border-box;">${stop ? escapeHtml(stop.note || '') : ''}</textarea>
             <div style="margin-top:14px;">
+              <label for="stopAddressInput" style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;">Endereço específico (opcional)</label>
+              <input type="text" id="stopAddressInput" placeholder="Usa isto se 'O quê?' não localizar bem no mapa" value="${stop ? escapeHtml(stop.address || '') : ''}">
+              <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Não aparece na lista do itinerário — só ajuda o mapa a encontrar o sítio certo.</div>
+            </div>
+            <div style="margin-top:14px;">
               <div id="stopPhotoPreviewWrap">
                 ${stop && stop.photo ? `<img src="${stop.photo}" class="photo-preview" id="stopPhotoPreview">` : ''}
               </div>
@@ -1061,24 +1066,26 @@
       const time = document.getElementById('stopTimeInput').value;
       const title = document.getElementById('stopTitleInput').value.trim();
       const note = document.getElementById('stopNoteInput').value.trim();
+      const address = document.getElementById('stopAddressInput').value.trim();
       if (!title) { alert('Escreve pelo menos o nome da atividade.'); return; }
 
       if (stop) {
-        const changedTitle = title !== stop.title;
+        const changedLocation = title !== stop.title || address !== (stop.address || '');
         const expenseAmount = parseFloat(document.getElementById('stopExpenseInput').value);
         stop.time = time;
         stop.title = title;
         stop.note = note;
+        stop.address = address;
         stop.photo = photoRemoved ? null : (pendingPhoto || stop.photo || null);
         syncStopExpense(stop, expenseAmount);
-        if (changedTitle) { stop.geoStatus = 'pending'; stop.lat = null; stop.lng = null; }
+        if (changedLocation) { stop.geoStatus = 'pending'; stop.lat = null; stop.lng = null; }
         saveItinerary();
         renderItinerary();
         close();
-        if (changedTitle) {
+        if (changedLocation) {
           const trip = trips.find(t => t.id === currentTripId);
           const bias = trip && trip.destination ? `, ${trip.destination}` : '';
-          const coords = await queueGeocode(stop.title + bias);
+          const coords = await queueGeocode((stop.address || stop.title) + bias);
           const stillThere = itinerary.find(d => d.id === dayId)?.stops.find(s => s.id === stop.id);
           if (!stillThere) return;
           stillThere.geoStatus = coords ? 'ok' : 'notfound';
@@ -1089,7 +1096,7 @@
       } else {
         const expenseAmount = parseFloat(document.getElementById('stopExpenseInput').value);
         close();
-        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount);
+        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount, address);
       }
     };
   }
