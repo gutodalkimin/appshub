@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -61,6 +60,10 @@
 
   /* HERO */
   .hero{position:relative; overflow:hidden; background:var(--deep); color:var(--on-dark);}
+  .slides{position:relative; min-height:560px;}
+  .slide{position:absolute; inset:0; opacity:0; visibility:hidden; transition:opacity .7s ease;}
+  .slide.is-active{position:relative; opacity:1; visibility:visible;}
+  .slide-art{position:absolute; inset:0; width:100%; height:100%;}
   .hero-inner{max-width:1120px; margin:0 auto; padding:104px 28px 150px; position:relative; z-index:2;}
   .eyebrow-plain{font-size:0.85rem; opacity:0.85; margin:0 0 18px;}
   .hero h1{
@@ -74,6 +77,20 @@
   .btn-ghost{border-color:rgba(237,243,241,0.45); color:var(--on-dark);}
   .wave{position:absolute; left:0; right:0; bottom:-1px; z-index:1; line-height:0;}
   .wave svg{width:100%; height:auto; display:block;}
+
+  .slide-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:3;
+    width:44px; height:44px; border-radius:50%; border:1px solid rgba(237,243,241,0.35);
+    background:rgba(14,25,23,0.3); color:var(--on-dark); font-size:1.4rem; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .slide-nav:hover{background:rgba(14,25,23,0.5);}
+  .slide-nav.prev{left:20px;}
+  .slide-nav.next{right:20px;}
+  .slide-dots{position:absolute; left:50%; transform:translateX(-50%); bottom:44px; z-index:3; display:flex; gap:10px;}
+  .dot{width:9px; height:9px; padding:0; border-radius:50%; border:1px solid rgba(237,243,241,0.6); background:transparent; cursor:pointer;}
+  .dot.is-active{background:var(--on-dark);}
+  @media (max-width:640px){ .slide-nav{width:36px; height:36px;} .slides{min-height:600px;} }
 
   /* STATS STRIP */
   .stats{background:var(--surface); border-bottom:1px solid var(--line);}
@@ -158,16 +175,70 @@
   </nav>
 </header>
 
-<section class="hero">
-  <div class="hero-inner">
-    <p class="eyebrow-plain">Nascente da Serra do Marão, desde 1962</p>
-    <h1>Água que nasce na pedra e chega intacta à sua mesa.</h1>
-    <p>Captada a 380 metros de profundidade, engarrafada na origem em menos de duas horas. Sem tratamento, sem aditivos — só o que a serra já fez bem.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="#produtos">Ver produtos</a>
-      <a class="btn btn-ghost" href="#origem">Conhecer a nascente</a>
+<section class="hero" id="hero-slider">
+  <div class="slides">
+
+    <div class="slide is-active" data-slide="0">
+      <svg class="slide-art" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M0 420 L260 210 L420 340 L640 120 L860 360 L1060 240 L1440 440 L1440 640 L0 640 Z" fill="var(--deep-2)" opacity="0.55"/>
+        <path d="M0 480 L300 300 L520 400 L760 240 L980 420 L1220 300 L1440 460 L1440 640 L0 640 Z" fill="var(--accent)" opacity="0.28"/>
+      </svg>
+      <div class="hero-inner">
+        <p class="eyebrow-plain">Nascente da Serra do Marão, desde 1962</p>
+        <h1>Água que nasce na pedra e chega intacta à sua mesa.</h1>
+        <p>Captada a 380 metros de profundidade, engarrafada na origem em menos de duas horas. Sem tratamento, sem aditivos — só o que a serra já fez bem.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#produtos">Ver produtos</a>
+          <a class="btn btn-ghost" href="#origem">Conhecer a nascente</a>
+        </div>
+      </div>
     </div>
+
+    <div class="slide" data-slide="1">
+      <svg class="slide-art" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect x="640" y="120" width="160" height="400" rx="18" fill="none" stroke="var(--on-dark)" stroke-width="2" opacity="0.35"/>
+        <rect x="672" y="90" width="96" height="42" rx="8" fill="none" stroke="var(--on-dark)" stroke-width="2" opacity="0.35"/>
+        <circle cx="200" cy="500" r="220" fill="var(--accent)" opacity="0.18"/>
+        <circle cx="1250" cy="140" r="160" fill="var(--accent)" opacity="0.14"/>
+      </svg>
+      <div class="hero-inner">
+        <p class="eyebrow-plain">Da nascente ao rótulo em menos de duas horas</p>
+        <h1>Engarrafada onde a água nasce, não onde é mais barato.</h1>
+        <p>A linha de engarrafamento fica junto à captação: a água não viaja, não espera, não perde nada do que trouxe da rocha.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#processo">Ver o processo</a>
+          <a class="btn btn-ghost" href="#origem">Conhecer a nascente</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide" data-slide="2">
+      <svg class="slide-art" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M0 300 C 240 250, 480 350, 720 300 S 1200 250, 1440 300" fill="none" stroke="var(--on-dark)" stroke-width="2" opacity="0.3"/>
+        <path d="M0 380 C 240 330, 480 430, 720 380 S 1200 330, 1440 380" fill="none" stroke="var(--accent)" stroke-width="2" opacity="0.4"/>
+        <path d="M0 460 C 240 410, 480 510, 720 460 S 1200 410, 1440 460" fill="none" stroke="var(--on-dark)" stroke-width="2" opacity="0.2"/>
+      </svg>
+      <div class="hero-inner">
+        <p class="eyebrow-plain">62 anos na mesma nascente</p>
+        <h1>Uma única captação, a mesma água desde 1962.</h1>
+        <p>Nunca misturámos fontes. A composição mineral que analisou hoje é a mesma da primeira garrafa, seis décadas atrás.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#sustentabilidade">Ver sustentabilidade</a>
+          <a class="btn btn-ghost" href="#origem">Conhecer a nascente</a>
+        </div>
+      </div>
+    </div>
+
   </div>
+
+  <button class="slide-nav prev" type="button" aria-label="Slide anterior">‹</button>
+  <button class="slide-nav next" type="button" aria-label="Slide seguinte">›</button>
+  <div class="slide-dots" role="tablist" aria-label="Selecionar slide">
+    <button class="dot is-active" type="button" data-goto="0" aria-label="Slide 1" aria-selected="true"></button>
+    <button class="dot" type="button" data-goto="1" aria-label="Slide 2" aria-selected="false"></button>
+    <button class="dot" type="button" data-goto="2" aria-label="Slide 3" aria-selected="false"></button>
+  </div>
+
   <div class="wave">
     <svg viewBox="0 0 1440 110" preserveAspectRatio="none"><path d="M0,64 C240,110 480,10 720,40 C960,70 1200,20 1440,58 L1440,110 L0,110 Z" fill="var(--paper)"/></svg>
   </div>
@@ -301,5 +372,45 @@
   </div>
 </footer>
 
+<script>
+(function(){
+  var root = document.getElementById('hero-slider');
+  if(!root) return;
+  var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+  var dots = Array.prototype.slice.call(root.querySelectorAll('.dot'));
+  var current = 0;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var timer;
+
+  function show(index){
+    current = (index + slides.length) % slides.length;
+    slides.forEach(function(s, i){ s.classList.toggle('is-active', i === current); });
+    dots.forEach(function(d, i){
+      d.classList.toggle('is-active', i === current);
+      d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+    });
+  }
+
+  function next(){ show(current + 1); }
+  function prev(){ show(current - 1); }
+
+  function startAuto(){
+    if(reduceMotion) return;
+    stopAuto();
+    timer = setInterval(next, 6500);
+  }
+  function stopAuto(){ if(timer) clearInterval(timer); }
+
+  root.querySelector('.slide-nav.next').addEventListener('click', function(){ next(); startAuto(); });
+  root.querySelector('.slide-nav.prev').addEventListener('click', function(){ prev(); startAuto(); });
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ show(parseInt(d.dataset.goto, 10)); startAuto(); });
+  });
+  root.addEventListener('mouseenter', stopAuto);
+  root.addEventListener('mouseleave', startAuto);
+
+  startAuto();
+})();
+</script>
 </body>
 </html>
