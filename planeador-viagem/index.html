@@ -136,14 +136,19 @@
   }
   .trip-cover-remove:hover { background: var(--air-red); transform: scale(1.1); }
 
-  .tabbar { display: flex; gap: 4px; border-bottom: 1px solid var(--kraft-line); margin-bottom: 24px; flex-wrap: wrap; }
-  .tab {
-    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--ink-soft);
-    background: none; border: none; padding: 10px 16px; cursor: pointer; position: relative; top: 1px;
-    border-bottom: 2px solid transparent;
+  .tabbar {
+    display: flex; gap: 4px; background: var(--kraft); border-radius: 12px; padding: 4px; margin-bottom: 24px;
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
-  .tab.active { color: var(--air-red); border-bottom: 2px solid var(--air-red); }
+  .tab {
+    font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--ink-soft);
+    background: none; border: none; padding: 9px 18px; border-radius: 9px; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 7px;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .tab.active { background: var(--surface); color: var(--air-red); box-shadow: 0 2px 7px var(--shadow); }
   .tab:hover:not(.active) { color: var(--ink); }
+  .tab .tab-icon { font-size: 14px; line-height: 1; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -413,6 +418,7 @@
 
   /* ---------- login ---------- */
   .login-screen {
+    position: fixed; inset: 0; overflow-y: auto;
     min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
     background: var(--paper);
   }
@@ -465,8 +471,8 @@
     .theme-toggle { width: 34px; height: 34px; font-size: 15px; }
     .user-badge { top: 14px; right: 56px; }
     header { padding-top: 56px; }
-    .tabbar { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .tab { white-space: nowrap; flex-shrink: 0; }
+    .tabbar { gap: 3px; padding: 3px; }
+    .tab { padding: 8px 13px; }
     .trip-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
     .trip-card-body { padding: 10px 12px 12px; }
     .trip-card-body h3 { font-size: 14.5px; }
@@ -547,10 +553,10 @@
       </header>
 
       <div class="tabbar">
-        <button class="tab active" data-tab="itinerary">Itinerário</button>
-        <button class="tab" data-tab="calendar">Calendário</button>
-        <button class="tab" data-tab="expenses">Despesas</button>
-        <button class="tab" data-tab="notes">Notas</button>
+        <button class="tab active" data-tab="itinerary"><span class="tab-icon">🗺️</span>Itinerário</button>
+        <button class="tab" data-tab="calendar"><span class="tab-icon">📅</span>Calendário</button>
+        <button class="tab" data-tab="expenses"><span class="tab-icon">💶</span>Despesas</button>
+        <button class="tab" data-tab="notes"><span class="tab-icon">🗒️</span>Notas</button>
       </div>
 
       <div class="tab-panel active" id="panel-itinerary">
