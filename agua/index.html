@@ -1,1 +1,305 @@
 
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fonte Serrana — Água de Nascente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --deep:#12332E;
+    --deep-2:#0C2622;
+    --accent:#4E938C;
+    --on-dark:#EDF3F1;
+    --surface:#DCEAE7;
+    --paper:#F6F7F5;
+    --ink:#0E1917;
+    --line: rgba(18,51,46,0.22);
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E1512; --ink:#EDF3F1; --surface:#1B2724; --line: rgba(237,243,241,0.16);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E1512; --ink:#EDF3F1; --surface:#1B2724; --line: rgba(237,243,241,0.16);
+  }
+  html{scroll-padding-top: env(safe-area-inset-top,0px); scroll-behavior:smooth;}
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; font-size:16px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%; display:block;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  .container-x{overflow-x:auto;}
+
+  header{
+    position:sticky; top:0; z-index:20;
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--line);
+    padding-top: env(safe-area-inset-top,0px);
+  }
+  nav{display:flex; align-items:center; justify-content:space-between; padding:18px 28px; max-width:1120px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Newsreader', serif; font-size:1.35rem; font-weight:500;}
+  .brand svg{flex-shrink:0;}
+  .navlinks{display:flex; gap:32px; font-size:0.95rem;}
+  .navlinks a{text-decoration:none; opacity:0.8; transition:opacity .15s;}
+  .navlinks a:hover{opacity:1;}
+  .navlinks a:focus-visible, button:focus-visible, .btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+  .navcta{background:var(--deep); color:var(--on-dark); padding:9px 18px; border-radius:2px; font-size:0.9rem; text-decoration:none; white-space:nowrap;}
+  @media (max-width:760px){ .navlinks{display:none;} }
+
+  /* HERO */
+  .hero{position:relative; overflow:hidden; background:var(--deep); color:var(--on-dark);}
+  .hero-inner{max-width:1120px; margin:0 auto; padding:104px 28px 150px; position:relative; z-index:2;}
+  .eyebrow-plain{font-size:0.85rem; opacity:0.85; margin:0 0 18px;}
+  .hero h1{
+    font-family:'Newsreader', serif; font-weight:400; font-style:italic;
+    font-size:clamp(2.4rem, 5.2vw, 4.4rem); line-height:1.08; margin:0 0 26px; max-width:14ch;
+  }
+  .hero p{max-width:46ch; font-size:1.08rem; opacity:0.92; margin:0 0 34px;}
+  .hero-actions{display:flex; gap:16px; flex-wrap:wrap;}
+  .btn{display:inline-block; padding:13px 26px; border-radius:2px; font-size:0.95rem; text-decoration:none; border:1px solid transparent; cursor:pointer;}
+  .btn-primary{background:var(--on-dark); color:var(--deep-2);}
+  .btn-ghost{border-color:rgba(237,243,241,0.45); color:var(--on-dark);}
+  .wave{position:absolute; left:0; right:0; bottom:-1px; z-index:1; line-height:0;}
+  .wave svg{width:100%; height:auto; display:block;}
+
+  /* STATS STRIP */
+  .stats{background:var(--surface); border-bottom:1px solid var(--line);}
+  .stats-grid{max-width:1120px; margin:0 auto; padding:38px 28px; display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
+  .stat b{display:block; font-family:'Newsreader', serif; font-size:2.1rem; font-weight:500; margin-bottom:4px;}
+  .stat span{font-size:0.88rem; opacity:0.7;}
+  @media (max-width:760px){ .stats-grid{grid-template-columns:1fr 1fr;} }
+
+  section{padding:96px 0;}
+  h2{font-family:'Newsreader', serif; font-weight:400; font-size:clamp(1.7rem,3vw,2.5rem); margin:0 0 18px; max-width:16ch;}
+  .lede{max-width:56ch; opacity:0.78; font-size:1.05rem; margin:0 0 56px;}
+
+  /* ORIGIN / ABOUT */
+  .origin{display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;}
+  .origin-copy p{opacity:0.8; margin-bottom:16px;}
+  .origin-figure{border:1px solid var(--line); border-radius:2px; padding:36px; background:var(--surface);}
+  .origin-figure ul{list-style:none; margin:0; padding:0; display:grid; gap:20px;}
+  .origin-figure li{display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:16px; font-size:0.95rem;}
+  .origin-figure li:last-child{border-bottom:none; padding-bottom:0;}
+  .origin-figure li b{font-family:'Newsreader', serif; font-weight:500;}
+  @media (max-width:820px){ .origin{grid-template-columns:1fr;} }
+
+  /* PROCESS - genuine sequence, numbers justified */
+  .process{background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .step{background:var(--paper); padding:34px 26px;}
+  .step .num{font-family:'Newsreader', serif; font-style:italic; font-size:1.6rem; opacity:0.5; margin-bottom:14px;}
+  .step h3{margin:0 0 10px; font-size:1.05rem; font-weight:600;}
+  .step p{margin:0; font-size:0.92rem; opacity:0.75;}
+  @media (max-width:820px){ .steps{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .steps{grid-template-columns:1fr;} }
+
+  /* PRODUCTS */
+  .products-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:36px;}
+  .product{border-top:2px solid var(--deep); padding-top:20px;}
+  .bottle{width:100%; height:220px; margin-bottom:20px;}
+  .product h3{font-family:'Newsreader', serif; font-weight:500; font-size:1.3rem; margin:0 0 8px;}
+  .product p{opacity:0.75; margin:0 0 14px; font-size:0.94rem;}
+  .product .price{font-size:0.9rem; opacity:0.6;}
+  @media (max-width:820px){ .products-grid{grid-template-columns:1fr;} }
+
+  /* SUSTAINABILITY */
+  .sustain{display:grid; grid-template-columns:1.1fr 0.9fr; gap:64px; align-items:start;}
+  .sustain-list{display:grid; gap:26px; margin-top:8px;}
+  .sustain-list div{border-left:2px solid var(--accent); padding-left:18px;}
+  .sustain-list h4{margin:0 0 6px; font-size:1rem; font-weight:600;}
+  .sustain-list p{margin:0; opacity:0.75; font-size:0.94rem;}
+  @media (max-width:820px){ .sustain{grid-template-columns:1fr;} }
+
+  /* CTA */
+  .cta{background:var(--deep); color:var(--on-dark); text-align:center; padding:100px 28px;}
+  .cta h2{color:var(--on-dark); margin:0 auto 16px; max-width:20ch;}
+  .cta p{opacity:0.75; max-width:44ch; margin:0 auto 34px;}
+
+  footer{padding:56px 0 calc(56px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--line);}
+  .foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px;}
+  .foot-grid h5{font-size:0.85rem; margin:0 0 14px; opacity:0.6; font-weight:600;}
+  .foot-grid ul{list-style:none; margin:0; padding:0; display:grid; gap:10px; font-size:0.92rem;}
+  .foot-grid a{text-decoration:none; opacity:0.75;}
+  .foot-grid a:hover{opacity:1;}
+  .foot-bottom{max-width:1120px; margin:40px auto 0; padding:24px 28px 0; border-top:1px solid var(--line); font-size:0.85rem; opacity:0.55; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  @media (max-width:760px){ .foot-grid{grid-template-columns:1fr 1fr;} }
+
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 11 5 15.5C5 19.09 8.13 22 12 22C15.87 22 19 19.09 19 15.5C19 11 12 2 12 2Z" stroke="currentColor" stroke-width="1.4"/></svg>
+      Fonte Serrana
+    </div>
+    <div class="navlinks">
+      <a href="#origem">Origem</a>
+      <a href="#processo">Processo</a>
+      <a href="#produtos">Produtos</a>
+      <a href="#sustentabilidade">Sustentabilidade</a>
+    </div>
+    <a class="navcta" href="#contacto">Encomendar</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow-plain">Nascente da Serra do Marão, desde 1962</p>
+    <h1>Água que nasce na pedra e chega intacta à sua mesa.</h1>
+    <p>Captada a 380 metros de profundidade, engarrafada na origem em menos de duas horas. Sem tratamento, sem aditivos — só o que a serra já fez bem.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#produtos">Ver produtos</a>
+      <a class="btn btn-ghost" href="#origem">Conhecer a nascente</a>
+    </div>
+  </div>
+  <div class="wave">
+    <svg viewBox="0 0 1440 110" preserveAspectRatio="none"><path d="M0,64 C240,110 480,10 720,40 C960,70 1200,20 1440,58 L1440,110 L0,110 Z" fill="var(--paper)"/></svg>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat"><b>380 m</b><span>profundidade da captação</span></div>
+    <div class="stat"><b>7,2 pH</b><span>equilíbrio mineral natural</span></div>
+    <div class="stat"><b>&lt;2 h</b><span>da nascente ao engarrafamento</span></div>
+    <div class="stat"><b>62 anos</b><span>a nascer no mesmo lugar</span></div>
+  </div>
+</div>
+
+<section id="origem" class="wrap">
+  <div class="origin">
+    <div class="origin-copy">
+      <h2>Uma nascente, não uma fábrica.</h2>
+      <p>A água da Fonte Serrana atravessa camadas de granito da Serra do Marão durante mais de quinze anos antes de chegar à superfície. Esse percurso lento é o que lhe dá a mineralidade suave e constante que não se imita em laboratório.</p>
+      <p>Não misturamos captações. Cada garrafa vem da mesma nascente, com a mesma composição, desde a primeira análise em 1962.</p>
+    </div>
+    <div class="origin-figure">
+      <ul>
+        <li><span>Cálcio</span><b>28 mg/L</b></li>
+        <li><span>Magnésio</span><b>9 mg/L</b></li>
+        <li><span>Bicarbonatos</span><b>98 mg/L</b></li>
+        <li><span>Resíduo seco a 180°C</span><b>142 mg/L</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="processo" class="process">
+  <div class="wrap">
+    <h2>Da rocha ao rótulo</h2>
+    <p class="lede">Quatro etapas, sem desvios — é assim desde a primeira garrafa.</p>
+  </div>
+  <div class="wrap container-x">
+    <div class="steps">
+      <div class="step"><div class="num">I</div><h3>Captação</h3><p>Extração direta do aquífero, em circuito fechado, sem contacto com o ar.</p></div>
+      <div class="step"><div class="num">II</div><h3>Análise</h3><p>Controlo microbiológico e mineral a cada lote, antes de qualquer engarrafamento.</p></div>
+      <div class="step"><div class="num">III</div><h3>Engarrafamento</h3><p>Linha instalada junto à nascente — a água não viaja antes de ser selada.</p></div>
+      <div class="step"><div class="num">IV</div><h3>Distribuição</h3><p>Transporte refrigerado para manter a estabilidade até ao ponto de venda.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="produtos" class="wrap">
+  <h2>Produtos</h2>
+  <p class="lede">Três formatos, a mesma água — escolha o que se ajusta ao seu dia.</p>
+  <div class="products-grid">
+    <div class="product">
+      <svg class="bottle" viewBox="0 0 120 220"><path d="M46 8h28v22c8 6 14 14 14 26v140a10 10 0 0 1-10 10H42a10 10 0 0 1-10-10V56c0-12 6-20 14-26V8Z" fill="none" stroke="var(--deep)" stroke-width="1.6"/><rect x="46" y="4" width="28" height="10" rx="2" fill="none" stroke="var(--deep)" stroke-width="1.6"/><rect x="34" y="120" width="52" height="46" fill="var(--surface)"/></svg>
+      <h3>Naturalmente Plana</h3>
+      <p>500 ml e 1,5 L. O sabor da nascente, sem adição de gás.</p>
+      <span class="price">Desde 0,45 €</span>
+    </div>
+    <div class="product">
+      <svg class="bottle" viewBox="0 0 120 220"><path d="M46 8h28v22c8 6 14 14 14 26v140a10 10 0 0 1-10 10H42a10 10 0 0 1-10-10V56c0-12 6-20 14-26V8Z" fill="none" stroke="var(--deep)" stroke-width="1.6"/><rect x="46" y="4" width="28" height="10" rx="2" fill="none" stroke="var(--deep)" stroke-width="1.6"/><circle cx="52" cy="140" r="2.4" fill="var(--accent)"/><circle cx="66" cy="120" r="2" fill="var(--accent)"/><circle cx="58" cy="100" r="1.8" fill="var(--accent)"/><circle cx="70" cy="160" r="2.2" fill="var(--accent)"/></svg>
+      <h3>Com Gás</h3>
+      <p>330 ml e 750 ml. Gaseificação natural, bolha fina e persistente.</p>
+      <span class="price">Desde 0,55 €</span>
+    </div>
+    <div class="product">
+      <svg class="bottle" viewBox="0 0 120 220"><rect x="20" y="30" width="80" height="170" rx="4" fill="none" stroke="var(--deep)" stroke-width="1.6"/><rect x="34" y="10" width="52" height="24" rx="3" fill="none" stroke="var(--deep)" stroke-width="1.6"/></svg>
+      <h3>Garrafão Retornável</h3>
+      <p>5 L, em vidro reutilizável. Para casa e escritório, com recolha ao domicílio.</p>
+      <span class="price">Desde 2,10 €</span>
+    </div>
+  </div>
+</section>
+
+<section id="sustentabilidade" class="wrap">
+  <div class="sustain">
+    <div>
+      <h2>O caudal continua depois de nós</h2>
+      <p class="lede" style="margin-bottom:0">A captação está limitada a um volume que a nascente repõe naturalmente todos os anos. Não extraímos mais do que a serra devolve.</p>
+    </div>
+    <div class="sustain-list">
+      <div>
+        <h4>Vidro com 60% de material reciclado</h4>
+        <p>Nas garrafas de 750 ml e no garrafão de 5 L, com meta de 80% até 2028.</p>
+      </div>
+      <div>
+        <h4>Reflorestação da bacia hidrográfica</h4>
+        <p>Mais de 40 000 árvores plantadas na área de recarga do aquífero desde 2015.</p>
+      </div>
+      <div>
+        <h4>Frota elétrica de distribuição regional</h4>
+        <p>Entregas em Porto e Braga já realizadas sem emissões diretas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="contacto">
+  <div class="wrap" style="padding:0">
+    <h2>Leve a nascente para casa</h2>
+    <p>Entregas semanais na área do Porto e Braga, ou disponível nos principais retalhistas do país.</p>
+    <a class="btn btn-primary" href="#">Encontrar um ponto de venda</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2C12 2 5 11 5 15.5C5 19.09 8.13 22 12 22C15.87 22 19 19.09 19 15.5C19 11 12 2 12 2Z" stroke="currentColor" stroke-width="1.4"/></svg>
+          Fonte Serrana
+        </div>
+        <p style="opacity:0.6; font-size:0.9rem; max-width:32ch; margin:0;">Água de nascente captada na Serra do Marão desde 1962.</p>
+      </div>
+      <div>
+        <h5>Empresa</h5>
+        <ul><li><a href="#origem">A nascente</a></li><li><a href="#processo">O processo</a></li><li><a href="#sustentabilidade">Sustentabilidade</a></li></ul>
+      </div>
+      <div>
+        <h5>Produtos</h5>
+        <ul><li><a href="#produtos">Naturalmente plana</a></li><li><a href="#produtos">Com gás</a></li><li><a href="#produtos">Garrafão retornável</a></li></ul>
+      </div>
+      <div>
+        <h5>Contacto</h5>
+        <ul><li><a href="mailto:geral@fonteserrana.pt">geral@fonteserrana.pt</a></li><li><a href="tel:+351220000000">+351 22 000 0000</a></li><li><a href="#">Amarante, Portugal</a></li></ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Fonte Serrana</span>
+      <span>Modelo de website — conteúdos ilustrativos</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
