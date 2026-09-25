@@ -356,6 +356,16 @@
     font-family: 'Inter', sans-serif; border-radius: 14px; transition: border-color 0.15s ease;
   }
   .badge-btn:hover { border-color: var(--air-blue); }
+  .badge-divider { width: 1px; align-self: stretch; background: var(--kraft-line); margin: 0 2px; opacity: 0.7; }
+  .theme-badge-btn {
+    width: 30px; height: 30px; padding: 0; margin: 0; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; line-height: 1; background: var(--surface);
+    box-shadow: 0 2px 6px var(--shadow);
+    transition: border-color 0.15s ease, transform 0.2s ease, background 0.2s ease;
+  }
+  .theme-badge-btn:hover { border-color: var(--air-blue); transform: rotate(-12deg) scale(1.08); }
+  .theme-badge-btn:active { transform: scale(0.92); }
   @media (max-width: 560px) {
     .user-badge span { display: none; }
     .user-badge { right: 62px; padding: 5px; }
@@ -600,7 +610,8 @@
     el.innerHTML = `
       ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" alt="">` : ''}
       <span>${escapeHtml(currentUser.displayName || currentUser.email || '')}</span>
-      <button class="badge-btn" id="themeToggleBtn">🌙</button>
+      <span class="badge-divider"></span>
+      <button class="badge-btn theme-badge-btn" id="themeToggleBtn" title="Mudar tema" aria-label="Mudar tema"></button>
       <button class="badge-btn" id="signOutBtn">Sair</button>
     `;
     document.getElementById('signOutBtn').addEventListener('click', () => auth.signOut());
@@ -1226,11 +1237,36 @@
     requestAnimationFrame(initDayMaps);
   }
 
+  // Nota: os tiles da CARTO (basemaps.cartocdn.com) passaram a exigir API key;
+  // sem ela devolvem um tile 200 OK mas carimbado "API KEY REQUIRED". Por isso
+  // usamos aqui fontes gratuitas e sem chave (OpenStreetMap, Esri Canvas e CyclOSM).
   const MAP_THEMES = {
-    osm: { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' },
-    light: { url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' },
-    dark: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' },
-    voyager: { url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' },
+    osm: {
+      layers: [
+        { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' },
+      ],
+    },
+    light: {
+      layers: [
+        { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', maxZoom: 19, maxNativeZoom: 16,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; Esri' },
+        { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', maxZoom: 19, maxNativeZoom: 16 },
+      ],
+    },
+    dark: {
+      layers: [
+        { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', maxZoom: 19, maxNativeZoom: 16,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; Esri' },
+        { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', maxZoom: 19, maxNativeZoom: 16 },
+      ],
+    },
+    voyager: {
+      layers: [
+        { url: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', maxZoom: 20,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, style CyclOSM' },
+      ],
+    },
   };
   let mapTheme = 'osm';
   try { mapTheme = localStorage.getItem('map-theme') || 'osm'; } catch (e) {}
@@ -1254,7 +1290,13 @@
       const points = day.stops.filter(s => s.lat != null && s.lng != null);
       if (points.length === 0) return;
       const map = L.map(mapEl, { scrollWheelZoom: false });
-      L.tileLayer(theme.url, { maxZoom: 19, attribution: theme.attribution }).addTo(map);
+      theme.layers.forEach(layer => {
+        L.tileLayer(layer.url, {
+          maxZoom: layer.maxZoom || 19,
+          maxNativeZoom: layer.maxNativeZoom,
+          attribution: layer.attribution || '',
+        }).addTo(map);
+      });
       const latlngs = points.map(p => [p.lat, p.lng]);
       points.forEach((p, i) => L.marker([p.lat, p.lng]).addTo(map).bindTooltip(`${i + 1}. ${p.title}`));
       if (latlngs.length > 1) {
