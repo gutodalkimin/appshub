@@ -213,34 +213,47 @@
     .cal-day-label { display: none; }
   }
 
-  .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+  .trip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; align-items: stretch; }
   .trip-card {
-    background: var(--paper-raised); border: 1px solid var(--kraft-line); border-radius: 10px;
-    box-shadow: 0 6px 16px var(--shadow); padding: 0; overflow: hidden; cursor: pointer; position: relative;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    background: var(--paper-raised); border: 1px solid var(--kraft-line); border-radius: 12px;
+    box-shadow: 0 3px 10px var(--shadow); padding: 0; overflow: hidden; cursor: pointer; position: relative;
+    display: flex; flex-direction: column; transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .trip-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px var(--shadow); }
-  .trip-card .cover { width: 100%; height: 112px; object-fit: cover; display: block; background: var(--kraft); }
+  .trip-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--air-red), var(--air-blue)); z-index: 2; }
+  .trip-card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px var(--shadow); }
+  .trip-card .cover-wrap { overflow: hidden; height: 128px; flex-shrink: 0; }
+  .trip-card .cover { width: 100%; height: 128px; object-fit: cover; display: block; background: var(--kraft); transition: transform 0.35s ease; }
+  .trip-card:hover .cover { transform: scale(1.06); }
   .trip-card .cover-placeholder {
-    width: 100%; height: 112px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--paper-raised);
+    width: 100%; height: 128px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--paper-raised);
     background: repeating-linear-gradient(-45deg, var(--air-red), var(--air-red) 10px, var(--kraft) 10px, var(--kraft) 18px, var(--air-blue) 18px, var(--air-blue) 28px, var(--kraft) 28px, var(--kraft) 36px);
   }
-  .trip-card-body { padding: 12px 18px 18px; }
-  .trip-card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; margin: 0 0 4px; }
-  .trip-card .meta { font-size: 12px; color: var(--ink-soft); margin-bottom: 12px; }
-  .trip-card .amt { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600; color: var(--air-blue); }
+  .trip-card-body { padding: 14px 18px 16px; display: flex; flex-direction: column; flex: 1; }
+  .trip-card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; margin: 0 0 6px; }
+  .trip-card .meta { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-soft); margin-bottom: 0; }
+  .trip-card .meta::before { content: '📅'; font-size: 10.5px; }
+  .trip-card .amt-row {
+    display: flex; align-items: baseline; justify-content: space-between; margin-top: auto; padding-top: 12px;
+    border-top: 1px dashed var(--kraft-line);
+  }
+  .trip-card .amt-row .amt-label { font-size: 10px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+  .trip-card .amt { font-family: 'IBM Plex Mono', monospace; font-size: 19px; font-weight: 600; color: var(--air-blue); }
   .trip-card .del {
     position: absolute; top: 10px; right: 10px; background: rgba(22,35,61,0.55); color: #fff; border: none;
-    width: 27px; height: 27px; border-radius: 50%; cursor: pointer; font-size: 13px; z-index: 2; line-height: 1;
+    width: 27px; height: 27px; border-radius: 50%; cursor: pointer; font-size: 13px; z-index: 3; line-height: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25); transition: background 0.15s ease, transform 0.15s ease;
   }
-  .trip-card .del:hover { background: var(--air-red); }
+  .trip-card .del:hover { background: var(--air-red); transform: scale(1.08); }
   .new-trip-card {
-    border: 2px dashed var(--kraft-line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column;
+    border: 1.5px dashed var(--kraft-line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; min-height: 128px; cursor: pointer; color: var(--ink-soft);
-    text-align: center; gap: 6px;
+    text-align: center; gap: 10px; transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
   }
-  .new-trip-card:hover { border-color: var(--air-red); color: var(--air-red); }
-  .new-trip-card .plus { font-size: 26px; line-height: 1; }
+  .new-trip-card:hover { border-color: var(--air-red); color: var(--air-red); background: rgba(194,59,52,0.05); transform: translateY(-3px); }
+  .new-trip-card .plus {
+    width: 42px; height: 42px; border-radius: 50%; border: 1.5px dashed currentColor;
+    display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1;
+  }
   .new-trip-card span.label { font-size: 13.5px; font-weight: 600; }
   .new-trip-form {
     background: var(--paper-raised); border: 1px solid var(--kraft-line); border-radius: 10px;
@@ -425,7 +438,7 @@
     .trip-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
     .trip-card-body { padding: 10px 12px 12px; }
     .trip-card-body h3 { font-size: 14.5px; }
-    .trip-card .cover, .trip-card .cover-placeholder { height: 96px; }
+    .trip-card .cover, .trip-card .cover-placeholder, .trip-card .cover-wrap { height: 96px; }
     h1 { font-size: 26px; }
     #tripNameInput { font-size: 26px; }
   }
@@ -808,11 +821,16 @@
     const cards = trips.map(t => `
       <div class="trip-card" onclick="openTrip('${t.id}')">
         <button class="del" title="Remover viagem" onclick="event.stopPropagation(); confirmDeleteTrip('${t.id}')">✕</button>
-        ${t.photo ? `<img class="cover" src="${t.photo}" alt="">` : `<div class="cover-placeholder">✈</div>`}
+        <div class="cover-wrap">
+          ${t.photo ? `<img class="cover" src="${t.photo}" alt="">` : `<div class="cover-placeholder">✈</div>`}
+        </div>
         <div class="trip-card-body">
           <h3>${escapeHtml(t.name)}</h3>
           <div class="meta">${escapeHtml(formatTripMeta(t))}</div>
-          <div class="amt">${fmt(tripTotal(t))}</div>
+          <div class="amt-row">
+            <span class="amt-label">Total gasto</span>
+            <span class="amt">${fmt(tripTotal(t))}</span>
+          </div>
         </div>
       </div>
     `).join('');
