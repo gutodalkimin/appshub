@@ -259,23 +259,42 @@
   .modal .row { display: flex; gap: 10px; justify-content: flex-end; }
   .modal button.danger { background: var(--air-red); color: #fff; border: none; padding: 9px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
 
-  .day-card { border: 1px solid var(--kraft-line); border-radius: 8px; padding: 16px; margin-bottom: 16px; background: var(--surface); }
+  .day-card { position: relative; border: 1px solid var(--kraft-line); border-radius: 12px; padding: 18px 20px 20px; margin-bottom: 18px; background: var(--surface); box-shadow: 0 3px 10px var(--shadow); overflow: hidden; transition: box-shadow 0.2s ease; }
+  .day-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--air-red), var(--air-blue)); }
+  .day-card:hover { box-shadow: 0 10px 22px var(--shadow); }
   .day-card:last-child { margin-bottom: 0; }
-  .day-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .day-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--kraft-line); }
+  .day-num {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--kraft); color: var(--ink);
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 14.5px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .day-head-main { flex: 1; min-width: 0; }
+  .day-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+  .day-remove { opacity: 0.45; transition: opacity 0.15s ease; flex-shrink: 0; }
+  .day-card:hover .day-remove, .day-remove:focus { opacity: 1; }
   .day-head input {
     font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; border: none; padding: 2px 0;
-    border-bottom: 2px dashed transparent; background: transparent;
+    border-bottom: 2px dashed transparent; background: transparent; width: 100%;
   }
   .day-head input:hover, .day-head input:focus { border-bottom: 2px dashed var(--air-red); outline: none; }
+  .stop-list { position: relative; }
   .stop-row {
-    display: grid; grid-template-columns: 70px 1fr auto; gap: 10px; align-items: start;
-    padding: 8px 0; border-bottom: 1px dashed var(--kraft-line); font-size: 13.5px;
-    cursor: grab;
+    display: grid; grid-template-columns: 78px 1fr auto; gap: 10px; align-items: start;
+    padding: 10px 0; border-bottom: 1px dashed var(--kraft-line); font-size: 13.5px;
+    cursor: grab; transition: background 0.15s ease;
   }
+  .stop-row:hover { background: var(--paper); margin: 0 -10px; padding: 10px; border-radius: 6px; }
   .stop-row.dragging { opacity: 0.4; }
   .stop-row.drag-over { box-shadow: inset 0 2px 0 var(--air-blue); }
   .stop-row:last-of-type { border-bottom: none; }
-  .stop-time { font-family: 'IBM Plex Mono', monospace; color: var(--air-blue); font-weight: 600; white-space: nowrap; }
+  .stop-time { position: relative; font-family: 'IBM Plex Mono', monospace; color: var(--air-blue); font-weight: 600; white-space: nowrap; padding-left: 17px; }
+  .stop-time::before {
+    content: ''; position: absolute; left: 0; top: 4px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--air-blue); box-shadow: 0 0 0 3px var(--surface); z-index: 1;
+  }
+  .stop-time::after { content: ''; position: absolute; left: 4px; top: 13px; bottom: -23px; width: 2px; background: var(--kraft-line); }
+  .stop-row:last-of-type .stop-time::after { display: none; }
   .stop-title { font-weight: 500; }
   .stop-note { color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
   .stop-actions { display: flex; align-items: center; gap: 4px; }
@@ -303,6 +322,32 @@
   .day-map-empty { font-size: 12.5px; color: var(--ink-soft); border: 1px dashed var(--kraft-line); border-radius: 6px; padding: 14px; text-align: center; margin: 12px 0; }
   .geo-tag { font-size: 10.5px; color: var(--ink-soft); margin-left: 6px; font-weight: 400; }
   .geo-tag.warn { color: var(--air-red); }
+
+  .itinerary-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .itinerary-toolbar h2 { margin: 0; }
+  .map-style-picker {
+    display: flex; align-items: center; gap: 8px; background: var(--paper); border: 1px solid var(--kraft-line);
+    border-radius: 20px; padding: 6px 14px 6px 12px;
+  }
+  .map-style-picker label { margin: 0; font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+  .map-style-picker select {
+    border: none; background: transparent; padding: 2px 20px 2px 2px; font-size: 13px; font-weight: 600;
+    color: var(--ink); cursor: pointer; width: auto;
+  }
+  .map-style-picker select:focus { outline: none; }
+  .empty-days {
+    border: 1.5px dashed var(--kraft-line); border-radius: 10px; padding: 36px 20px; text-align: center;
+    color: var(--ink-soft); font-size: 14px;
+  }
+  .empty-days .icon { display: block; font-size: 26px; margin-bottom: 8px; }
+  .day-empty { border: 1px dashed var(--kraft-line); border-radius: 8px; padding: 14px; text-align: center; color: var(--ink-soft); font-size: 13px; margin: 2px 0; }
+  .add-day-btn, .add-activity-btn {
+    width: 100%; margin-top: 4px; border: 1.5px dashed var(--kraft-line); background: transparent;
+    color: var(--ink-soft); padding: 11px; border-radius: 8px; font-family: 'Inter', sans-serif;
+    font-size: 13.5px; font-weight: 600; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .add-activity-btn { margin-top: 12px; }
+  .add-day-btn:hover, .add-activity-btn:hover { border-color: var(--air-red); color: var(--air-red); background: rgba(194,59,52,0.05); }
 
   .place-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 4px; border-bottom: 1px dashed var(--kraft-line); }
   .place-row:last-child { border-bottom: none; }
@@ -454,10 +499,10 @@
 
       <div class="tab-panel active" id="panel-itinerary">
         <div class="card">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-            <h2 style="margin:0;">Itinerário <small>organiza a viagem dia a dia</small></h2>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label for="mapThemeSelect" style="font-size:12px;color:var(--ink-soft);">Estilo do mapa</label>
+          <div class="itinerary-toolbar">
+            <h2>Itinerário</h2>
+            <div class="map-style-picker">
+              <label for="mapThemeSelect">Estilo do mapa</label>
               <select id="mapThemeSelect">
                 <option value="osm">Padrão</option>
                 <option value="light">Claro</option>
@@ -467,7 +512,7 @@
             </div>
           </div>
           <div id="itineraryDays"></div>
-          <button class="ghost" style="margin-top: 4px;" id="addDayBtn">+ Adicionar dia</button>
+          <button class="add-day-btn" style="margin-top: 14px;" id="addDayBtn">+ Adicionar dia</button>
         </div>
       </div>
 
@@ -1150,20 +1195,24 @@
   function renderItinerary() {
     const root = document.getElementById('itineraryDays');
     if (itinerary.length === 0) {
-      root.innerHTML = '<div class="empty">Ainda não há dias no itinerário. Usa "+ Adicionar dia" para começar.</div>';
+      root.innerHTML = '<div class="empty-days"><span class="icon">🗺️</span>Ainda não há dias no itinerário.<br>Usa "+ Adicionar dia" para começar.</div>';
       return;
     }
-    root.innerHTML = itinerary.map(day => {
+    root.innerHTML = itinerary.map((day, idx) => {
       const geoPoints = day.stops.filter(s => s.lat != null && s.lng != null);
       return `
       <div class="day-card" id="day-${day.id}">
         <div class="day-head">
-          <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
-          <button class="icon-btn" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
+          <div class="day-num">${idx + 1}</div>
+          <div class="day-head-main">
+            <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
+            <div class="day-sub">${day.stops.length} ${day.stops.length === 1 ? 'atividade' : 'atividades'}</div>
+          </div>
+          <button class="icon-btn day-remove" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
         </div>
         ${day.stops.length === 0
-          ? '<div class="empty" style="padding:4px 0;">Sem atividades ainda.</div>'
-          : day.stops.map(s => `
+          ? '<div class="day-empty">Sem atividades ainda.</div>'
+          : `<div class="stop-list">${day.stops.map(s => `
             <div class="stop-row" draggable="true" data-day="${day.id}" data-stop="${s.id}">
               <div class="stop-time">${escapeHtml(s.time || '—')}</div>
               <div>
@@ -1179,7 +1228,7 @@
                 <button class="icon-btn" title="Remover" onclick="removeStop('${day.id}','${s.id}')">✕</button>
               </div>
             </div>
-          `).join('')
+          `).join('')}</div>`
         }
         ${geoPoints.length > 0
           ? `<div class="day-map" id="map-${day.id}"></div>`
@@ -1187,7 +1236,7 @@
             ? '<div class="day-map-empty">Assim que uma atividade tiver localização encontrada, a rota deste dia aparece aqui.</div>'
             : ''
         }
-        <button class="ghost" style="width:100%;margin-top:10px;" onclick="openStopEditor('${day.id}', null)">+ Adicionar atividade</button>
+        <button class="add-activity-btn" onclick="openStopEditor('${day.id}', null)">+ Adicionar atividade</button>
       </div>
     `;
     }).join('');
