@@ -50,13 +50,6 @@
     -webkit-font-smoothing: antialiased;
     transition: background 0.2s ease, color 0.2s ease;
   }
-  .theme-toggle {
-    position: fixed; top: 16px; right: 16px; z-index: 40; width: 40px; height: 40px; border-radius: 50%;
-    border: 1px solid var(--kraft-line); background: var(--paper-raised); color: var(--ink); font-size: 17px;
-    cursor: pointer; box-shadow: 0 4px 10px var(--shadow); display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s ease, transform 0.15s ease;
-  }
-  .theme-toggle:hover { transform: scale(1.06); }
   .stripes {
     height: 10px;
     background: repeating-linear-gradient(
@@ -137,18 +130,17 @@
   .trip-cover-remove:hover { background: var(--air-red); transform: scale(1.1); }
 
   .tabbar {
-    display: flex; gap: 4px; background: var(--kraft); border-radius: 12px; padding: 4px; margin-bottom: 24px;
+    display: flex; gap: 4px; background: var(--paper); border: 1px solid var(--kraft-line); border-radius: 12px; padding: 4px; margin-bottom: 24px;
     flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
   .tab {
     font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--ink-soft);
     background: none; border: none; padding: 9px 18px; border-radius: 9px; cursor: pointer;
-    white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 7px;
+    white-space: nowrap; flex-shrink: 0;
     transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
   }
   .tab.active { background: var(--surface); color: var(--air-red); box-shadow: 0 2px 7px var(--shadow); }
   .tab:hover:not(.active) { color: var(--ink); }
-  .tab .tab-icon { font-size: 14px; line-height: 1; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -266,15 +258,9 @@
     background: repeating-linear-gradient(-45deg, var(--air-red), var(--air-red) 10px, var(--kraft) 10px, var(--kraft) 18px, var(--air-blue) 18px, var(--air-blue) 28px, var(--kraft) 28px, var(--kraft) 36px);
   }
   .trip-card-body { padding: 14px 18px 16px; display: flex; flex-direction: column; flex: 1; }
-  .trip-card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; margin: 0 0 6px; }
-  .trip-card .meta { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-soft); margin-bottom: 0; }
+  .trip-card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; margin: 0; }
+  .trip-card .meta { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
   .trip-card .meta::before { content: '📅'; font-size: 10.5px; }
-  .trip-card .amt-row {
-    display: flex; align-items: baseline; justify-content: space-between; margin-top: auto; padding-top: 12px;
-    border-top: 1px dashed var(--kraft-line);
-  }
-  .trip-card .amt-row .amt-label { font-size: 10px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
-  .trip-card .amt { font-family: 'IBM Plex Mono', monospace; font-size: 19px; font-weight: 600; color: var(--air-blue); }
   .trip-card .del {
     position: absolute; top: 10px; right: 10px; background: rgba(22,35,61,0.55); color: #fff; border: none;
     width: 27px; height: 27px; border-radius: 50%; cursor: pointer; font-size: 13px; z-index: 3; line-height: 1;
@@ -439,10 +425,12 @@
   .google-btn:hover { border-color: var(--air-blue); }
   .login-error { margin-top: 14px; font-size: 12.5px; color: var(--air-red); display: none; }
 
+  .topbar { position: sticky; top: 0; z-index: 45; background: var(--paper); box-shadow: 0 2px 8px var(--shadow); }
+  .topbar-inner { display: flex; justify-content: flex-end; padding: 8px 20px; }
   .user-badge {
-    position: fixed; top: 16px; right: 64px; z-index: 40; display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     background: var(--paper-raised); border: 1px solid var(--kraft-line); border-radius: 20px; padding: 5px 12px 5px 5px;
-    font-size: 12.5px; color: var(--ink-soft); box-shadow: 0 4px 10px var(--shadow);
+    font-size: 12.5px; color: var(--ink-soft); box-shadow: 0 2px 6px var(--shadow);
   }
   .user-badge img { width: 24px; height: 24px; border-radius: 50%; display: block; }
   .user-badge span { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -464,21 +452,55 @@
   .theme-badge-btn:active { transform: scale(0.92); }
   @media (max-width: 560px) {
     .user-badge span { display: none; }
-    .user-badge { right: 62px; padding: 5px; }
+    .user-badge { padding: 5px; }
   }
 
   @media (max-width: 640px) {
-    .theme-toggle { width: 34px; height: 34px; font-size: 15px; }
-    .user-badge { top: 14px; right: 56px; }
-    header { padding-top: 56px; }
+    .topbar-inner { padding: 7px 16px; }
+    header { padding-top: 20px; }
+    .wrap { padding: 0 14px 40px; }
+    .card { padding: 15px; }
+    .card h2 { font-size: 17px; margin: 0 0 12px; }
     .tabbar { gap: 3px; padding: 3px; }
-    .tab { padding: 8px 13px; }
+    .tab { padding: 8px 13px; font-size: 12.5px; }
     .trip-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
     .trip-card-body { padding: 10px 12px 12px; }
     .trip-card-body h3 { font-size: 14.5px; }
     .trip-card .cover, .trip-card .cover-placeholder, .trip-card .cover-wrap { height: 96px; }
+    .trip-card .meta { font-size: 11px; }
     h1 { font-size: 26px; }
-    #tripNameInput { font-size: 26px; }
+    #tripNameInput { font-size: 22px; }
+    #tripDestinationInput { font-size: 12px; }
+    .trip-header-top { gap: 12px; }
+    .trip-cover { width: 92px; }
+    .trip-cover-inner, .trip-photo-preview, .trip-cover-placeholder { height: 92px; }
+    .trip-cover-placeholder .icon { font-size: 17px; }
+    .trip-cover-placeholder span:not(.icon) { font-size: 9.5px; }
+    .trip-dates-row { gap: 10px; margin-top: 8px; }
+    .trip-dates-row input { font-size: 12.5px; padding: 7px 8px; }
+    .total-block { padding: 9px 14px; }
+    .total-label { font-size: 9.5px; }
+    .total-value { font-size: 20px; }
+    .itinerary-toolbar { gap: 8px; margin-bottom: 14px; }
+    .map-style-picker { padding: 5px 10px; }
+    .map-style-picker label { font-size: 10px; }
+    .map-style-picker select { font-size: 12px; padding-right: 16px; }
+    .day-card { padding: 14px 14px 16px; margin-bottom: 14px; }
+    .day-head { gap: 9px; margin-bottom: 11px; padding-bottom: 10px; }
+    .day-num { width: 27px; height: 27px; font-size: 12px; }
+    .day-head input { font-size: 14.5px; }
+    .day-sub { font-size: 10.5px; }
+    .stop-row { grid-template-columns: 56px 1fr auto; gap: 8px; padding: 8px 0; font-size: 12.5px; }
+    .stop-row:hover { margin: 0 -8px; padding: 8px; }
+    .stop-time { padding-left: 13px; font-size: 11px; }
+    .stop-time::before { width: 7px; height: 7px; }
+    .stop-time::after { left: 3px; }
+    .stop-note { font-size: 11.5px; }
+    .day-map { height: 190px; }
+    .add-day-btn, .add-activity-btn { padding: 9px; font-size: 12.5px; }
+    button.primary { padding: 10px; font-size: 13.5px; }
+    button.ghost { padding: 7px 13px; font-size: 12.5px; }
+    input, select, textarea { font-size: 13.5px; padding: 8px 9px; }
   }
 </style>
 </head>
@@ -502,9 +524,11 @@
   </div>
 
   <div id="appShell" style="display:none;">
-  <div class="stripes"></div>
-    <div class="user-badge" id="userBadge"></div>
-  <div class="wrap">
+  <div class="topbar">
+    <div class="stripes"></div>
+    <div class="topbar-inner"><div class="user-badge" id="userBadge"></div></div>
+  </div>
+    <div class="wrap">
 
     <!-- ============ LANDING: TRIP LIST ============ -->
     <div id="tripsView">
@@ -553,10 +577,10 @@
       </header>
 
       <div class="tabbar">
-        <button class="tab active" data-tab="itinerary"><span class="tab-icon">🗺️</span>Itinerário</button>
-        <button class="tab" data-tab="calendar"><span class="tab-icon">📅</span>Calendário</button>
-        <button class="tab" data-tab="expenses"><span class="tab-icon">💶</span>Despesas</button>
-        <button class="tab" data-tab="notes"><span class="tab-icon">🗒️</span>Notas</button>
+        <button class="tab active" data-tab="itinerary">Itinerário</button>
+        <button class="tab" data-tab="calendar">Calendário</button>
+        <button class="tab" data-tab="expenses">Despesas</button>
+        <button class="tab" data-tab="notes">Notas</button>
       </div>
 
       <div class="tab-panel active" id="panel-itinerary">
@@ -687,7 +711,7 @@
     }
     if (s) return `A partir de ${formatDateShort(s)}`;
     if (e) return `Até ${formatDateShort(e)}`;
-    return `Criada em ${trip.createdAt || '—'}`;
+    return '';
   }
   const colorFor = (i) => PALETTE[i % PALETTE.length];
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -867,7 +891,9 @@
 
   function renderTripsGrid() {
     const grid = document.getElementById('tripsGrid');
-    const cards = trips.map(t => `
+    const cards = trips.map(t => {
+      const meta = formatTripMeta(t);
+      return `
       <div class="trip-card" onclick="openTrip('${t.id}')">
         <button class="del" title="Remover viagem" onclick="event.stopPropagation(); confirmDeleteTrip('${t.id}')">✕</button>
         <div class="cover-wrap">
@@ -875,14 +901,11 @@
         </div>
         <div class="trip-card-body">
           <h3>${escapeHtml(t.name)}</h3>
-          <div class="meta">${escapeHtml(formatTripMeta(t))}</div>
-          <div class="amt-row">
-            <span class="amt-label">Total gasto</span>
-            <span class="amt">${fmt(tripTotal(t))}</span>
-          </div>
+          ${meta ? `<div class="meta">${escapeHtml(meta)}</div>` : ''}
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
     const newCard = `<div class="new-trip-card" id="newTripCard"><div class="plus">+</div><span class="label">Nova viagem</span></div>`;
     grid.innerHTML = cards + newCard;
     document.getElementById('newTripCard').addEventListener('click', showNewTripForm);
