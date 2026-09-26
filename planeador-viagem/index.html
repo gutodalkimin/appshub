@@ -328,6 +328,12 @@
   }
   .day-city-input::placeholder { color: var(--ink-soft); font-weight: 400; }
   .day-city-input:hover, .day-city-input:focus { border-bottom: 1px dashed var(--air-blue); outline: none; }
+  .day-transport-select {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--ink-soft);
+    border: none; background: transparent; padding: 1px 14px 1px 0; border-bottom: 1px dashed transparent;
+    width: auto; cursor: pointer;
+  }
+  .day-transport-select:hover, .day-transport-select:focus { border-bottom: 1px dashed var(--air-blue); outline: none; color: var(--ink); }
   .day-remove { opacity: 0.45; transition: opacity 0.15s ease; flex-shrink: 0; }
   .day-card:hover .day-remove, .day-remove:focus { opacity: 1; }
   .day-head input {
@@ -1250,7 +1256,7 @@
   }
 
   document.getElementById('addDayBtn').addEventListener('click', () => {
-    itinerary.push({ id: uid(), label: `Dia ${itinerary.length + 1}`, city: '', stops: [] });
+    itinerary.push({ id: uid(), label: `Dia ${itinerary.length + 1}`, city: '', transportMode: '', stops: [] });
     saveItinerary();
     renderItinerary();
   });
@@ -1521,6 +1527,11 @@
             <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
             <div class="day-sub-row">
               <input value="${escapeHtml(day.city || '')}" data-day="${day.id}" class="day-city-input" placeholder="Cidade / região" />
+              <select data-day="${day.id}" class="day-transport-select" title="Como traçar o percurso entre atividades">
+                <option value="" ${!day.transportMode ? 'selected' : ''}>Linha reta</option>
+                <option value="car" ${day.transportMode === 'car' ? 'selected' : ''}>De carro</option>
+                <option value="foot" ${day.transportMode === 'foot' ? 'selected' : ''}>A pé</option>
+              </select>
             </div>
           </div>
           <button class="icon-btn day-remove" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
@@ -1567,6 +1578,13 @@
       inp.addEventListener('blur', () => {
         const day = itinerary.find(d => d.id === inp.dataset.day);
         if (day) { day.city = inp.value.trim(); saveItinerary(); populateCityFilter(); }
+      });
+    });
+
+    root.querySelectorAll('.day-transport-select').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const day = itinerary.find(d => d.id === sel.dataset.day);
+        if (day) { day.transportMode = sel.value; saveItinerary(); initDayMaps(); }
       });
     });
 
@@ -1661,6 +1679,31 @@
     bigMapThemeSelect.addEventListener('change', () => setMapTheme(bigMapThemeSelect.value));
   }
 
+  const ROUTE_PROFILES = {
+    car: { url: 'https://router.project-osrm.org/route/v1/driving/', color: '#1F4E8C', label: 'De carro' },
+    foot: { url: 'https://routing.openstreetmap.de/routed-foot/route/v1/foot/', color: '#2E8B57', label: 'A pé' },
+  };
+  const routeCache = {};
+  async function fetchRoute(mode, latlngs) {
+    const profile = ROUTE_PROFILES[mode];
+    if (!profile || latlngs.length < 2) return null;
+    const key = mode + '|' + latlngs.map(p => `${p[0].toFixed(5)},${p[1].toFixed(5)}`).join(';');
+    if (routeCache[key]) return routeCache[key];
+    try {
+      const coordStr = latlngs.map(p => `${p[1]},${p[0]}`).join(';'); // OSRM quer lon,lat
+      const url = `${profile.url}${coordStr}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      if (!res.ok) { console.warn('Serviço de rotas devolveu erro', res.status); return null; }
+      const data = await res.json();
+      const route = data && data.routes && data.routes[0];
+      const coords = route && route.geometry && route.geometry.coordinates;
+      if (!Array.isArray(coords) || coords.length < 2) return null;
+      const result = coords.map(c => [c[1], c[0]]);
+      routeCache[key] = result;
+      return result;
+    } catch (e) { console.warn('Falha ao calcular rota:', e); return null; }
+  }
+
   function initDayMaps() {
     if (!window.L) return;
     const theme = MAP_THEMES[mapTheme] || MAP_THEMES.osm;
@@ -1680,8 +1723,22 @@
       });
       const latlngs = points.map(p => [p.lat, p.lng]);
       points.forEach((p, i) => L.marker([p.lat, p.lng]).addTo(map).bindTooltip(`${i + 1}. ${p.title}`));
+      const mode = day.transportMode;
+      const profile = ROUTE_PROFILES[mode];
       if (latlngs.length > 1) {
-        L.polyline(latlngs, { color: '#C23B34', weight: 3, dashArray: '7 7' }).addTo(map);
+        if (profile) {
+          // Linha tracejada como referência imediata, substituída pelo percurso real assim que chegar.
+          const placeholder = L.polyline(latlngs, { color: profile.color, weight: 3, dashArray: '7 7', opacity: 0.6 }).addTo(map);
+          fetchRoute(mode, latlngs).then(routeLatLngs => {
+            if (dayMaps[day.id] !== map) return; // este mapa já foi substituído (mudou de tema, etc.)
+            if (routeLatLngs) {
+              placeholder.remove();
+              L.polyline(routeLatLngs, { color: profile.color, weight: 4 }).addTo(map);
+            }
+          });
+        } else {
+          L.polyline(latlngs, { color: '#C23B34', weight: 3, dashArray: '7 7' }).addTo(map);
+        }
         map.fitBounds(latlngs, { padding: [28, 28], maxZoom: 15 });
       } else { map.setView(latlngs[0], 14); }
       dayMaps[day.id] = map;
