@@ -583,6 +583,10 @@
           <div class="total-label">Total de despesas</div>
           <div class="total-value" id="grandTotal">€ 0,00</div>
         </div>
+        <div class="total-block" id="countdownBlock" style="display:none;">
+          <div class="total-label">Início da viagem</div>
+          <div class="total-value" id="countdownValue">—</div>
+        </div>
       </header>
 
       <div class="tabbar">
@@ -843,6 +847,7 @@
     setIfNotFocused(document.getElementById('tripStartInput'), t.startDate || '');
     setIfNotFocused(document.getElementById('tripEndInput'), t.endDate || '');
     updatePhotoPreview(t.photo || '');
+    updateCountdown();
     renderAll();
     return true;
   }
@@ -958,9 +963,11 @@
   });
   document.getElementById('tripStartInput').addEventListener('change', (e) => {
     updateTripField(currentTripId, { startDate: e.target.value });
+    updateCountdown();
   });
   document.getElementById('tripEndInput').addEventListener('change', (e) => {
     updateTripField(currentTripId, { endDate: e.target.value });
+    updateCountdown();
   });
 
   function updatePhotoPreview(dataUrl) {
@@ -1024,8 +1031,38 @@
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
     document.getElementById('totalBlock').style.display = name === 'expenses' ? '' : 'none';
+    const countdownBlock = document.getElementById('countdownBlock');
+    if (name === 'itinerary' || name === 'calendar') {
+      countdownBlock.style.display = '';
+      updateCountdown();
+    } else {
+      countdownBlock.style.display = 'none';
+    }
     if (name === 'itinerary') requestAnimationFrame(() => Object.values(dayMaps).forEach(m => m.invalidateSize()));
     if (name === 'calendar') renderCalendarTab();
+  }
+
+  function daysUntil(dateStr) {
+    if (!dateStr) return null;
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const start = new Date(y, m - 1, d); start.setHours(0, 0, 0, 0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return Math.round((start - today) / 86400000);
+  }
+
+  function updateCountdown() {
+    const valueEl = document.getElementById('countdownValue');
+    if (!valueEl) return;
+    const startDate = document.getElementById('tripStartInput').value;
+    const endDate = document.getElementById('tripEndInput').value;
+    const diff = daysUntil(startDate);
+    if (diff === null) { valueEl.textContent = 'Sem data definida'; return; }
+    if (diff > 1) { valueEl.textContent = `Faltam ${diff} dias`; return; }
+    if (diff === 1) { valueEl.textContent = 'Falta 1 dia'; return; }
+    if (diff === 0) { valueEl.textContent = 'Começa hoje!'; return; }
+    const endDiff = daysUntil(endDate);
+    if (endDate && endDiff !== null && endDiff >= 0) { valueEl.textContent = 'A decorrer'; return; }
+    valueEl.textContent = 'Já terminou';
   }
 
   function renderAll() { renderItinerary(); renderCalendarTab(); renderNotes(); renderExpensesAll(); }
