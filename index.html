@@ -1008,9 +1008,11 @@ function renderNav(){
 function hubIconFallback(img){
   const stage = parseInt(img.dataset.stage || '0', 10);
   const baseDir = img.dataset.basedir;
+  const hostname = img.dataset.hostname;
   const attempts = [
     `${baseDir}favicon.svg`,
-    `${baseDir}favicon.png`
+    `${baseDir}favicon.png`,
+    `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}`
   ];
   if(stage < attempts.length){
     img.dataset.stage = String(stage + 1);
