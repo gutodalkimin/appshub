@@ -261,6 +261,9 @@
   .trip-card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px; margin: 0; }
   .trip-card .meta { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
   .trip-card .meta::before { content: '📅'; font-size: 10.5px; }
+  .trip-status { display: inline-flex; align-items: center; justify-content: center; margin-left: 5px; flex-shrink: 0; }
+  .trip-status.past { color: var(--air-blue); font-size: 12px; font-weight: 700; }
+  .trip-status.upcoming { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
   .trip-card .del {
     position: absolute; top: 10px; right: 10px; background: rgba(22,35,61,0.55); color: #fff; border: none;
     width: 27px; height: 27px; border-radius: 50%; cursor: pointer; font-size: 13px; z-index: 3; line-height: 1;
@@ -903,11 +906,32 @@
 
   function tripTotal(trip) { return (trip.expenses || []).reduce((s, x) => s + x.amount, 0); }
 
+  function tripStatus(trip) {
+    const parse = (str) => {
+      if (!str) return null;
+      const [y, m, d] = str.split('-').map(Number);
+      const dt = new Date(y, m - 1, d); dt.setHours(0, 0, 0, 0);
+      return dt;
+    };
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const start = parse(trip.startDate);
+    const end = parse(trip.endDate);
+    if (end && today > end) return 'past';
+    if (start && today < start) return 'upcoming';
+    return null;
+  }
+
   function renderTripsGrid() {
     const grid = document.getElementById('tripsGrid');
     const sorted = [...trips].sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0));
     const cards = sorted.map(t => {
       const meta = formatTripMeta(t);
+      const status = meta ? tripStatus(t) : null;
+      const statusIcon = status === 'past'
+        ? '<span class="trip-status past" title="Viagem já realizada">✓</span>'
+        : status === 'upcoming'
+          ? '<span class="trip-status upcoming" title="Viagem a acontecer"></span>'
+          : '';
       return `
       <div class="trip-card${t.favorite ? ' is-current' : ''}" onclick="openTrip('${t.id}')">
         <button class="fav-btn${t.favorite ? ' active' : ''}" title="${t.favorite ? 'Remover como viagem atual' : 'Marcar como viagem atual'}" onclick="event.stopPropagation(); toggleFavorite('${t.id}')">★</button>
@@ -917,7 +941,7 @@
         </div>
         <div class="trip-card-body">
           <h3>${escapeHtml(t.name)}</h3>
-          ${meta ? `<div class="meta">${escapeHtml(meta)}</div>` : ''}
+          ${meta ? `<div class="meta"><span>${escapeHtml(meta)}</span>${statusIcon}</div>` : ''}
         </div>
       </div>
     `;
