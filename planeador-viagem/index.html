@@ -318,7 +318,15 @@
     display: flex; align-items: center; justify-content: center;
   }
   .day-head-main { flex: 1; min-width: 0; }
-  .day-sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+  .day-sub { font-size: 11.5px; color: var(--ink-soft); }
+  .day-sub-row { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+  .day-city-input {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--air-blue);
+    border: none; background: transparent; padding: 1px 0; border-bottom: 1px dashed transparent;
+    width: auto; min-width: 60px; max-width: 160px;
+  }
+  .day-city-input::placeholder { color: var(--ink-soft); font-weight: 400; }
+  .day-city-input:hover, .day-city-input:focus { border-bottom: 1px dashed var(--air-blue); outline: none; }
   .day-remove { opacity: 0.45; transition: opacity 0.15s ease; flex-shrink: 0; }
   .day-card:hover .day-remove, .day-remove:focus { opacity: 1; }
   .day-head input {
@@ -383,6 +391,12 @@
     color: var(--ink); cursor: pointer; width: auto;
   }
   .map-style-picker select:focus { outline: none; }
+  .map-toolbar-selects { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .big-map { height: 480px; border-radius: 10px; margin-top: 4px; border: 1px solid var(--kraft-line); background: var(--surface); }
+  .big-map-empty {
+    font-size: 13px; color: var(--ink-soft); border: 1.5px dashed var(--kraft-line); border-radius: 10px;
+    padding: 40px 20px; text-align: center; margin-top: 4px; line-height: 1.6;
+  }
   .empty-days {
     border: 1.5px dashed var(--kraft-line); border-radius: 10px; padding: 36px 20px; text-align: center;
     color: var(--ink-soft); font-size: 14px;
@@ -509,6 +523,7 @@
     .stop-time::after { left: 3px; }
     .stop-note { font-size: 11.5px; }
     .day-map { height: 190px; }
+    .big-map { height: 300px; }
     .add-day-btn, .add-activity-btn { padding: 9px; font-size: 12.5px; }
     button.primary { padding: 10px; font-size: 13.5px; }
     button.ghost { padding: 7px 13px; font-size: 12.5px; }
@@ -594,6 +609,7 @@
 
       <div class="tabbar">
         <button class="tab active" data-tab="itinerary">Itinerário</button>
+        <button class="tab" data-tab="map">Mapa</button>
         <button class="tab" data-tab="calendar">Calendário</button>
         <button class="tab" data-tab="expenses">Despesas</button>
         <button class="tab" data-tab="notes">Notas</button>
@@ -615,6 +631,36 @@
           </div>
           <div id="itineraryDays"></div>
           <button class="add-day-btn" style="margin-top: 14px;" id="addDayBtn">+ Adicionar dia</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-map">
+        <div class="card">
+          <div class="itinerary-toolbar">
+            <h2>Mapa</h2>
+            <div class="map-toolbar-selects">
+              <div class="map-style-picker">
+                <label for="bigMapCitySelect">Cidade</label>
+                <select id="bigMapCitySelect">
+                  <option value="">Todos os pontos</option>
+                </select>
+              </div>
+              <div class="map-style-picker">
+                <label for="bigMapThemeSelect">Estilo do mapa</label>
+                <select id="bigMapThemeSelect">
+                  <option value="osm">Padrão</option>
+                  <option value="light">Claro</option>
+                  <option value="dark">Escuro</option>
+                  <option value="voyager">Colorido</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="big-map" id="bigMap"></div>
+          <div class="big-map-empty" id="bigMapEmpty" style="display:none;">
+            Assim que adicionares atividades com localização encontrada no Itinerário, elas aparecem aqui.<br>
+            Dica: preenche o campo "Cidade / região" em cada dia para poderes filtrar o mapa por cidade.
+          </div>
         </div>
       </div>
 
@@ -1064,6 +1110,10 @@
     }
     if (name === 'itinerary') requestAnimationFrame(() => Object.values(dayMaps).forEach(m => m.invalidateSize()));
     if (name === 'calendar') renderCalendarTab();
+    if (name === 'map') {
+      populateCityFilter();
+      requestAnimationFrame(() => { renderBigMap(); if (bigMap) bigMap.invalidateSize(); });
+    }
   }
 
   function daysUntil(dateStr) {
@@ -1123,7 +1173,7 @@
   }
 
   document.getElementById('addDayBtn').addEventListener('click', () => {
-    itinerary.push({ id: uid(), label: `Dia ${itinerary.length + 1}`, stops: [] });
+    itinerary.push({ id: uid(), label: `Dia ${itinerary.length + 1}`, city: '', stops: [] });
     saveItinerary();
     renderItinerary();
   });
@@ -1386,7 +1436,10 @@
           <div class="day-num">${idx + 1}</div>
           <div class="day-head-main">
             <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
-            <div class="day-sub">${day.stops.length} ${day.stops.length === 1 ? 'atividade' : 'atividades'}</div>
+            <div class="day-sub-row">
+              <input value="${escapeHtml(day.city || '')}" data-day="${day.id}" class="day-city-input" placeholder="Cidade / região" />
+              <span class="day-sub">${day.stops.length} ${day.stops.length === 1 ? 'atividade' : 'atividades'}</span>
+            </div>
           </div>
           <button class="icon-btn day-remove" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
         </div>
@@ -1428,6 +1481,13 @@
       });
     });
 
+    root.querySelectorAll('.day-city-input').forEach(inp => {
+      inp.addEventListener('blur', () => {
+        const day = itinerary.find(d => d.id === inp.dataset.day);
+        if (day) { day.city = inp.value.trim(); saveItinerary(); populateCityFilter(); }
+      });
+    });
+
     root.querySelectorAll('.stop-row[draggable]').forEach(row => {
       row.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', row.dataset.stop);
@@ -1464,6 +1524,7 @@
     });
 
     requestAnimationFrame(initDayMaps);
+    populateCityFilter();
   }
 
   // Nota: os tiles da CARTO (basemaps.cartocdn.com) passaram a exigir API key;
@@ -1500,13 +1561,22 @@
   let mapTheme = 'osm';
   try { mapTheme = localStorage.getItem('map-theme') || 'osm'; } catch (e) {}
   const mapThemeSelect = document.getElementById('mapThemeSelect');
+  const bigMapThemeSelect = document.getElementById('bigMapThemeSelect');
+  function setMapTheme(theme) {
+    mapTheme = theme;
+    try { localStorage.setItem('map-theme', mapTheme); } catch (e) {}
+    if (mapThemeSelect) mapThemeSelect.value = mapTheme;
+    if (bigMapThemeSelect) bigMapThemeSelect.value = mapTheme;
+    initDayMaps();
+    renderBigMap();
+  }
   if (mapThemeSelect) {
     mapThemeSelect.value = mapTheme;
-    mapThemeSelect.addEventListener('change', () => {
-      mapTheme = mapThemeSelect.value;
-      try { localStorage.setItem('map-theme', mapTheme); } catch (e) {}
-      initDayMaps();
-    });
+    mapThemeSelect.addEventListener('change', () => setMapTheme(mapThemeSelect.value));
+  }
+  if (bigMapThemeSelect) {
+    bigMapThemeSelect.value = mapTheme;
+    bigMapThemeSelect.addEventListener('change', () => setMapTheme(bigMapThemeSelect.value));
   }
 
   function initDayMaps() {
@@ -1534,6 +1604,62 @@
       } else { map.setView(latlngs[0], 14); }
       dayMaps[day.id] = map;
     });
+  }
+
+  // ================= MAPA (aba grande, agrupado por cidade) =================
+  let bigMap = null;
+  const bigMapCitySelect = document.getElementById('bigMapCitySelect');
+  if (bigMapCitySelect) bigMapCitySelect.addEventListener('change', renderBigMap);
+
+  function populateCityFilter() {
+    const sel = document.getElementById('bigMapCitySelect');
+    if (!sel) return;
+    const cities = [...new Set(itinerary.map(d => (d.city || '').trim()).filter(Boolean))];
+    const prevValue = sel.value;
+    sel.innerHTML = '<option value="">Todos os pontos</option>' +
+      cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    sel.value = cities.includes(prevValue) ? prevValue : '';
+  }
+
+  function renderBigMap() {
+    const mapEl = document.getElementById('bigMap');
+    const emptyEl = document.getElementById('bigMapEmpty');
+    if (!mapEl || !window.L) return;
+    const sel = document.getElementById('bigMapCitySelect');
+    const filter = sel ? sel.value : '';
+    const points = [];
+    itinerary.forEach(day => {
+      if (filter && (day.city || '').trim() !== filter) return;
+      day.stops.forEach(s => {
+        if (s.lat != null && s.lng != null) points.push({ ...s, dayLabel: day.label, city: day.city || '' });
+      });
+    });
+    if (bigMap) { bigMap.remove(); bigMap = null; }
+    if (points.length === 0) {
+      mapEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = '';
+      return;
+    }
+    mapEl.style.display = '';
+    if (emptyEl) emptyEl.style.display = 'none';
+    const theme = MAP_THEMES[mapTheme] || MAP_THEMES.osm;
+    bigMap = L.map(mapEl, { scrollWheelZoom: true });
+    theme.layers.forEach(layer => {
+      L.tileLayer(layer.url, {
+        maxZoom: layer.maxZoom || 19,
+        maxNativeZoom: layer.maxNativeZoom,
+        attribution: layer.attribution || '',
+      }).addTo(bigMap);
+    });
+    const latlngs = points.map(p => [p.lat, p.lng]);
+    points.forEach(p => {
+      const sub = [p.dayLabel, p.city].filter(Boolean).join(' · ');
+      L.marker([p.lat, p.lng]).addTo(bigMap).bindPopup(
+        `<strong>${escapeHtml(p.title)}</strong>${p.time ? ' · ' + escapeHtml(p.time) : ''}<br><span style="color:#888;">${escapeHtml(sub)}</span>`
+      );
+    });
+    if (latlngs.length > 1) bigMap.fitBounds(latlngs, { padding: [36, 36], maxZoom: 15 });
+    else bigMap.setView(latlngs[0], 14);
   }
 
   // ================= CALENDAR =================
