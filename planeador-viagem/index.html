@@ -26,6 +26,7 @@
     --ok: #4F8F6B;
     --shadow: rgba(22,35,61,0.12);
     --surface: #ffffff;
+    --poi-color: #2E8B57;
   }
   :root[data-theme="dark"] {
     --paper: #161B26;
@@ -39,6 +40,7 @@
     --kraft-line: #454C60;
     --ok: #6FB08B;
     --shadow: rgba(0,0,0,0.35);
+    --poi-color: #4CB37B;
   }
   * { box-sizing: border-box; }
   body {
@@ -318,7 +320,6 @@
     display: flex; align-items: center; justify-content: center;
   }
   .day-head-main { flex: 1; min-width: 0; }
-  .day-sub { font-size: 11.5px; color: var(--ink-soft); }
   .day-sub-row { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
   .day-city-input {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--air-blue);
@@ -396,6 +397,22 @@
   .big-map-empty {
     font-size: 13px; color: var(--ink-soft); border: 1.5px dashed var(--kraft-line); border-radius: 10px;
     padding: 40px 20px; text-align: center; margin-top: 4px; line-height: 1.6;
+  }
+  .poi-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--kraft-line); }
+  .poi-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .poi-section-head h3 { margin: 0; font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; }
+  .poi-add-btn { width: auto; margin-top: 0; padding: 8px 14px; }
+  .poi-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--kraft-line); font-size: 13px; }
+  .poi-row:last-child { border-bottom: none; }
+  .poi-dot { width: 11px; height: 11px; border-radius: 50% 50% 50% 0; background: var(--poi-color); transform: rotate(-45deg); flex-shrink: 0; margin-left: 3px; box-shadow: 0 0 0 1.5px #fff; }
+  .poi-row .poi-title { flex: 1; min-width: 0; }
+  .poi-row .poi-city-tag { font-size: 10.5px; color: var(--ink-soft); background: var(--paper); border: 1px solid var(--kraft-line); border-radius: 10px; padding: 2px 9px; white-space: nowrap; }
+  .poi-row .poi-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .poi-empty { font-size: 12.5px; color: var(--ink-soft); padding: 6px 0; }
+  .poi-marker-wrap { background: transparent !important; border: none !important; }
+  .poi-marker-pin {
+    width: 20px; height: 20px; border-radius: 50% 50% 50% 0; background: var(--poi-color);
+    border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.35); transform: rotate(-45deg);
   }
   .empty-days {
     border: 1.5px dashed var(--kraft-line); border-radius: 10px; padding: 36px 20px; text-align: center;
@@ -530,7 +547,7 @@
     .day-head { gap: 9px; margin-bottom: 11px; padding-bottom: 10px; }
     .day-num { width: 27px; height: 27px; font-size: 12px; }
     .day-head input { font-size: 14.5px; }
-    .day-sub { font-size: 10.5px; }
+    .day-sub-row { gap: 6px; }
     .stop-row { grid-template-columns: 56px 1fr auto; gap: 8px; padding: 8px 0; font-size: 12.5px; }
     .stop-row:hover { margin: 0 -8px; padding: 8px; }
     .stop-time { padding-left: 13px; font-size: 11px; }
@@ -740,6 +757,13 @@
             Assim que adicionares atividades com localização encontrada no Itinerário, elas aparecem aqui.<br>
             Dica: preenche o campo "Cidade / região" em cada dia para poderes filtrar o mapa por cidade.
           </div>
+          <div class="poi-section">
+            <div class="poi-section-head">
+              <h3>Pontos de interesse</h3>
+              <button class="add-activity-btn poi-add-btn" id="addPoiBtn">+ Adicionar ponto de interesse</button>
+            </div>
+            <div id="poiList"></div>
+          </div>
         </div>
       </div>
 
@@ -767,7 +791,7 @@
 
   let trips = [];
   let currentTripId = null;
-  let expenses = [], itinerary = [], places = [], notes = [];
+  let expenses = [], itinerary = [], places = [], notes = [], pois = [];
   let currentChartView = 'user';
   let db = null;
   let auth = null;
@@ -906,6 +930,7 @@
     itinerary = t.itinerary || [];
     places = t.places || [];
     notes = t.notes || [];
+    pois = t.pois || [];
     setIfNotFocused(document.getElementById('tripNameInput'), t.name || '');
     setIfNotFocused(document.getElementById('tripDestinationInput'), t.destination || '');
     setIfNotFocused(document.getElementById('tripStartInput'), t.startDate || '');
@@ -1154,7 +1179,7 @@
     valueEl.textContent = 'Já terminou';
   }
 
-  function renderAll() { renderItinerary(); renderCalendarTab(); renderNotes(); renderExpensesAll(); }
+  function renderAll() { renderItinerary(); renderCalendarTab(); renderNotes(); renderExpensesAll(); renderPois(); }
 
   // ================= ITINERARY =================
   function saveItinerary() { updateTripField(currentTripId, { itinerary }); }
@@ -1480,7 +1505,6 @@
             <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
             <div class="day-sub-row">
               <input value="${escapeHtml(day.city || '')}" data-day="${day.id}" class="day-city-input" placeholder="Cidade / região" />
-              <span class="day-sub">${day.stops.length} ${day.stops.length === 1 ? 'atividade' : 'atividades'}</span>
             </div>
           </div>
           <button class="icon-btn day-remove" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
@@ -1660,7 +1684,9 @@
     const prevValue = sel.value;
     sel.innerHTML = '<option value="">Todos os pontos</option>' +
       cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-    sel.value = cities.includes(prevValue) ? prevValue : '';
+    // Por defeito, foca logo na primeira cidade em vez de tentar caber todas de uma vez
+    // (cidades diferentes costumam estar longe umas das outras, o que deixa o zoom inicial pouco útil).
+    sel.value = cities.includes(prevValue) ? prevValue : (cities[0] || '');
   }
 
   function renderBigMap() {
@@ -1676,8 +1702,9 @@
         if (s.lat != null && s.lng != null && s.showOnMap !== false) points.push({ ...s, dayLabel: day.label, city: day.city || '' });
       });
     });
+    const poiPoints = pois.filter(p => p.lat != null && p.lng != null && (!filter || (p.city || '').trim() === filter));
     if (bigMap) { bigMap.remove(); bigMap = null; }
-    if (points.length === 0) {
+    if (points.length === 0 && poiPoints.length === 0) {
       mapEl.style.display = 'none';
       if (emptyEl) emptyEl.style.display = '';
       return;
@@ -1693,16 +1720,127 @@
         attribution: layer.attribution || '',
       }).addTo(bigMap);
     });
-    const latlngs = points.map(p => [p.lat, p.lng]);
+    const poiIcon = L.divIcon({
+      className: 'poi-marker-wrap', html: '<div class="poi-marker-pin"></div>',
+      iconSize: [20, 26], iconAnchor: [10, 26], popupAnchor: [0, -24],
+    });
+    const latlngs = points.map(p => [p.lat, p.lng]).concat(poiPoints.map(p => [p.lat, p.lng]));
     points.forEach(p => {
       const sub = [p.dayLabel, p.city].filter(Boolean).join(' · ');
       L.marker([p.lat, p.lng]).addTo(bigMap).bindPopup(
         `<strong>${escapeHtml(p.title)}</strong>${p.time ? ' · ' + escapeHtml(p.time) : ''}<br><span style="color:#888;">${escapeHtml(sub)}</span>`
       );
     });
+    poiPoints.forEach(p => {
+      const sub = ['Ponto de interesse', p.city].filter(Boolean).join(' · ');
+      L.marker([p.lat, p.lng], { icon: poiIcon }).addTo(bigMap).bindPopup(
+        `<strong>${escapeHtml(p.title)}</strong><br><span style="color:#888;">${escapeHtml(sub)}</span>`
+      );
+    });
     if (latlngs.length > 1) bigMap.fitBounds(latlngs, { padding: [36, 36], maxZoom: 15 });
     else bigMap.setView(latlngs[0], 14);
   }
+
+  // ================= PONTOS DE INTERESSE (aba Mapa) =================
+  function savePois() { updateTripField(currentTripId, { pois }); }
+
+  function renderPois() {
+    const root = document.getElementById('poiList');
+    if (!root) return;
+    if (!pois.length) {
+      root.innerHTML = '<div class="poi-empty">Ainda não adicionaste pontos de interesse.</div>';
+    } else {
+      root.innerHTML = pois.map(p => `
+        <div class="poi-row">
+          <span class="poi-dot"></span>
+          <span class="poi-title">${escapeHtml(p.title)}${
+            p.geoStatus === 'pending' ? ' <span class="geo-tag">a localizar…</span>' :
+            p.geoStatus === 'notfound' ? ' <span class="geo-tag warn">localização não encontrada</span>' : ''
+          }</span>
+          ${p.city ? `<span class="poi-city-tag">${escapeHtml(p.city)}</span>` : ''}
+          <span class="poi-actions">
+            <button class="icon-btn" title="Editar" onclick="openPoiEditor('${p.id}')">✎</button>
+            <button class="icon-btn" title="Remover" onclick="removePoi('${p.id}')">✕</button>
+          </span>
+        </div>
+      `).join('');
+    }
+    renderBigMap();
+  }
+
+  function removePoi(id) {
+    pois = pois.filter(p => p.id !== id);
+    savePois();
+    renderPois();
+  }
+
+  function openPoiEditor(poiId) {
+    const poi = poiId ? pois.find(p => p.id === poiId) : null;
+    const cityOptions = [...new Set(itinerary.map(d => (d.city || '').trim()).filter(Boolean))];
+    const root = document.getElementById('modalRoot');
+    root.innerHTML = `
+      <div class="modal-backdrop" id="poiModalBackdrop">
+        <div class="modal wide">
+          <h3>${poi ? 'Editar ponto de interesse' : 'Novo ponto de interesse'}</h3>
+          <div class="new-trip-form">
+            <input type="text" id="poiTitleInput" placeholder="Nome (ex: Museu de Topkapi)" value="${poi ? escapeHtml(poi.title || '') : ''}">
+            <div style="margin-top:10px;">
+              <input type="text" id="poiCityInput" placeholder="Cidade / região" list="poiCityOptions" value="${poi ? escapeHtml(poi.city || '') : ''}">
+              <datalist id="poiCityOptions">${cityOptions.map(c => `<option value="${escapeHtml(c)}">`).join('')}</datalist>
+            </div>
+            <div style="margin-top:10px;">
+              <input type="text" id="poiAddressInput" placeholder="Endereço específico (opcional)" value="${poi ? escapeHtml(poi.address || '') : ''}">
+            </div>
+          </div>
+          <div class="row" style="margin-top:18px;">
+            ${poi ? '<button class="ghost" id="poiDeleteBtn" style="margin-right:auto;">Remover</button>' : ''}
+            <button class="ghost" id="poiCancelBtn">Cancelar</button>
+            <button class="primary inline" id="poiSaveBtn">Guardar</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => { root.innerHTML = ''; };
+    document.getElementById('poiCancelBtn').onclick = close;
+    document.getElementById('poiModalBackdrop').addEventListener('click', (e) => { if (e.target.id === 'poiModalBackdrop') close(); });
+    if (poi) document.getElementById('poiDeleteBtn').onclick = () => { close(); removePoi(poi.id); };
+    document.getElementById('poiSaveBtn').onclick = async () => {
+      const title = document.getElementById('poiTitleInput').value.trim();
+      const city = document.getElementById('poiCityInput').value.trim();
+      const address = document.getElementById('poiAddressInput').value.trim();
+      if (!title) { alert('Escreve pelo menos o nome do local.'); return; }
+      const trip = trips.find(t => t.id === currentTripId);
+      const bias = trip && trip.destination ? `, ${trip.destination}` : '';
+      const cityBias = city ? `, ${city}` : '';
+
+      if (poi) {
+        const changedLocation = title !== poi.title || address !== (poi.address || '') || city !== (poi.city || '');
+        poi.title = title; poi.city = city; poi.address = address;
+        if (changedLocation) { poi.geoStatus = 'pending'; poi.lat = null; poi.lng = null; }
+        close();
+        savePois(); renderPois();
+        if (changedLocation) {
+          const coords = await queueGeocode((address || title) + cityBias + bias);
+          const stillThere = pois.find(p => p.id === poi.id);
+          if (!stillThere) return;
+          stillThere.geoStatus = coords ? 'ok' : 'notfound';
+          if (coords) { stillThere.lat = coords.lat; stillThere.lng = coords.lng; }
+          savePois(); renderPois();
+        }
+      } else {
+        const newPoi = { id: uid(), title, city, address, lat: null, lng: null, geoStatus: 'pending' };
+        pois.push(newPoi);
+        close();
+        savePois(); renderPois();
+        const coords = await queueGeocode((address || title) + cityBias + bias);
+        const stillThere = pois.find(p => p.id === newPoi.id);
+        if (!stillThere) return;
+        stillThere.geoStatus = coords ? 'ok' : 'notfound';
+        if (coords) { stillThere.lat = coords.lat; stillThere.lng = coords.lng; }
+        savePois(); renderPois();
+      }
+    };
+  }
+  document.getElementById('addPoiBtn').addEventListener('click', () => openPoiEditor(null));
 
   // ================= CALENDAR =================
   const CAL_WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -2015,7 +2153,7 @@
     const payload = {
       tripName: trip ? trip.name : 'viagem', destination: trip ? trip.destination : '',
       startDate: trip ? trip.startDate : '', endDate: trip ? trip.endDate : '', photo: trip ? trip.photo : '',
-      expenses, itinerary, places, notes
+      expenses, itinerary, places, notes, pois
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -2038,6 +2176,7 @@
         if (Array.isArray(payload.itinerary)) fields.itinerary = payload.itinerary;
         if (Array.isArray(payload.places)) fields.places = payload.places;
         if (Array.isArray(payload.notes)) fields.notes = payload.notes;
+        if (Array.isArray(payload.pois)) fields.pois = payload.pois;
         if (payload.tripName) fields.name = payload.tripName;
         if (typeof payload.destination === 'string') fields.destination = payload.destination;
         if (typeof payload.startDate === 'string') fields.startDate = payload.startDate;
