@@ -609,10 +609,10 @@
 
       <div class="tabbar">
         <button class="tab active" data-tab="itinerary">Itinerário</button>
-        <button class="tab" data-tab="map">Mapa</button>
         <button class="tab" data-tab="calendar">Calendário</button>
         <button class="tab" data-tab="expenses">Despesas</button>
         <button class="tab" data-tab="notes">Notas</button>
+        <button class="tab" data-tab="map">Mapa</button>
       </div>
 
       <div class="tab-panel active" id="panel-itinerary">
@@ -631,36 +631,6 @@
           </div>
           <div id="itineraryDays"></div>
           <button class="add-day-btn" style="margin-top: 14px;" id="addDayBtn">+ Adicionar dia</button>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="panel-map">
-        <div class="card">
-          <div class="itinerary-toolbar">
-            <h2>Mapa</h2>
-            <div class="map-toolbar-selects">
-              <div class="map-style-picker">
-                <label for="bigMapCitySelect">Cidade</label>
-                <select id="bigMapCitySelect">
-                  <option value="">Todos os pontos</option>
-                </select>
-              </div>
-              <div class="map-style-picker">
-                <label for="bigMapThemeSelect">Estilo do mapa</label>
-                <select id="bigMapThemeSelect">
-                  <option value="osm">Padrão</option>
-                  <option value="light">Claro</option>
-                  <option value="dark">Escuro</option>
-                  <option value="voyager">Colorido</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="big-map" id="bigMap"></div>
-          <div class="big-map-empty" id="bigMapEmpty" style="display:none;">
-            Assim que adicionares atividades com localização encontrada no Itinerário, elas aparecem aqui.<br>
-            Dica: preenche o campo "Cidade / região" em cada dia para poderes filtrar o mapa por cidade.
-          </div>
         </div>
       </div>
 
@@ -725,6 +695,36 @@
           <h2>Notas <small>informações soltas sobre a viagem</small></h2>
           <div id="notesList"></div>
           <button class="ghost" style="margin-top: 4px;" id="addNoteBtn">+ Adicionar nota</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="panel-map">
+        <div class="card">
+          <div class="itinerary-toolbar">
+            <h2>Mapa</h2>
+            <div class="map-toolbar-selects">
+              <div class="map-style-picker">
+                <label for="bigMapCitySelect">Cidade</label>
+                <select id="bigMapCitySelect">
+                  <option value="">Todos os pontos</option>
+                </select>
+              </div>
+              <div class="map-style-picker">
+                <label for="bigMapThemeSelect">Estilo do mapa</label>
+                <select id="bigMapThemeSelect">
+                  <option value="osm">Padrão</option>
+                  <option value="light">Claro</option>
+                  <option value="dark">Escuro</option>
+                  <option value="voyager">Colorido</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="big-map" id="bigMap"></div>
+          <div class="big-map-empty" id="bigMapEmpty" style="display:none;">
+            Assim que adicionares atividades com localização encontrada no Itinerário, elas aparecem aqui.<br>
+            Dica: preenche o campo "Cidade / região" em cada dia para poderes filtrar o mapa por cidade.
+          </div>
         </div>
       </div>
 
@@ -1185,10 +1185,10 @@
     renderItinerary();
   }
 
-  async function addStop(dayId, time, title, note, photo, expenseAmount, address) {
+  async function addStop(dayId, time, title, note, photo, expenseAmount, address, showOnMap) {
     const day = itinerary.find(d => d.id === dayId);
     if (!day || !title.trim()) return;
-    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), address: (address||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null };
+    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), address: (address||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null, showOnMap: showOnMap !== false };
     syncStopExpense(stop, expenseAmount);
     day.stops.push(stop);
     saveItinerary();
@@ -1303,6 +1303,10 @@
               <input type="text" id="stopAddressInput" placeholder="Usa isto se 'O quê?' não localizar bem no mapa" value="${stop ? escapeHtml(stop.address || '') : ''}">
               <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Não aparece na lista do itinerário — só ajuda o mapa a encontrar o sítio certo.</div>
             </div>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;">
+              <input type="checkbox" id="stopShowOnMapInput" style="width:auto;accent-color:var(--ok);" ${(!stop || stop.showOnMap !== false) ? 'checked' : ''}>
+              Mostrar esta atividade no mapa
+            </label>
             <div style="margin-top:14px;">
               <div id="stopPhotoPreviewWrap">
                 ${stop && stop.photo ? `<img src="${stop.photo}" class="photo-preview" id="stopPhotoPreview">` : ''}
@@ -1388,6 +1392,7 @@
       const title = document.getElementById('stopTitleInput').value.trim();
       const note = document.getElementById('stopNoteInput').value.trim();
       const address = document.getElementById('stopAddressInput').value.trim();
+      const showOnMap = document.getElementById('stopShowOnMapInput').checked;
       if (!title) { alert('Escreve pelo menos o nome da atividade.'); return; }
 
       if (stop) {
@@ -1397,6 +1402,7 @@
         stop.title = title;
         stop.note = note;
         stop.address = address;
+        stop.showOnMap = showOnMap;
         stop.photo = photoRemoved ? null : (pendingPhoto || stop.photo || null);
         syncStopExpense(stop, expenseAmount);
         if (changedLocation) { stop.geoStatus = 'pending'; stop.lat = null; stop.lng = null; }
@@ -1417,7 +1423,7 @@
       } else {
         const expenseAmount = parseFloat(document.getElementById('stopExpenseInput').value);
         close();
-        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount, address);
+        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount, address, showOnMap);
       }
     };
   }
@@ -1429,7 +1435,7 @@
       return;
     }
     root.innerHTML = itinerary.map((day, idx) => {
-      const geoPoints = day.stops.filter(s => s.lat != null && s.lng != null);
+      const geoPoints = day.stops.filter(s => s.lat != null && s.lng != null && s.showOnMap !== false);
       return `
       <div class="day-card" id="day-${day.id}">
         <div class="day-head">
@@ -1586,7 +1592,7 @@
       const mapEl = document.getElementById(`map-${day.id}`);
       if (dayMaps[day.id]) { dayMaps[day.id].remove(); delete dayMaps[day.id]; }
       if (!mapEl) return;
-      const points = day.stops.filter(s => s.lat != null && s.lng != null);
+      const points = day.stops.filter(s => s.lat != null && s.lng != null && s.showOnMap !== false);
       if (points.length === 0) return;
       const map = L.map(mapEl, { scrollWheelZoom: false });
       theme.layers.forEach(layer => {
@@ -1631,7 +1637,7 @@
     itinerary.forEach(day => {
       if (filter && (day.city || '').trim() !== filter) return;
       day.stops.forEach(s => {
-        if (s.lat != null && s.lng != null) points.push({ ...s, dayLabel: day.label, city: day.city || '' });
+        if (s.lat != null && s.lng != null && s.showOnMap !== false) points.push({ ...s, dayLabel: day.label, city: day.city || '' });
       });
     });
     if (bigMap) { bigMap.remove(); bigMap = null; }
