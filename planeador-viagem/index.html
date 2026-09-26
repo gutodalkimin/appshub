@@ -414,6 +414,13 @@
   .place-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 4px; border-bottom: 1px dashed var(--kraft-line); }
   .place-row:last-child { border-bottom: none; }
   .place-row input[type=checkbox] { margin-top: 4px; width: auto; accent-color: var(--ok); }
+  .map-toggle-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 10px 12px;
+    border: 1px solid var(--kraft-line); border-radius: 8px; background: var(--paper);
+    font-size: 12.5px; color: var(--ink); cursor: pointer; transition: border-color 0.15s ease;
+  }
+  .map-toggle-row:hover { border-color: var(--air-blue); }
+  .map-toggle-row input[type=checkbox] { width: 16px; height: 16px; margin: 0; flex-shrink: 0; accent-color: var(--ok); cursor: pointer; }
   .place-row .body { flex: 1; }
   .place-row .name { font-weight: 600; }
   .place-row.visited .name { text-decoration: line-through; color: var(--ink-soft); }
@@ -1161,15 +1168,36 @@
     return run;
   }
   async function geocodeAddress(query) {
-    if (!query.trim()) return null;
+    const q = query.trim();
+    if (!q) return null;
+    // Tenta primeiro o Photon (Komoot) — geocodificador aberto, mais tolerante a pedidos vindos do browser.
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+      const url = `https://photon.komoot.io/api/?limit=1&q=${encodeURIComponent(q)}`;
       const res = await fetch(url);
-      if (!res.ok) return null;
-      const data = await res.json();
-      if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-      return null;
-    } catch (e) { return null; }
+      if (res.ok) {
+        const data = await res.json();
+        const f = data && data.features && data.features[0];
+        const coords = f && f.geometry && f.geometry.coordinates;
+        if (Array.isArray(coords) && coords.length === 2) {
+          const [lng, lat] = coords;
+          if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+        }
+      } else {
+        console.warn('Photon devolveu erro', res.status);
+      }
+    } catch (e) { console.warn('Falha ao contactar o Photon:', e); }
+    // Reserva: Nominatim (OpenStreetMap).
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=pt&q=${encodeURIComponent(q)}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      } else {
+        console.warn('Nominatim devolveu erro', res.status);
+      }
+    } catch (e) { console.warn('Falha ao contactar o Nominatim:', e); }
+    return null;
   }
 
   document.getElementById('addDayBtn').addEventListener('click', () => {
@@ -1303,9 +1331,9 @@
               <input type="text" id="stopAddressInput" placeholder="Usa isto se 'O quê?' não localizar bem no mapa" value="${stop ? escapeHtml(stop.address || '') : ''}">
               <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Não aparece na lista do itinerário — só ajuda o mapa a encontrar o sítio certo.</div>
             </div>
-            <label style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;">
-              <input type="checkbox" id="stopShowOnMapInput" style="width:auto;accent-color:var(--ok);" ${(!stop || stop.showOnMap !== false) ? 'checked' : ''}>
-              Mostrar esta atividade no mapa
+            <label class="map-toggle-row" for="stopShowOnMapInput">
+              <input type="checkbox" id="stopShowOnMapInput" ${(!stop || stop.showOnMap !== false) ? 'checked' : ''}>
+              <span>Mostrar esta atividade no mapa</span>
             </label>
             <div style="margin-top:14px;">
               <div id="stopPhotoPreviewWrap">
