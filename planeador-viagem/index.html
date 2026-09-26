@@ -374,7 +374,7 @@
   @media (max-width: 640px) { .add-stop-row { grid-template-columns: 1fr 1fr; } }
   .add-stop-row input { font-size: 13px; padding: 7px 8px; }
   .add-stop-row button { padding: 7px 10px; font-size: 13px; grid-column: span 1; }
-  .day-map { height: 260px; border-radius: 6px; margin: 12px 0; border: 1px solid var(--kraft-line); background: var(--surface); }
+  .day-map { height: 260px; border-radius: 6px; margin: 12px 0; border: 1px solid var(--kraft-line); background: var(--surface); isolation: isolate; }
   .day-map-empty { font-size: 12.5px; color: var(--ink-soft); border: 1px dashed var(--kraft-line); border-radius: 6px; padding: 14px; text-align: center; margin: 12px 0; }
   .geo-tag { font-size: 10.5px; color: var(--ink-soft); margin-left: 6px; font-weight: 400; }
   .geo-tag.warn { color: var(--air-red); }
@@ -392,7 +392,7 @@
   }
   .map-style-picker select:focus { outline: none; }
   .map-toolbar-selects { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .big-map { height: 480px; border-radius: 10px; margin-top: 4px; border: 1px solid var(--kraft-line); background: var(--surface); }
+  .big-map { height: 480px; border-radius: 10px; margin-top: 4px; border: 1px solid var(--kraft-line); background: var(--surface); isolation: isolate; }
   .big-map-empty {
     font-size: 13px; color: var(--ink-soft); border: 1.5px dashed var(--kraft-line); border-radius: 10px;
     padding: 40px 20px; text-align: center; margin-top: 4px; line-height: 1.6;
@@ -415,12 +415,20 @@
   .place-row:last-child { border-bottom: none; }
   .place-row input[type=checkbox] { margin-top: 4px; width: auto; accent-color: var(--ok); }
   .map-toggle-row {
-    display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding: 10px 12px;
     border: 1px solid var(--kraft-line); border-radius: 8px; background: var(--paper);
     font-size: 12.5px; color: var(--ink); cursor: pointer; transition: border-color 0.15s ease;
   }
   .map-toggle-row:hover { border-color: var(--air-blue); }
-  .map-toggle-row input[type=checkbox] { width: 16px; height: 16px; margin: 0; flex-shrink: 0; accent-color: var(--ok); cursor: pointer; }
+  .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+  .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 2; }
+  .switch-track { position: absolute; inset: 0; background: var(--kraft-line); border-radius: 11px; transition: background 0.15s ease; }
+  .switch-track::before {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.15s ease;
+  }
+  .switch input:checked ~ .switch-track { background: var(--ok); }
+  .switch input:checked ~ .switch-track::before { transform: translateX(16px); }
   .place-row .body { flex: 1; }
   .place-row .name { font-weight: 600; }
   .place-row.visited .name { text-decoration: line-through; color: var(--ink-soft); }
@@ -1329,11 +1337,13 @@
             <div style="margin-top:14px;">
               <label for="stopAddressInput" style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;">Endereço específico (opcional)</label>
               <input type="text" id="stopAddressInput" placeholder="Usa isto se 'O quê?' não localizar bem no mapa" value="${stop ? escapeHtml(stop.address || '') : ''}">
-              <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Não aparece na lista do itinerário — só ajuda o mapa a encontrar o sítio certo.</div>
             </div>
             <label class="map-toggle-row" for="stopShowOnMapInput">
-              <input type="checkbox" id="stopShowOnMapInput" ${(!stop || stop.showOnMap !== false) ? 'checked' : ''}>
               <span>Mostrar esta atividade no mapa</span>
+              <span class="switch">
+                <input type="checkbox" id="stopShowOnMapInput" ${(!stop || stop.showOnMap !== false) ? 'checked' : ''}>
+                <span class="switch-track"></span>
+              </span>
             </label>
             <div style="margin-top:14px;">
               <div id="stopPhotoPreviewWrap">
@@ -1343,12 +1353,10 @@
                 <input type="file" accept="image/*" id="stopPhotoInput">
                 ${stop && stop.photo ? `<button type="button" class="ghost" id="stopRemovePhotoBtn">Remover foto</button>` : ''}
               </div>
-              <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Ou copia uma imagem (ex: printscreen) e cola aqui com Ctrl+V.</div>
             </div>
             <div style="margin-top:14px;">
               <label for="stopExpenseInput" style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;">Valor da despesa (opcional)</label>
               <div class="amount-field"><input type="number" step="0.01" min="0" id="stopExpenseInput" placeholder="0,00" value="${stop && stop.expenseAmount ? stop.expenseAmount : ''}"></div>
-              <div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">${stop && stop.expenseId ? 'Já existe uma despesa ligada a esta atividade — edita os restantes detalhes em Despesas.' : 'Se preencheres, cria automaticamente uma despesa na aba Despesas.'}</div>
             </div>
           </div>
           <div class="row" style="margin-top:18px;">
