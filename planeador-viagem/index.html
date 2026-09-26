@@ -1200,9 +1200,25 @@
     geocodeQueue = run.catch(() => null).then(() => new Promise(r => setTimeout(r, 1100)));
     return run;
   }
+  function parseCoordString(q) {
+    // Aceita "40.7128, -74.0060", "40.7128 -74.0060", opcionalmente com mais texto a seguir
+    // (ex: quando juntamos a cidade/destino no fim da pesquisa).
+    const m = q.match(/^\s*(-?\d{1,3}(?:\.\d+)?)\s*[,\s]\s*(-?\d{1,3}(?:\.\d+)?)\s*(?:[,;].*)?$/);
+    if (!m) return null;
+    const lat = parseFloat(m[1]);
+    const lng = parseFloat(m[2]);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+    return { lat, lng };
+  }
+
   async function geocodeAddress(query) {
     const q = query.trim();
     if (!q) return null;
+    // Se for mesmo um par de coordenadas, usa-as diretamente — não faz sentido "pesquisar" por elas,
+    // e os geocodificadores de texto (Photon/Nominatim) não lidam bem com números soltos.
+    const direct = parseCoordString(q);
+    if (direct) return direct;
     // Tenta primeiro o Photon (Komoot) — geocodificador aberto, mais tolerante a pedidos vindos do browser.
     try {
       const url = `https://photon.komoot.io/api/?limit=1&q=${encodeURIComponent(q)}`;
