@@ -89,7 +89,7 @@
     text-decoration: none; cursor: pointer; margin-bottom: 10px;
   }
   .back-link:hover { color: var(--air-red); }
-  .trip-header { align-items: flex-start; }
+  .trip-header { align-items: flex-start; border-bottom: none; }
   .trip-header-main { flex: 1; min-width: 280px; }
   .trip-header-top { display: flex; gap: 18px; align-items: stretch; flex-wrap: wrap; }
   .trip-header-fields { flex: 1; min-width: 220px; display: flex; flex-direction: column; justify-content: center; }
@@ -267,6 +267,15 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.25); transition: background 0.15s ease, transform 0.15s ease;
   }
   .trip-card .del:hover { background: var(--air-red); transform: scale(1.08); }
+  .trip-card .fav-btn {
+    position: absolute; top: 10px; left: 10px; background: rgba(22,35,61,0.55); color: #fff; border: none;
+    width: 27px; height: 27px; border-radius: 50%; cursor: pointer; font-size: 13px; z-index: 3; line-height: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25); transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease;
+  }
+  .trip-card .fav-btn:hover { transform: scale(1.08); }
+  .trip-card .fav-btn.active { background: #E8B93D; color: #fff; }
+  .trip-card.is-current::before { background: linear-gradient(90deg, #E8B93D, #F3D68A); }
+  .trip-card.is-current { box-shadow: 0 3px 10px var(--shadow), 0 0 0 2px #E8B93D33; }
   .new-trip-card {
     border: 1.5px dashed var(--kraft-line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; min-height: 128px; cursor: pointer; color: var(--ink-soft);
@@ -534,7 +543,7 @@
     <div id="tripsView">
       <header>
         <div>
-          <div class="brand-mark">PAR AVION · PLANEADOR DE VIAGEM</div>
+          <div class="brand-mark"> · PLANEADOR DE VIAGEM · </div>
           <h1>As tuas viagens</h1>
           <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">A ligar à base de dados…</span></div>
         </div>
@@ -570,7 +579,7 @@
             </div>
           </div>
         </div>
-        <div class="total-block">
+        <div class="total-block" id="totalBlock" style="display:none;">
           <div class="total-label">Total de despesas</div>
           <div class="total-value" id="grandTotal">€ 0,00</div>
         </div>
@@ -891,10 +900,12 @@
 
   function renderTripsGrid() {
     const grid = document.getElementById('tripsGrid');
-    const cards = trips.map(t => {
+    const sorted = [...trips].sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0));
+    const cards = sorted.map(t => {
       const meta = formatTripMeta(t);
       return `
-      <div class="trip-card" onclick="openTrip('${t.id}')">
+      <div class="trip-card${t.favorite ? ' is-current' : ''}" onclick="openTrip('${t.id}')">
+        <button class="fav-btn${t.favorite ? ' active' : ''}" title="${t.favorite ? 'Remover como viagem atual' : 'Marcar como viagem atual'}" onclick="event.stopPropagation(); toggleFavorite('${t.id}')">★</button>
         <button class="del" title="Remover viagem" onclick="event.stopPropagation(); confirmDeleteTrip('${t.id}')">✕</button>
         <div class="cover-wrap">
           ${t.photo ? `<img class="cover" src="${t.photo}" alt="">` : `<div class="cover-placeholder">✈</div>`}
@@ -909,6 +920,13 @@
     const newCard = `<div class="new-trip-card" id="newTripCard"><div class="plus">+</div><span class="label">Nova viagem</span></div>`;
     grid.innerHTML = cards + newCard;
     document.getElementById('newTripCard').addEventListener('click', showNewTripForm);
+  }
+
+  function toggleFavorite(id) {
+    const t = trips.find(x => x.id === id);
+    const makeCurrent = !(t && t.favorite);
+    trips.forEach(x => { if (x.favorite && x.id !== id) updateTripField(x.id, { favorite: false }); });
+    updateTripField(id, { favorite: makeCurrent });
   }
 
   function showNewTripForm() {
@@ -1005,6 +1023,7 @@
   function switchTab(name) {
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
+    document.getElementById('totalBlock').style.display = name === 'expenses' ? '' : 'none';
     if (name === 'itinerary') requestAnimationFrame(() => Object.values(dayMaps).forEach(m => m.invalidateSize()));
     if (name === 'calendar') renderCalendarTab();
   }
