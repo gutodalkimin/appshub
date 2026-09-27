@@ -1211,6 +1211,7 @@
 
   let dayMaps = {};
   let dayMapMarkers = {};
+  let dayMapHomeView = {};
   let geocodeQueue = Promise.resolve();
   function queueGeocode(query) {
     const run = geocodeQueue.then(() => geocodeAddress(query));
@@ -1659,10 +1660,13 @@
       row.addEventListener('mouseleave', () => {
         const dayId = row.dataset.day, stopId = row.dataset.stop;
         const marker = dayMapMarkers[dayId] && dayMapMarkers[dayId][stopId];
+        const map = dayMaps[dayId];
         if (!marker) return;
         const el = marker.getElement();
         if (el) el.classList.remove('highlighted');
         marker.closeTooltip();
+        const home = dayMapHomeView[dayId];
+        if (map && home) map.flyTo(home.center, home.zoom, { animate: true, duration: 0.5 });
       });
     });
 
@@ -1824,6 +1828,7 @@
       if (latlngs.length > 1) map.fitBounds(latlngs, { padding: [28, 28], maxZoom: 15 });
       else map.setView(latlngs[0], 14);
       dayMaps[day.id] = map;
+      dayMapHomeView[day.id] = { center: map.getCenter(), zoom: map.getZoom() };
     });
   }
 
