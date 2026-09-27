@@ -284,6 +284,22 @@
   }
 
   /* ---------- Question list (manage) ---------- */
+  .q-group{
+    border:1px solid var(--border); border-radius:12px; margin-bottom:14px; overflow:hidden; background:var(--surface);
+  }
+  .q-group:last-child{ margin-bottom:0; }
+  .q-group-header{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 14px; background:var(--surface-2); font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--ink-soft);
+    border-bottom:1px solid var(--border);
+  }
+  .q-group-import .q-group-header{ color:var(--accent); }
+  .q-group-count{
+    font-family:'IBM Plex Mono',monospace; font-weight:600; text-transform:none; letter-spacing:0;
+    color:var(--ink-faint); background:var(--surface); padding:2px 9px; border-radius:20px; flex-shrink:0;
+  }
+  .q-group .q-list-row{ padding:14px; }
   .q-list-row{
     display:flex; align-items:flex-start; gap:14px; padding:14px 4px; border-bottom:1px dashed var(--border);
   }
@@ -751,6 +767,14 @@ function isAnswerCorrect(q, answer){
 }
 function correctLettersLabel(q){
   return getCorrectIndexes(q).map(i => String.fromCharCode(65 + i)).join(', ');
+}
+
+function formatImportDate(ts){
+  if(!ts) return 'data desconhecida';
+  const d = new Date(ts);
+  const date = d.toLocaleDateString('pt-PT', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const time = d.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+  return `${date} às ${time}`;
 }
 
 /* Renderiza a tabela opcional de uma pergunta (ex: lista de dispositivos). */
@@ -1366,13 +1390,8 @@ function yesNoRowHtml(stmt, i, savedAnswer, pendingSelected, answered){
 }
 
 /* ---------- Gerir perguntas ---------- */
-function renderQuestionList(){
-  const root = document.getElementById('questionList');
-  if(questions.length === 0){
-    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
-    return;
-  }
-  root.innerHTML = questions.map((q, i) => `
+function qListRowHtml(q, i){
+  return `
     <div class="q-list-row">
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
@@ -1392,7 +1411,51 @@ function renderQuestionList(){
         <button class="icon-btn" title="Remover" data-action="delete-q" data-id="${q.id}">✕</button>
       </div>
     </div>
+  `;
+}
+
+function renderQuestionList(){
+  const root = document.getElementById('questionList');
+  if(questions.length === 0){
+    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
+    return;
+  }
+
+  // Separa as perguntas adicionadas manualmente das importadas, e dentro
+  // destas, cada importação fica no seu próprio grupo — mantendo a
+  // numeração igual à ordem real do questionário (a mesma do modo estudo).
+  const manualGroup = { key: 'manual', label: 'Adicionadas manualmente', kind: 'manual', items: [] };
+  const importGroups = new Map();
+
+  questions.forEach((q, i) => {
+    if(q.source === 'import' && q.importBatchId){
+      if(!importGroups.has(q.importBatchId)){
+        importGroups.set(q.importBatchId, {
+          key: q.importBatchId, kind: 'import',
+          label: `Importação · ${formatImportDate(q.importedAt || q.createdAt)}`,
+          items: []
+        });
+      }
+      importGroups.get(q.importBatchId).items.push({ q, i });
+    } else {
+      manualGroup.items.push({ q, i });
+    }
+  });
+
+  const groups = [];
+  if(manualGroup.items.length) groups.push(manualGroup);
+  groups.push(...[...importGroups.values()].sort((a, b) => b.key.localeCompare(a.key)));
+
+  root.innerHTML = groups.map(group => `
+    <div class="q-group q-group-${group.kind}">
+      <div class="q-group-header">
+        <span>${escapeHtml(group.label)}</span>
+        <span class="q-group-count">${group.items.length} pergunta${group.items.length === 1 ? '' : 's'}</span>
+      </div>
+      ${group.items.map(({ q, i }) => qListRowHtml(q, i)).join('')}
+    </div>
   `).join('');
+
   root.querySelectorAll('[data-action="edit-q"]').forEach(btn=>{
     btn.addEventListener('click', ()=> openQuestionModal(btn.dataset.id));
   });
@@ -1549,6 +1612,20 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
   statusEl.style.color = 'var(--ink-soft)';
   statusEl.textContent = `A importar ${valid.length} pergunta(s)…`;
   try{
+    // Marca todas as perguntas desta importação com a mesma origem (para
+    // as conseguir separar depois) e dá-lhes um createdAt sequencial —
+    // assim a ordem em que apareceram no JSON é preservada. Sem isto,
+    // como todas ficavam com o mesmo instante, o Firestore desempatava
+    // pelo ID aleatório do documento e a ordem saía embaralhada.
+    const baseTime = Date.now();
+    const importBatchId = 'imp_' + baseTime;
+    valid.forEach((q, idx) => {
+      q.createdAt = baseTime + idx;
+      q.source = 'import';
+      q.importBatchId = importBatchId;
+      q.importedAt = baseTime;
+    });
+
     const colRef = db.collection('quizModules').doc(currentModuleId).collection('questions');
     const batches = [];
     for(let i = 0; i < valid.length; i += 400){
@@ -2009,6 +2086,7 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
       await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(editingQuestionId).set(payload, { merge:true });
     } else {
       payload.createdAt = Date.now();
+      payload.source = 'manual';
       await db.collection('quizModules').doc(currentModuleId).collection('questions').add(payload);
     }
     document.getElementById('questionModalOverlay').classList.remove('open');
