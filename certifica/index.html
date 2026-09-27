@@ -213,6 +213,25 @@
     z-index:3001;
   }
   .image-modal-close:hover{ background:rgba(255,255,255,0.28); }
+
+  /* ---------- Verificação por IA ---------- */
+  .ai-verify-btn{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; }
+  .ai-provider-grid{ display:flex; flex-direction:column; gap:10px; margin:16px 0; }
+  .ai-provider-btn{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px; font-size:14px; font-weight:600; color:var(--ink); cursor:pointer; font-family:inherit;
+  }
+  .ai-provider-btn:hover{ border-color:var(--accent); }
+  .ai-provider-btn .ai-provider-icon{ font-size:18px; }
+  .ai-provider-btn .ai-provider-sub{ font-weight:400; font-size:12px; color:var(--ink-soft); display:block; }
+  .ai-result-box{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px; font-size:14px; line-height:1.55; white-space:pre-wrap; margin-top:6px;
+  }
+  .ai-result-box.loading{ color:var(--ink-soft); font-style:italic; }
+  .ai-result-box.error{ background:var(--err-soft); border-color:var(--err); color:var(--err); }
+  .ai-back-link{ background:none; border:none; color:var(--accent); font-size:13px; cursor:pointer; padding:0; margin-bottom:12px; font-family:inherit; }
   .option-row{
     display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
     border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
@@ -456,6 +475,7 @@
     <div class="brand"><div class="brand-icon">🎓</div>Certificações</div>
     <div class="account-box">
       <div class="account-user" id="accountUser"></div>
+      <button class="account-btn icon-only" id="aiSettingsBtn" title="Definições de IA">🤖</button>
       <button class="account-btn icon-only" id="themeToggleBtn" title="Alternar tema">🌙</button>
       <button class="account-btn" id="signOutBtn">Sair</button>
     </div>
@@ -618,6 +638,63 @@
 <div class="image-modal-overlay" id="imageModalOverlay">
   <button type="button" class="image-modal-close" id="imageModalCloseBtn" aria-label="Fechar">✕</button>
   <img id="imageModalImg" src="" alt="">
+</div>
+
+<div class="overlay" id="aiSettingsOverlay">
+  <div class="modal" style="width:480px;">
+    <h3>Definições de IA</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">
+      As chaves ficam guardadas apenas neste dispositivo (localStorage do browser) e são enviadas diretamente da tua app para a Claude/Gemini — nunca passam por nenhum servidor teu.
+    </p>
+    <div class="field">
+      <label>Chave da API da Anthropic (Claude)</label>
+      <input type="password" id="aiClaudeKeyInput" placeholder="sk-ant-...">
+    </div>
+    <div class="field">
+      <label>Modelo Claude</label>
+      <input type="text" id="aiClaudeModelInput" placeholder="claude-sonnet-4-6">
+    </div>
+    <div class="field">
+      <label>Chave da API do Google AI Studio (Gemini)</label>
+      <input type="password" id="aiGeminiKeyInput" placeholder="AIza...">
+    </div>
+    <div class="field">
+      <label>Modelo Gemini</label>
+      <input type="text" id="aiGeminiModelInput" placeholder="gemini-2.5-flash">
+    </div>
+    <p style="font-size:12px;color:var(--ink-soft);margin:-6px 0 14px;">
+      O ChatGPT não permite chamadas diretas a partir do browser, por isso essa opção abre o ChatGPT numa nova aba com a pergunta já copiada para colares.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="aiSettingsCancelBtn">Fechar</button>
+      <button class="btn-primary" id="aiSettingsSaveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="aiVerifyOverlay">
+  <div class="modal" style="width:480px;">
+    <h3>Verificar resposta com IA</h3>
+    <div id="aiVerifyBody">
+      <div class="ai-provider-grid">
+        <button type="button" class="ai-provider-btn" data-provider="claude">
+          <span class="ai-provider-icon">✳️</span>
+          <span><span>Claude</span><span class="ai-provider-sub">Chamada direta à API</span></span>
+        </button>
+        <button type="button" class="ai-provider-btn" data-provider="gemini">
+          <span class="ai-provider-icon">✨</span>
+          <span><span>Gemini</span><span class="ai-provider-sub">Chamada direta à API</span></span>
+        </button>
+        <button type="button" class="ai-provider-btn" data-provider="chatgpt">
+          <span class="ai-provider-icon">💬</span>
+          <span><span>ChatGPT</span><span class="ai-provider-sub">Abre o ChatGPT com a pergunta copiada</span></span>
+        </button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="aiVerifyCloseBtn">Fechar</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="importModalOverlay">
@@ -1140,6 +1217,7 @@ function buildStudyHtml(wrap){
       ${isDrag && !answeredThisQuestion ? `<button class="btn-primary" id="confirmDragBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isYesNo && !answeredThisQuestion ? `<button class="btn-primary" id="confirmYesNoBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(q.explanation)}</div>` : ''}
+      ${answeredThisQuestion ? `<button type="button" class="btn-secondary ai-verify-btn" id="aiVerifyBtn">🤖 Verificar resposta com IA</button>` : ''}
     </div>
     <div class="study-actions">
       <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
@@ -1279,6 +1357,11 @@ function buildStudyHtml(wrap){
       renderStudy();
     });
   });
+
+  const aiVerifyBtn = document.getElementById('aiVerifyBtn');
+  if(aiVerifyBtn){
+    aiVerifyBtn.addEventListener('click', ()=> openAIVerify(q, savedAnswer));
+  }
 }
 
 function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected){
@@ -2132,6 +2215,212 @@ document.getElementById('imageModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'imageModalOverlay') closeImageModal();
 });
 document.getElementById('imageModalCloseBtn').addEventListener('click', closeImageModal);
+
+/* ---------- Verificação de respostas com IA ---------- */
+function loadAISettings(){
+  let s = {};
+  try{
+    s = {
+      claudeKey: localStorage.getItem('cert-ai-claude-key') || '',
+      claudeModel: localStorage.getItem('cert-ai-claude-model') || 'claude-sonnet-4-6',
+      geminiKey: localStorage.getItem('cert-ai-gemini-key') || '',
+      geminiModel: localStorage.getItem('cert-ai-gemini-model') || 'gemini-2.5-flash'
+    };
+  }catch(e){}
+  return s;
+}
+function saveAISettings(s){
+  try{
+    localStorage.setItem('cert-ai-claude-key', s.claudeKey || '');
+    localStorage.setItem('cert-ai-claude-model', s.claudeModel || 'claude-sonnet-4-6');
+    localStorage.setItem('cert-ai-gemini-key', s.geminiKey || '');
+    localStorage.setItem('cert-ai-gemini-model', s.geminiModel || 'gemini-2.5-flash');
+  }catch(e){}
+}
+
+document.getElementById('aiSettingsBtn').addEventListener('click', ()=>{
+  const s = loadAISettings();
+  document.getElementById('aiClaudeKeyInput').value = s.claudeKey;
+  document.getElementById('aiClaudeModelInput').value = s.claudeModel;
+  document.getElementById('aiGeminiKeyInput').value = s.geminiKey;
+  document.getElementById('aiGeminiModelInput').value = s.geminiModel;
+  document.getElementById('aiSettingsOverlay').classList.add('open');
+});
+document.getElementById('aiSettingsCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('aiSettingsOverlay').classList.remove('open');
+});
+document.getElementById('aiSettingsOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'aiSettingsOverlay') document.getElementById('aiSettingsOverlay').classList.remove('open');
+});
+document.getElementById('aiSettingsSaveBtn').addEventListener('click', ()=>{
+  saveAISettings({
+    claudeKey: document.getElementById('aiClaudeKeyInput').value.trim(),
+    claudeModel: document.getElementById('aiClaudeModelInput').value.trim(),
+    geminiKey: document.getElementById('aiGeminiKeyInput').value.trim(),
+    geminiModel: document.getElementById('aiGeminiModelInput').value.trim()
+  });
+  document.getElementById('aiSettingsOverlay').classList.remove('open');
+});
+
+/* Monta o texto da pergunta (com opções/afirmações e a resposta marcada como
+   correta nos dados) para enviar à IA, pedindo-lhe para confirmar ou não. */
+function buildAIVerifyPrompt(q, answer){
+  const lines = [];
+  lines.push('Sou um estudante a rever perguntas de um quiz de certificação. Aqui está uma pergunta, as opções, qual a resposta marcada como correta nos meus dados, e a resposta que eu dei. Confirma, de forma breve e direta, se a resposta marcada como correta está mesmo correta, e explica porquê em poucas frases. Se achares que está errada, diz isso claramente logo na primeira linha.');
+  lines.push('');
+  lines.push('Pergunta: ' + q.text);
+  if(q.table && Array.isArray(q.table.headers) && q.table.headers.length){
+    lines.push('Tabela: ' + q.table.headers.join(' | '));
+    (q.table.rows || []).forEach(r => lines.push('  ' + r.join(' | ')));
+  }
+
+  if(isSelectQuestion(q)){
+    (q.slots || []).forEach((slot, i)=>{
+      const correctOpt = slot.options[slot.correctIndex];
+      const givenIdx = Array.isArray(answer) ? answer[i] : undefined;
+      const givenOpt = Number.isInteger(givenIdx) ? slot.options[givenIdx] : '(sem resposta)';
+      lines.push(`Seletor "${slot.label}": opções [${slot.options.join(', ')}] — marcado como correto: "${correctOpt}" — resposta dada: "${givenOpt}"`);
+    });
+  } else if(isDragDropQuestion(q)){
+    lines.push('Itens disponíveis: ' + (q.items || []).join(', '));
+    (q.targets || []).forEach((t, i)=>{
+      const correctItem = q.items[t.correctItemIndex];
+      const givenIdx = Array.isArray(answer) ? answer[i] : undefined;
+      const givenItem = Number.isInteger(givenIdx) ? q.items[givenIdx] : '(sem resposta)';
+      lines.push(`Alvo "${t.label}": marcado como correto: "${correctItem}" — resposta dada: "${givenItem}"`);
+    });
+  } else if(isYesNoQuestion(q)){
+    (q.statements || []).forEach((s, i)=>{
+      const given = Array.isArray(answer) ? (answer[i] === true ? 'Sim' : answer[i] === false ? 'Não' : '(sem resposta)') : '(sem resposta)';
+      lines.push(`Afirmação: "${s.label}" — marcado como correto: ${s.correct ? 'Sim' : 'Não'} — resposta dada: ${given}`);
+    });
+  } else {
+    const correctIdx = getCorrectIndexes(q);
+    (q.options || []).forEach((opt, i)=>{
+      lines.push(`${String.fromCharCode(65+i)}) ${opt}${correctIdx.includes(i) ? '  [marcado como correto nos meus dados]' : ''}`);
+    });
+    const given = Array.isArray(answer) ? answer.map(i => String.fromCharCode(65+i)).join(', ') : (Number.isInteger(answer) ? String.fromCharCode(65+answer) : '(sem resposta)');
+    lines.push('Resposta que eu dei: ' + given);
+  }
+
+  if(q.explanation) lines.push('Explicação que já tenho: ' + q.explanation);
+  return lines.join('\n');
+}
+
+let aiVerifyCurrentPrompt = '';
+
+function aiProviderGridHtml(){
+  return `
+    <div class="ai-provider-grid">
+      <button type="button" class="ai-provider-btn" data-provider="claude">
+        <span class="ai-provider-icon">✳️</span>
+        <span><span>Claude</span><span class="ai-provider-sub">Chamada direta à API</span></span>
+      </button>
+      <button type="button" class="ai-provider-btn" data-provider="gemini">
+        <span class="ai-provider-icon">✨</span>
+        <span><span>Gemini</span><span class="ai-provider-sub">Chamada direta à API</span></span>
+      </button>
+      <button type="button" class="ai-provider-btn" data-provider="chatgpt">
+        <span class="ai-provider-icon">💬</span>
+        <span><span>ChatGPT</span><span class="ai-provider-sub">Abre o ChatGPT com a pergunta copiada</span></span>
+      </button>
+    </div>
+  `;
+}
+function showAIProviderPicker(){
+  document.getElementById('aiVerifyBody').innerHTML = aiProviderGridHtml();
+  document.querySelectorAll('#aiVerifyBody .ai-provider-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> runAIVerify(btn.dataset.provider));
+  });
+}
+
+function openAIVerify(q, answer){
+  aiVerifyCurrentPrompt = buildAIVerifyPrompt(q, answer);
+  showAIProviderPicker();
+  document.getElementById('aiVerifyOverlay').classList.add('open');
+}
+
+function showAIVerifyResult(html){
+  document.getElementById('aiVerifyBody').innerHTML = `
+    <button type="button" class="ai-back-link" id="aiVerifyBackBtn">← Escolher outra IA</button>
+    ${html}
+  `;
+  const backBtn = document.getElementById('aiVerifyBackBtn');
+  if(backBtn) backBtn.addEventListener('click', showAIProviderPicker);
+}
+
+async function runAIVerify(provider){
+  const s = loadAISettings();
+  const prompt = aiVerifyCurrentPrompt;
+
+  if(provider === 'chatgpt'){
+    try{ await navigator.clipboard.writeText(prompt); }catch(e){}
+    window.open('https://chatgpt.com/?q=' + encodeURIComponent(prompt), '_blank', 'noopener');
+    showAIVerifyResult(`<div class="ai-result-box">A pergunta foi copiada e o ChatGPT abriu numa nova aba. Se o texto não aparecer já preenchido, cola-o (Ctrl/Cmd+V) na caixa de conversa.</div>`);
+    return;
+  }
+
+  if(provider === 'claude' && !s.claudeKey){
+    showAIVerifyResult(`<div class="ai-result-box error">Ainda não configuraste a chave da API da Claude. Abre as Definições de IA (🤖) no topo e adiciona a tua chave.</div>`);
+    return;
+  }
+  if(provider === 'gemini' && !s.geminiKey){
+    showAIVerifyResult(`<div class="ai-result-box error">Ainda não configuraste a chave da API do Gemini. Abre as Definições de IA (🤖) no topo e adiciona a tua chave.</div>`);
+    return;
+  }
+
+  showAIVerifyResult(`<div class="ai-result-box loading">A consultar a IA…</div>`);
+
+  try{
+    let text = '';
+    if(provider === 'claude'){
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': s.claudeKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: s.claudeModel || 'claude-sonnet-4-6',
+          max_tokens: 600,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error((data && data.error && data.error.message) || ('Erro HTTP ' + res.status));
+      text = (data.content || []).map(b => b.text || '').join('\n').trim();
+    } else if(provider === 'gemini'){
+      const model = s.geminiModel || 'gemini-2.5-flash';
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': s.geminiKey
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error((data && data.error && data.error.message) || ('Erro HTTP ' + res.status));
+      text = ((data.candidates || [])[0]?.content?.parts || []).map(p => p.text || '').join('\n').trim();
+    }
+    if(!text) text = 'A IA não devolveu texto. Tenta novamente.';
+    showAIVerifyResult(`<div class="ai-result-box">${escapeHtml(text)}</div>`);
+  }catch(err){
+    console.error('Erro ao verificar com IA', err);
+    showAIVerifyResult(`<div class="ai-result-box error">Não foi possível obter resposta: ${escapeHtml(err.message || String(err))}</div>`);
+  }
+}
+
+document.getElementById('aiVerifyCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('aiVerifyOverlay').classList.remove('open');
+});
+document.getElementById('aiVerifyOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'aiVerifyOverlay') document.getElementById('aiVerifyOverlay').classList.remove('open');
+});
 
 /* ---------- Atalhos de teclado ---------- */
 document.addEventListener('keydown', (e)=>{
