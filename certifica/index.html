@@ -195,7 +195,24 @@
   .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
   .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
   .question-text{ font-size:calc(16.5px * var(--study-font-scale)); font-weight:500; line-height:1.42; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
-  .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
+  .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); cursor:zoom-in; }
+  .image-modal-overlay{
+    position:fixed; inset:0; background:rgba(10,13,28,0.85); display:none;
+    align-items:center; justify-content:center; z-index:3000; cursor:zoom-out;
+    padding:calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
+  }
+  .image-modal-overlay.open{ display:flex; }
+  .image-modal-overlay img{
+    max-width:100%; max-height:100%; object-fit:contain; border-radius:10px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  }
+  .image-modal-close{
+    position:fixed; top:calc(16px + var(--safe-t)); right:calc(16px + var(--safe-r));
+    width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,0.15);
+    color:#fff; font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    z-index:3001;
+  }
+  .image-modal-close:hover{ background:rgba(255,255,255,0.28); }
   .option-row{
     display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
     border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
@@ -596,6 +613,11 @@
       <button class="btn-primary" id="qSaveBtn">Guardar</button>
     </div>
   </div>
+</div>
+
+<div class="image-modal-overlay" id="imageModalOverlay">
+  <button type="button" class="image-modal-close" id="imageModalCloseBtn" aria-label="Fechar">✕</button>
+  <img id="imageModalImg" src="" alt="">
 </div>
 
 <div class="overlay" id="importModalOverlay">
@@ -1101,7 +1123,7 @@ function buildStudyHtml(wrap){
     </div>
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
     <div class="question-card">
-      ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
+      ${q.image ? `<img src="${q.image}" class="question-image" alt="" onclick="openImageModal('${q.image}')">` : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
       <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
@@ -2096,12 +2118,28 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
   }
 });
 
+/* ---------- Modal de imagem (ver foto em tamanho grande) ---------- */
+function openImageModal(src){
+  if(!src) return;
+  document.getElementById('imageModalImg').src = src;
+  document.getElementById('imageModalOverlay').classList.add('open');
+}
+function closeImageModal(){
+  document.getElementById('imageModalOverlay').classList.remove('open');
+  document.getElementById('imageModalImg').src = '';
+}
+document.getElementById('imageModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'imageModalOverlay') closeImageModal();
+});
+document.getElementById('imageModalCloseBtn').addEventListener('click', closeImageModal);
+
 /* ---------- Atalhos de teclado ---------- */
 document.addEventListener('keydown', (e)=>{
   const tag = (e.target.tagName || '').toLowerCase();
   const isTyping = tag === 'input' || tag === 'textarea';
   if(e.key === 'Escape'){
     document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+    closeImageModal();
     return;
   }
   if(isTyping) return;
