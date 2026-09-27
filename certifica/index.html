@@ -32,6 +32,12 @@
     --err-soft:rgba(216,72,63,0.10);
     --radius:14px;
   }
+  :root{
+    --safe-t:env(safe-area-inset-top, 0px);
+    --safe-b:env(safe-area-inset-bottom, 0px);
+    --safe-l:env(safe-area-inset-left, 0px);
+    --safe-r:env(safe-area-inset-right, 0px);
+  }
   :root[data-theme="dark"]{
     --bg:#10142A;
     --surface:#1B2340;
@@ -64,7 +70,8 @@
   /* ---------- Login ---------- */
   .login-screen{
     width:100%; min-height:100vh; display:none;
-    align-items:center; justify-content:center; padding:20px;
+    align-items:center; justify-content:center;
+    padding:calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
   }
   .login-card{
     background:var(--surface); border:1px solid var(--border); border-radius:18px;
@@ -91,7 +98,9 @@
   #appShell{ display:none; height:100%; flex-direction:column; }
   .topbar{
     flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
-    padding:16px 28px; border-bottom:1px solid var(--border); background:var(--surface);
+    padding:16px 28px; padding-top:calc(16px + var(--safe-t));
+    padding-left:calc(28px + var(--safe-l)); padding-right:calc(28px + var(--safe-r));
+    border-bottom:1px solid var(--border); background:var(--surface);
   }
   .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; }
   .brand-icon{ width:30px; height:30px; border-radius:9px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; }
@@ -107,7 +116,10 @@
   .account-btn.icon-only{ width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; }
 
   .app-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  .page{ max-width:1000px; margin:0 auto; padding:32px 28px 70px; }
+  .page{
+    max-width:1000px; margin:0 auto;
+    padding:32px calc(28px + var(--safe-r)) calc(70px + var(--safe-b)) calc(28px + var(--safe-l));
+  }
 
   .page-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
   .page-head h1{ font-size:23px; }
@@ -174,7 +186,7 @@
   .study-progress-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-bottom:24px; }
   .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
   .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
-  .question-text{ font-size:17px; font-weight:600; line-height:1.5; margin-bottom:16px; white-space:pre-wrap; }
+  .question-text{ font-size:16.5px; font-weight:500; line-height:1.65; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
   .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
   .option-row{
     display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
@@ -221,7 +233,8 @@
   /* ---------- Modal ---------- */
   .overlay{
     position:fixed; inset:0; background:rgba(27,35,64,0.4); display:none;
-    align-items:center; justify-content:center; z-index:2000; padding:20px;
+    align-items:center; justify-content:center; z-index:2000;
+    padding:calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
   }
   .overlay.open{ display:flex; }
   .modal{
@@ -248,9 +261,31 @@
   .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
 
   @media (max-width:720px){
-    .topbar{ padding:12px 16px; }
-    .page{ padding:22px 16px 60px; }
+    .topbar{
+      padding:12px 16px; padding-top:calc(12px + var(--safe-t));
+      padding-left:calc(16px + var(--safe-l)); padding-right:calc(16px + var(--safe-r));
+    }
+    .page{ padding:20px calc(16px + var(--safe-r)) calc(60px + var(--safe-b)) calc(16px + var(--safe-l)); }
     .account-user span{ display:none; }
+    .brand{ font-size:14.5px; }
+    .page-head h1{ font-size:19px; }
+    .module-header h1{ font-size:19px; }
+    .module-header{ gap:10px; }
+    .module-grid{ grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:12px; }
+    .question-card{ padding:18px; }
+    .question-text{ font-size:15.5px; }
+    .modal{ padding:20px; width:100%; max-height:92vh; }
+    .modal-actions{ flex-wrap:wrap; }
+    .modal-actions button{ flex:1 1 auto; min-width:110px; }
+    .login-card{ padding:34px 24px; }
+    .subtabs{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .study-actions{ flex-wrap:wrap; gap:10px; }
+    .study-actions button{ flex:1 1 auto; }
+  }
+
+  @media (max-width:380px){
+    .module-grid{ grid-template-columns:1fr 1fr; }
+    .page-head{ gap:8px; }
   }
 </style>
 </head>
@@ -388,7 +423,10 @@
 <div class="overlay" id="importModalOverlay">
   <div class="modal" style="width:640px;">
     <h3>Importar perguntas</h3>
-    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. O campo <code>explanation</code> é opcional. Para perguntas de resposta única usa <code>correctIndex</code>; para perguntas com várias respostas certas usa <code>correctIndexes</code> (lista). Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. O campo <code>explanation</code> é opcional.<br>
+    Para perguntas de <strong>resposta única</strong>: usa <code>"correctIndex": N</code>.<br>
+    Para perguntas de <strong>várias respostas certas</strong>: usa <code>"multiple": true</code> e <code>"correctIndexes": [N, N, ...]</code>.<br>
+    Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
     <div class="field">
       <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
   {
@@ -400,6 +438,7 @@
   {
     "text": "Quais destas opções são serviços de armazenamento na Azure? (várias corretas)",
     "options": ["Blob Storage", "Queue Storage", "Azure Functions", "Table Storage"],
+    "multiple": true,
     "correctIndexes": [0, 1, 3]
   }
 ]'></textarea>
@@ -468,6 +507,17 @@ function isAnswerCorrect(q, answer){
 }
 function correctLettersLabel(q){
   return getCorrectIndexes(q).map(i => String.fromCharCode(65 + i)).join(', ');
+}
+
+/* Formata o texto de uma pergunta/explicação: escapa HTML e, quando o texto
+   vem tudo num bloco (ex: importado), quebra automaticamente a linha depois
+   de um ponto final que termina uma frase (evita cortar decimais, "Ex.",
+   reticências, etc.). Quebras de linha manuais (\n) continuam a funcionar. */
+function formatQuestionText(text){
+  const escaped = escapeHtml(text);
+  // quebra depois de ".", "?" ou "!" seguido de espaço e de maiúscula/número/aspas
+  // (evita cortar decimais como "3.5" ou abreviaturas seguidas de minúscula)
+  return escaped.replace(/([.?!])(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(])/g, '$1<br><br>');
 }
 
 /* ---------- Tema ---------- */
@@ -758,11 +808,11 @@ function buildStudyHtml(wrap){
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
     <div class="question-card">
       ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
-      <div class="question-text">${escapeHtml(q.text)}</div>
+      <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
       <div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>
       ${multiple && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
-      ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${escapeHtml(q.explanation)}</div>` : ''}
+      ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(q.explanation)}</div>` : ''}
     </div>
     <div class="study-actions">
       <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
@@ -918,8 +968,11 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
       problems.push(i + 1);
       return;
     }
+    // "multiple" no JSON é opcional: se vier explícito usa-se esse valor,
+    // senão infere-se automaticamente de haver mais que uma correta.
+    const multiple = typeof (item && item.multiple) === 'boolean' ? item.multiple : correctIndexes.length > 1;
     valid.push({
-      text, options, correctIndexes, multiple: correctIndexes.length > 1, correctIndex: correctIndexes[0],
+      text, options, correctIndexes, multiple, correctIndex: correctIndexes[0],
       explanation: (item.explanation || '').toString().trim(),
       image: null,
       createdAt: Date.now()
