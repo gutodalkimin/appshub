@@ -660,6 +660,12 @@
     Para perguntas do tipo <strong>Sim / Não</strong>: usa <code>"type": "yesno"</code> e <code>"statements": [{"label": "...", "correct": true}, ...]</code>.<br>
     Para incluir uma <strong>tabela</strong> na pergunta (qualquer tipo): usa <code>"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}</code>.<br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
+    <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+      <button type="button" class="btn-secondary" id="importFileBtn">📂 Carregar ficheiro .json</button>
+      <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
+      <button type="button" class="btn-secondary" id="importCopyPromptBtn">🤖 Copiar instruções para IA</button>
+    </div>
+    <div id="importFileStatus" style="font-size:12.5px;color:var(--ink-soft);margin:-8px 0 10px;"></div>
     <div class="field">
       <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
   {
@@ -1531,6 +1537,7 @@ document.getElementById('newQuestionBtn').addEventListener('click', ()=> openQue
 document.getElementById('importQuestionsBtn').addEventListener('click', ()=>{
   document.getElementById('importTextarea').value = '';
   document.getElementById('importStatus').textContent = '';
+  document.getElementById('importFileStatus').textContent = '';
   document.getElementById('importModalOverlay').classList.add('open');
 });
 document.getElementById('importCancelBtn').addEventListener('click', ()=>{
@@ -1539,10 +1546,83 @@ document.getElementById('importCancelBtn').addEventListener('click', ()=>{
 document.getElementById('importModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'importModalOverlay') document.getElementById('importModalOverlay').classList.remove('open');
 });
+
+/* ---------- Carregar ficheiro .json para a caixa de importação ---------- */
+document.getElementById('importFileBtn').addEventListener('click', ()=>{
+  document.getElementById('importFileInput').click();
+});
+document.getElementById('importFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files && e.target.files[0];
+  const fileStatusEl = document.getElementById('importFileStatus');
+  e.target.value = '';
+  if(!file) return;
+  if(!/\.json$/i.test(file.name) && file.type !== 'application/json'){
+    fileStatusEl.textContent = 'Escolhe um ficheiro .json.';
+    fileStatusEl.style.color = 'var(--err)';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    document.getElementById('importTextarea').value = String(reader.result || '');
+    fileStatusEl.textContent = `Ficheiro "${file.name}" carregado. Revê o conteúdo e clica em Importar.`;
+    fileStatusEl.style.color = 'var(--ok)';
+  };
+  reader.onerror = ()=>{
+    fileStatusEl.textContent = 'Não foi possível ler o ficheiro.';
+    fileStatusEl.style.color = 'var(--err)';
+  };
+  reader.readAsText(file);
+});
+
+/* ---------- Instruções para colar numa IA (ChatGPT/Claude/Gemini) ---------- */
+const IMPORT_AI_PROMPT = `Vais ajudar-me a criar perguntas de quiz em formato JSON para uma app de estudo. Segue exatamente estas regras de formato:
+
+- O resultado final tem de ser APENAS uma lista JSON válida (começa com [ e acaba com ]), sem texto antes ou depois, sem comentários e sem markdown (sem \`\`\`).
+- Cada pergunta é um objeto com pelo menos o campo "text" (o enunciado).
+- Os campos "explanation" (string, explicação da resposta) e "table" (ver abaixo) são opcionais em qualquer tipo de pergunta.
+
+Tipos de pergunta possíveis (escolhe o que fizer sentido para cada pergunta):
+
+1) Resposta única (tipo por omissão, não precisa de "type"):
+{"text": "...", "options": ["...", "...", "...", "..."], "correctIndex": 0, "explanation": "..."}
+
+2) Várias respostas certas:
+{"text": "...", "options": ["...", "...", "...", "..."], "multiple": true, "correctIndexes": [0, 2], "explanation": "..."}
+
+3) Seletores / hotspot (vários dropdowns, cada um com as suas opções):
+{"text": "...", "type": "select", "slots": [{"label": "...", "options": ["...", "..."], "correctIndex": 0}, ...], "explanation": "..."}
+
+4) Drag and drop (associar itens a alvos):
+{"text": "...", "type": "dragdrop", "items": ["item 1", "item 2", "item 3"], "targets": [{"label": "...", "correctItemIndex": 0}, ...], "explanation": "..."}
+(o "correctItemIndex" refere-se à posição do item correto dentro de "items", começando em 0)
+
+5) Sim / Não (várias afirmações, cada uma verdadeira ou falsa):
+{"text": "...", "type": "yesno", "statements": [{"label": "...", "correct": true}, {"label": "...", "correct": false}], "explanation": "..."}
+
+Tabela opcional (podes incluir em qualquer tipo, quando a pergunta tiver uma tabela de apoio):
+"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}
+
+Agora, usa estas regras para transformar o seguinte conteúdo em perguntas de quiz nesse formato JSON (cria o número de perguntas que fizer sentido, cobrindo os pontos mais importantes):
+
+[COLA AQUI O TEU CONTEÚDO / TEMA / NOTAS DE ESTUDO]`;
+
+document.getElementById('importCopyPromptBtn').addEventListener('click', async ()=>{
+  const fileStatusEl = document.getElementById('importFileStatus');
+  try{
+    await navigator.clipboard.writeText(IMPORT_AI_PROMPT);
+    fileStatusEl.textContent = 'Instruções copiadas! Cola numa IA (ChatGPT, Claude, Gemini, ...), substitui a última linha pelo teu conteúdo, e depois cola o JSON que ela devolver aqui na caixa.';
+    fileStatusEl.style.color = 'var(--ok)';
+  }catch(e){
+    fileStatusEl.textContent = 'Não foi possível copiar automaticamente. Tenta novamente.';
+    fileStatusEl.style.color = 'var(--err)';
+  }
+});
+
 document.getElementById('importConfirmBtn').addEventListener('click', async ()=>{
   const statusEl = document.getElementById('importStatus');
   const raw = document.getElementById('importTextarea').value.trim();
   if(!raw){ statusEl.textContent = 'Cola a lista de perguntas em JSON primeiro.'; statusEl.style.color = 'var(--err)'; return; }
+  if(!currentModuleId){ statusEl.textContent = 'Nenhum módulo selecionado — fecha isto, entra num módulo e tenta outra vez.'; statusEl.style.color = 'var(--err)'; return; }
 
   let parsed;
   try{ parsed = JSON.parse(raw); }
@@ -1687,7 +1767,9 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     const batches = [];
     for(let i = 0; i < valid.length; i += 400){
       const batch = db.batch();
-      valid.slice(i, i + 400).forEach(q => batch.set(colRef.doc(), q));
+      // JSON.parse(JSON.stringify(...)) remove quaisquer campos "undefined" que
+      // o Firestore rejeitaria (causa comum de "invalid-argument" ao gravar).
+      valid.slice(i, i + 400).forEach(q => batch.set(colRef.doc(), JSON.parse(JSON.stringify(q))));
       batches.push(batch.commit());
     }
     await Promise.all(batches);
@@ -1701,7 +1783,8 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     }
   }catch(e){
     console.error(e);
-    statusEl.textContent = 'Falha ao guardar no Firestore. Tenta novamente.';
+    const detail = (e && (e.code || e.message)) ? ` (${[e.code, e.message].filter(Boolean).join(' — ')})` : '';
+    statusEl.textContent = `Falha ao guardar no Firestore${detail}. Verifica a ligação à internet e as regras de segurança do Firestore.`;
     statusEl.style.color = 'var(--err)';
   }
 });
