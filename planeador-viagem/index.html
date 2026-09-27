@@ -345,12 +345,14 @@
   .stop-row.dragging { opacity: 0.4; }
   .stop-row.drag-over { box-shadow: inset 0 2px 0 var(--air-blue); }
   .stop-row:last-of-type { border-bottom: none; }
-  .stop-time { position: relative; font-family: 'IBM Plex Mono', monospace; color: var(--air-blue); font-weight: 600; white-space: nowrap; padding-left: 17px; }
+  .stop-time { position: relative; font-family: 'IBM Plex Mono', monospace; color: var(--air-blue); font-weight: 600; white-space: nowrap; padding-left: 26px; }
   .stop-time::before {
-    content: ''; position: absolute; left: 0; top: 4px; width: 9px; height: 9px; border-radius: 50%;
-    background: var(--air-blue); box-shadow: 0 0 0 3px var(--surface); z-index: 1;
+    content: attr(data-index); position: absolute; left: 0; top: 1px; width: 17px; height: 17px; border-radius: 50%;
+    background: var(--air-blue); color: #fff; font-size: 9.5px; font-weight: 700; font-family: 'Inter', sans-serif;
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+    box-shadow: 0 0 0 3px var(--surface); z-index: 1;
   }
-  .stop-time::after { content: ''; position: absolute; left: 4px; top: 13px; bottom: -23px; width: 2px; background: var(--kraft-line); }
+  .stop-time::after { content: ''; position: absolute; left: 8px; top: 21px; bottom: -21px; width: 2px; background: var(--kraft-line); }
   .stop-row:last-of-type .stop-time::after { display: none; }
   .stop-title { font-weight: 500; }
   .stop-note { color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
@@ -375,7 +377,7 @@
   @media (max-width: 640px) { .add-stop-row { grid-template-columns: 1fr 1fr; } }
   .add-stop-row input { font-size: 13px; padding: 7px 8px; }
   .add-stop-row button { padding: 7px 10px; font-size: 13px; grid-column: span 1; }
-  .day-map { height: 260px; border-radius: 6px; margin: 12px 0; border: 1px solid var(--kraft-line); background: var(--surface); isolation: isolate; }
+  .day-map { height: 380px; border-radius: 8px; margin: 12px 0; border: 1px solid var(--kraft-line); background: var(--surface); isolation: isolate; }
   .day-map-empty { font-size: 12.5px; color: var(--ink-soft); border: 1px dashed var(--kraft-line); border-radius: 6px; padding: 14px; text-align: center; margin: 12px 0; }
   .geo-tag { font-size: 10.5px; color: var(--ink-soft); margin-left: 6px; font-weight: 400; }
   .geo-tag.warn { color: var(--air-red); }
@@ -414,6 +416,15 @@
     width: 20px; height: 20px; border-radius: 50% 50% 50% 0; background: var(--poi-color);
     border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.35); transform: rotate(-45deg);
   }
+  .act-marker-wrap { background: transparent !important; border: none !important; transition: filter 0.15s ease; }
+  .act-marker-pin {
+    width: 26px; height: 26px; border-radius: 50% 50% 50% 0; background: var(--air-blue);
+    border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.35); transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .act-marker-pin span { transform: rotate(45deg); color: #fff; font-size: 11px; font-weight: 700; font-family: 'Inter', sans-serif; line-height: 1; }
+  .act-marker-wrap.highlighted { filter: drop-shadow(0 0 6px var(--air-red)); z-index: 1000 !important; }
+  .act-marker-wrap.highlighted .act-marker-pin { background: var(--air-red); transform: rotate(-45deg) scale(1.25); }
   .empty-days {
     border: 1.5px dashed var(--kraft-line); border-radius: 10px; padding: 36px 20px; text-align: center;
     color: var(--ink-soft); font-size: 14px;
@@ -550,11 +561,11 @@
     .day-sub-row { gap: 6px; }
     .stop-row { grid-template-columns: 56px 1fr auto; gap: 8px; padding: 8px 0; font-size: 12.5px; }
     .stop-row:hover { margin: 0 -8px; padding: 8px; }
-    .stop-time { padding-left: 13px; font-size: 11px; }
-    .stop-time::before { width: 7px; height: 7px; }
-    .stop-time::after { left: 3px; }
+    .stop-time { padding-left: 22px; font-size: 11px; }
+    .stop-time::before { width: 15px; height: 15px; font-size: 8.5px; }
+    .stop-time::after { left: 7px; }
     .stop-note { font-size: 11.5px; }
-    .day-map { height: 190px; }
+    .day-map { height: 280px; }
     .big-map { height: 300px; }
     .add-day-btn, .add-activity-btn { padding: 9px; font-size: 12.5px; }
     button.primary { padding: 10px; font-size: 13.5px; }
@@ -1194,6 +1205,7 @@
   }
 
   let dayMaps = {};
+  let dayMapMarkers = {};
   let geocodeQueue = Promise.resolve();
   function queueGeocode(query) {
     const run = geocodeQueue.then(() => geocodeAddress(query));
@@ -1541,9 +1553,9 @@
         </div>
         ${day.stops.length === 0
           ? '<div class="day-empty">Sem atividades ainda.</div>'
-          : `<div class="stop-list">${day.stops.map(s => `
+          : `<div class="stop-list">${day.stops.map((s, i) => `
             <div class="stop-row" draggable="true" data-day="${day.id}" data-stop="${s.id}">
-              <div class="stop-time">${escapeHtml(s.time || '—')}</div>
+              <div class="stop-time" data-index="${i + 1}">${escapeHtml(s.time || '—')}</div>
               <div>
                 <div class="stop-title">${escapeHtml(s.title)}${
                   s.geoStatus === 'pending' ? '<span class="geo-tag">a localizar…</span>' :
@@ -1616,6 +1628,25 @@
         day.stops.splice(toIndex, 0, moved);
         saveItinerary();
         renderItinerary();
+      });
+
+      row.addEventListener('mouseenter', () => {
+        const dayId = row.dataset.day, stopId = row.dataset.stop;
+        const marker = dayMapMarkers[dayId] && dayMapMarkers[dayId][stopId];
+        const map = dayMaps[dayId];
+        if (!marker || !map) return;
+        const el = marker.getElement();
+        if (el) el.classList.add('highlighted');
+        marker.openTooltip();
+        map.panTo(marker.getLatLng(), { animate: true });
+      });
+      row.addEventListener('mouseleave', () => {
+        const dayId = row.dataset.day, stopId = row.dataset.stop;
+        const marker = dayMapMarkers[dayId] && dayMapMarkers[dayId][stopId];
+        if (!marker) return;
+        const el = marker.getElement();
+        if (el) el.classList.remove('highlighted');
+        marker.closeTooltip();
       });
     });
 
@@ -1700,6 +1731,14 @@
     } catch (e) { console.warn('Falha ao calcular rota:', e); return null; }
   }
 
+  function activityIcon(num) {
+    return L.divIcon({
+      className: 'act-marker-wrap',
+      html: `<div class="act-marker-pin"><span>${num}</span></div>`,
+      iconSize: [26, 34], iconAnchor: [13, 34], popupAnchor: [0, -30],
+    });
+  }
+
   function initDayMaps() {
     if (!window.L) return;
     const theme = MAP_THEMES[mapTheme] || MAP_THEMES.osm;
@@ -1718,7 +1757,12 @@
         }).addTo(map);
       });
       const latlngs = points.map(p => [p.lat, p.lng]);
-      points.forEach((p, i) => L.marker([p.lat, p.lng]).addTo(map).bindTooltip(`${i + 1}. ${p.title}`));
+      dayMapMarkers[day.id] = {};
+      points.forEach((p) => {
+        const num = day.stops.indexOf(p) + 1;
+        const marker = L.marker([p.lat, p.lng], { icon: activityIcon(num) }).addTo(map).bindTooltip(`${num}. ${p.title}`);
+        dayMapMarkers[day.id][p.id] = marker;
+      });
       // Cada troço (entre uma atividade e a seguinte) pode ter o seu próprio meio de transporte —
       // o modo guardado na atividade de chegada descreve como se chegou lá desde a anterior.
       for (let i = 0; i < points.length - 1; i++) {
