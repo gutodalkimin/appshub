@@ -227,6 +227,52 @@
   .select-slot-note{ font-size:12px; margin-top:5px; }
   .select-slot-note.is-ok{ color:var(--ok); }
   .select-slot-note.is-err{ color:var(--err); }
+
+  /* ---------- Tabela dentro da pergunta ---------- */
+  .question-table{
+    width:100%; border-collapse:collapse; margin-bottom:16px; font-size:calc(13px * var(--study-font-scale));
+    border:1px solid var(--border); border-radius:8px; overflow:hidden;
+  }
+  .question-table th, .question-table td{ padding:8px 12px; border:1px solid var(--border); text-align:left; }
+  .question-table th{ background:var(--surface-2); font-weight:600; }
+
+  /* ---------- Pergunta tipo "drag and drop" ---------- */
+  .dragdrop-pool{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; padding:12px; background:var(--surface-2); border-radius:10px; min-height:44px; }
+  .drag-chip{
+    padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--surface);
+    font-size:calc(13.5px * var(--study-font-scale)); cursor:pointer; user-select:none; transition:border-color .15s ease, background .15s ease;
+  }
+  .drag-chip:hover{ border-color:var(--accent); }
+  .drag-chip.selected-chip{ border-color:var(--accent); background:var(--accent-soft); }
+  .dragdrop-empty-note{ font-size:12px; color:var(--ink-faint); }
+  .drag-target{ margin-bottom:12px; }
+  .drag-target-label{ font-size:calc(13.5px * var(--study-font-scale)); font-weight:600; margin-bottom:6px; }
+  .drag-target-slot{
+    min-height:44px; border:1.5px dashed var(--border); border-radius:10px; padding:8px 12px;
+    display:flex; align-items:center; cursor:pointer;
+  }
+  .drag-target-placeholder{ color:var(--ink-faint); font-size:calc(13px * var(--study-font-scale)); }
+  .drag-target-slot .drag-chip{ cursor:pointer; }
+  .drag-target.correct .drag-target-slot{ border-style:solid; border-color:var(--ok); background:var(--ok-soft); }
+  .drag-target.incorrect .drag-target-slot{ border-style:solid; border-color:var(--err); background:var(--err-soft); }
+  .drag-target.filled .drag-target-slot{ border-style:solid; }
+
+  /* ---------- Pergunta tipo "Sim / Não" ---------- */
+  .yesno-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px;
+    border:1px solid var(--border); border-radius:10px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .yesno-label{ flex:1; min-width:160px; font-size:calc(14px * var(--study-font-scale)); }
+  .yesno-buttons{ display:flex; gap:8px; }
+  .yesno-btn{
+    padding:7px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
+  }
+  .yesno-btn.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .yesno-row.correct .yesno-btn.selected{ border-color:var(--ok); background:var(--ok-soft); }
+  .yesno-row.incorrect .yesno-btn.selected{ border-color:var(--err); background:var(--err-soft); }
+  .yesno-row.correct .yesno-btn:not(.selected), .yesno-row.incorrect .yesno-btn:not(.selected){ opacity:.45; }
+  .yesno-row .select-slot-note{ width:100%; }
   .explanation-box{
     margin-top:14px; padding:14px 16px; background:var(--surface-2); border-radius:10px;
     font-size:calc(13px * var(--study-font-scale)); color:var(--ink-soft); line-height:1.45; white-space:pre-wrap;
@@ -291,6 +337,30 @@
   }
   .slot-remove-btn:hover{ border-color:var(--err); color:var(--err); }
   .slot-add-option-btn{ font-size:12px; padding:6px 10px; }
+
+  /* ---------- Editor: tabela ---------- */
+  .table-edit-row{ display:flex; gap:6px; margin-bottom:8px; align-items:center; }
+  .table-edit-row input[type="text"]{ flex:1; min-width:0; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; font-family:inherit; color:var(--ink); outline:none; }
+  .table-edit-cell{ display:flex; gap:4px; align-items:center; }
+  .table-edit-cell input[type="text"]{ width:120px; flex:none; }
+  .table-col-remove-btn, .table-row-remove-btn{
+    width:24px; height:24px; border-radius:6px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink-soft); cursor:pointer; flex-shrink:0; font-size:11px;
+  }
+  .table-col-remove-btn:hover, .table-row-remove-btn:hover{ border-color:var(--err); color:var(--err); }
+
+  /* ---------- Editor: drag and drop ---------- */
+  .drag-target-edit-row select{
+    background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 10px;
+    font-size:13px; font-family:inherit; color:var(--ink); outline:none; flex:1;
+  }
+
+  /* ---------- Editor: Sim / Não ---------- */
+  .yesno-edit-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .yesno-edit-row input[type="text"]{ flex:1; }
+  .yesno-edit-radios{ display:flex; gap:10px; font-size:12.5px; color:var(--ink-soft); white-space:nowrap; }
+  .yesno-edit-radios label{ display:flex; align-items:center; gap:4px; }
+  .yesno-edit-radios input[type="radio"]{ width:16px; height:16px; accent-color:var(--ok); }
   .option-edit-row input[type="radio"]{ width:18px; height:18px; accent-color:var(--ok); flex-shrink:0; }
   .option-remove-btn{ background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:14px; flex-shrink:0; }
   .option-remove-btn:hover{ color:var(--err); }
@@ -438,11 +508,29 @@
       </div>
       <div style="font-size:11.5px;color:var(--ink-soft);margin-top:5px;">Também podes colar uma imagem copiada com Ctrl+V.</div>
     </div>
+    <div class="field" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="qTableToggle" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+      <label for="qTableToggle" style="margin:0;font-size:13px;color:var(--ink);">Esta pergunta tem uma tabela (ex: lista de dispositivos)</label>
+    </div>
+    <div id="tableEditWrap" style="display:none;">
+      <div class="field">
+        <label>Colunas da tabela</label>
+        <div id="tableHeadersEditRow" class="table-edit-row"></div>
+        <button type="button" class="btn-secondary" id="addTableColBtn" style="margin-top:4px;">+ Coluna</button>
+      </div>
+      <div class="field">
+        <label>Linhas da tabela</label>
+        <div id="tableRowsEditList"></div>
+        <button type="button" class="btn-secondary" id="addTableRowBtn" style="margin-top:4px;">+ Linha</button>
+      </div>
+    </div>
     <div class="field">
       <label for="qTypeSelect">Tipo de pergunta</label>
       <select id="qTypeSelect">
         <option value="choice">Escolha múltipla (opções)</option>
         <option value="select">Seletores (dropdowns / hotspot)</option>
+        <option value="dragdrop">Drag and drop (arrastar itens para alvos)</option>
+        <option value="yesno">Sim / Não (afirmações)</option>
       </select>
     </div>
     <div id="choiceFields">
@@ -463,6 +551,25 @@
         <button type="button" class="btn-secondary" id="addSlotBtn" style="margin-top:4px;">+ Adicionar seletor</button>
       </div>
     </div>
+    <div id="dragdropFields" style="display:none;">
+      <div class="field">
+        <label>Itens <span style="color:var(--ink-faint);">(os itens que o utilizador arrasta ou toca para colocar nos alvos)</span></label>
+        <div id="dragItemsList"></div>
+        <button type="button" class="btn-secondary" id="addDragItemBtn" style="margin-top:4px;">+ Adicionar item</button>
+      </div>
+      <div class="field">
+        <label>Alvos <span style="color:var(--ink-faint);">(onde cada item deve ser largado — escolhe o item correto para cada alvo)</span></label>
+        <div id="dragTargetsList"></div>
+        <button type="button" class="btn-secondary" id="addDragTargetBtn" style="margin-top:4px;">+ Adicionar alvo</button>
+      </div>
+    </div>
+    <div id="yesnoFields" style="display:none;">
+      <div class="field">
+        <label>Afirmações <span style="color:var(--ink-faint);">(marca Sim ou Não para cada uma)</span></label>
+        <div id="yesnoStatementsList"></div>
+        <button type="button" class="btn-secondary" id="addYesNoStmtBtn" style="margin-top:4px;">+ Adicionar afirmação</button>
+      </div>
+    </div>
     <div class="field">
       <label for="qExplanationInput">Explicação (opcional, mostrada depois de responder)</label>
       <textarea id="qExplanationInput" placeholder="Porque é que esta é a resposta certa..."></textarea>
@@ -478,10 +585,13 @@
 <div class="overlay" id="importModalOverlay">
   <div class="modal" style="width:640px;">
     <h3>Importar perguntas</h3>
-    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. O campo <code>explanation</code> é opcional.<br>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. Os campos <code>explanation</code> e <code>table</code> são opcionais em qualquer tipo.<br>
     Para perguntas de <strong>resposta única</strong>: usa <code>"correctIndex": N</code>.<br>
     Para perguntas de <strong>várias respostas certas</strong>: usa <code>"multiple": true</code> e <code>"correctIndexes": [N, N, ...]</code>.<br>
     Para perguntas do tipo <strong>seletores / hotspot</strong> (vários dropdowns, cada um com as suas opções): usa <code>"type": "select"</code> e <code>"slots": [{"label": "...", "options": [...], "correctIndex": N}, ...]</code>.<br>
+    Para perguntas do tipo <strong>drag and drop</strong>: usa <code>"type": "dragdrop"</code>, <code>"items": ["texto item 1", "texto item 2", ...]</code> e <code>"targets": [{"label": "...", "correctItemIndex": N}, ...]</code> (o índice refere-se à posição em <code>items</code>).<br>
+    Para perguntas do tipo <strong>Sim / Não</strong>: usa <code>"type": "yesno"</code> e <code>"statements": [{"label": "...", "correct": true}, ...]</code>.<br>
+    Para incluir uma <strong>tabela</strong> na pergunta (qualquer tipo): usa <code>"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}</code>.<br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
     <div class="field">
       <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
@@ -498,13 +608,35 @@
     "correctIndexes": [0, 1, 3]
   },
   {
-    "text": "Que tipo de politica e quantas deves criar no Intune?",
+    "text": "Que tipo de política e quantas deves criar no Intune?",
     "type": "select",
+    "table": {
+      "headers": ["Name", "Operating system"],
+      "rows": [["Device1", "Windows 10"], ["Device2", "Android 8.0"], ["Device3", "Android 9"], ["Device4", "iOS 11.0"], ["Device5", "iOS 11.4.1"]]
+    },
     "slots": [
       { "label": "Policy type:", "options": ["App configuration policy", "App protection policy", "Conditional access policy", "Device compliance policy"], "correctIndex": 1 },
       { "label": "Minimum number of policies:", "options": ["1", "2", "3", "4", "5"], "correctIndex": 2 }
     ],
     "explanation": "App protection policy com MAM, mínimo de 3 (Android 8, Android 9, iOS)."
+  },
+  {
+    "text": "Associa cada serviço à sua descrição correta.",
+    "type": "dragdrop",
+    "items": ["Blob Storage", "Queue Storage", "Table Storage"],
+    "targets": [
+      { "label": "Armazenamento de objetos não estruturados", "correctItemIndex": 0 },
+      { "label": "Sistema de mensagens entre aplicações", "correctItemIndex": 1 },
+      { "label": "Armazenamento NoSQL de chave-valor", "correctItemIndex": 2 }
+    ]
+  },
+  {
+    "text": "Para cada afirmação, seleciona Sim se for verdadeira ou Não se for falsa.",
+    "type": "yesno",
+    "statements": [
+      { "label": "O Azure Blob Storage suporta acesso público anónimo.", "correct": true },
+      { "label": "As Azure Functions são um serviço de armazenamento.", "correct": false }
+    ]
   }
 ]'></textarea>
     </div>
@@ -545,6 +677,8 @@ let photoRemoved = false;
 let answeredThisQuestion = false;
 let pendingMultiAnswer = { qid: null, selected: [] };
 let pendingSelectAnswer = { qid: null, selected: [] };
+let pendingDragAnswer = { qid: null, placements: [], selectedChip: null };
+let pendingYesNoAnswer = { qid: null, selected: [] };
 let studyFontScale = 1;
 
 /* ---------- Tamanho do texto no modo de estudo ---------- */
@@ -571,6 +705,12 @@ function escapeHtml(str){
 function isSelectQuestion(q){
   return q && q.type === 'select';
 }
+function isDragDropQuestion(q){
+  return q && q.type === 'dragdrop';
+}
+function isYesNoQuestion(q){
+  return q && q.type === 'yesno';
+}
 function getCorrectIndexes(q){
   if(Array.isArray(q.correctIndexes)) return q.correctIndexes;
   if(Number.isInteger(q.correctIndex)) return [q.correctIndex];
@@ -586,7 +726,8 @@ function arraysMatch(a, b){
   return sa.every((v,i)=> v === sb[i]);
 }
 /* Compara duas listas posição a posição (usado nos seletores/hotspot,
-   onde a ordem de cada dropdown importa e não pode ser reordenada). */
+   no drag and drop e no Sim/Não, onde a ordem de cada item importa e
+   não pode ser reordenada). */
 function arraysMatchPositional(a, b){
   if(!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
   return a.every((v, i) => v === b[i]);
@@ -596,12 +737,30 @@ function isAnswerCorrect(q, answer){
     const correct = (q.slots || []).map(s => s.correctIndex);
     return arraysMatchPositional(Array.isArray(answer) ? answer : [], correct);
   }
+  if(isDragDropQuestion(q)){
+    const correct = (q.targets || []).map(t => t.correctItemIndex);
+    return arraysMatchPositional(Array.isArray(answer) ? answer : [], correct);
+  }
+  if(isYesNoQuestion(q)){
+    const correct = (q.statements || []).map(s => !!s.correct);
+    return arraysMatchPositional(Array.isArray(answer) ? answer : [], correct);
+  }
   const correct = getCorrectIndexes(q);
   if(isMultipleQuestion(q)) return arraysMatch(Array.isArray(answer) ? answer : [], correct);
   return answer === correct[0];
 }
 function correctLettersLabel(q){
   return getCorrectIndexes(q).map(i => String.fromCharCode(65 + i)).join(', ');
+}
+
+/* Renderiza a tabela opcional de uma pergunta (ex: lista de dispositivos). */
+function renderQuestionTable(table){
+  if(!table || !Array.isArray(table.headers) || !table.headers.length) return '';
+  return `<table class="question-table"><thead><tr>${
+    table.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')
+  }</tr></thead><tbody>${
+    (table.rows || []).map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
+  }</tbody></table>`;
 }
 
 /* Formata o texto de uma pergunta/explicação: escapa HTML e, quando o texto
@@ -884,13 +1043,21 @@ function buildStudyHtml(wrap){
   const savedAnswer = progress.answers && progress.answers[q.id];
   answeredThisQuestion = savedAnswer !== undefined;
   const isSelect = isSelectQuestion(q);
-  const multiple = !isSelect && isMultipleQuestion(q);
+  const isDrag = isDragDropQuestion(q);
+  const isYesNo = isYesNoQuestion(q);
+  const multiple = !isSelect && !isDrag && !isYesNo && isMultipleQuestion(q);
 
   if(pendingMultiAnswer.qid !== q.id){
     pendingMultiAnswer = { qid: q.id, selected: [] };
   }
   if(pendingSelectAnswer.qid !== q.id){
     pendingSelectAnswer = { qid: q.id, selected: (q.slots || []).map(()=> '') };
+  }
+  if(pendingDragAnswer.qid !== q.id){
+    pendingDragAnswer = { qid: q.id, placements: (q.targets || []).map(()=> null), selectedChip: null };
+  }
+  if(pendingYesNoAnswer.qid !== q.id){
+    pendingYesNoAnswer = { qid: q.id, selected: (q.statements || []).map(()=> '') };
   }
 
   const correctCount = Object.keys(progress.answers || {}).filter(qid=>{
@@ -911,14 +1078,21 @@ function buildStudyHtml(wrap){
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
     <div class="question-card">
       ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
+      ${q.table ? renderQuestionTable(q.table) : ''}
       <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
       ${isSelect
         ? `<div id="slotsWrap">${(q.slots || []).map((slot, i) => selectSlotHtml(slot, i, savedAnswer, pendingSelectAnswer.selected, answeredThisQuestion)).join('')}</div>`
+        : isDrag
+        ? dragDropStudyHtml(q, savedAnswer, pendingDragAnswer, answeredThisQuestion)
+        : isYesNo
+        ? `<div id="yesnoWrap">${(q.statements || []).map((stmt, i) => yesNoRowHtml(stmt, i, savedAnswer, pendingYesNoAnswer.selected, answeredThisQuestion)).join('')}</div>`
         : `<div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>`
       }
       ${multiple && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isSelect && !answeredThisQuestion ? `<button class="btn-primary" id="confirmSelectBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
+      ${isDrag && !answeredThisQuestion ? `<button class="btn-primary" id="confirmDragBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
+      ${isYesNo && !answeredThisQuestion ? `<button class="btn-primary" id="confirmYesNoBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(q.explanation)}</div>` : ''}
     </div>
     <div class="study-actions">
@@ -943,6 +1117,64 @@ function buildStudyHtml(wrap){
           if(selected.some(v => v === '' || v === undefined)){ alert('Escolhe uma opção em cada seletor.'); return; }
           progress.answers = progress.answers || {};
           progress.answers[q.id] = [...selected];
+          saveProgress();
+          renderStudy();
+        });
+      }
+    } else if(isDrag){
+      wrap.querySelectorAll('.drag-chip[data-item-index]').forEach(chip=>{
+        chip.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          const i = parseInt(chip.dataset.itemIndex, 10);
+          pendingDragAnswer.selectedChip = pendingDragAnswer.selectedChip === i ? null : i;
+          renderStudy();
+        });
+        chip.addEventListener('dragstart', (e)=>{
+          e.dataTransfer.setData('text/plain', chip.dataset.itemIndex);
+        });
+      });
+      wrap.querySelectorAll('.drag-target-slot').forEach(slot=>{
+        slot.addEventListener('click', ()=>{
+          const ti = parseInt(slot.dataset.targetIndex, 10);
+          if(pendingDragAnswer.selectedChip !== null){
+            placeDragItem(ti, pendingDragAnswer.selectedChip);
+          } else if(pendingDragAnswer.placements[ti] !== null && pendingDragAnswer.placements[ti] !== undefined){
+            pendingDragAnswer.placements[ti] = null;
+            renderStudy();
+          }
+        });
+        slot.addEventListener('dragover', (e)=> e.preventDefault());
+        slot.addEventListener('drop', (e)=>{
+          e.preventDefault();
+          const ti = parseInt(slot.dataset.targetIndex, 10);
+          const itemIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          placeDragItem(ti, Number.isInteger(itemIndex) ? itemIndex : null);
+        });
+      });
+      const confirmDragBtn = document.getElementById('confirmDragBtn');
+      if(confirmDragBtn){
+        confirmDragBtn.addEventListener('click', ()=>{
+          if(pendingDragAnswer.placements.some(v => v === null || v === undefined)){ alert('Coloca um item em cada alvo.'); return; }
+          progress.answers = progress.answers || {};
+          progress.answers[q.id] = [...pendingDragAnswer.placements];
+          saveProgress();
+          renderStudy();
+        });
+      }
+    } else if(isYesNo){
+      wrap.querySelectorAll('.yesno-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const i = parseInt(btn.dataset.stmtIndex, 10);
+          pendingYesNoAnswer.selected[i] = btn.dataset.value;
+          renderStudy();
+        });
+      });
+      const confirmYesNoBtn = document.getElementById('confirmYesNoBtn');
+      if(confirmYesNoBtn){
+        confirmYesNoBtn.addEventListener('click', ()=>{
+          if(pendingYesNoAnswer.selected.some(v => v !== 'yes' && v !== 'no')){ alert('Escolhe Sim ou Não em cada afirmação.'); return; }
+          progress.answers = progress.answers || {};
+          progress.answers[q.id] = pendingYesNoAnswer.selected.map(v => v === 'yes');
           saveProgress();
           renderStudy();
         });
@@ -1050,6 +1282,89 @@ function selectSlotHtml(slot, slotIndex, savedAnswer, pendingSelected, answered)
   `;
 }
 
+/* ---------- Pergunta tipo "drag and drop" ---------- */
+function dragChipHtml(itemText, itemIndex, isPlaced){
+  return `<div class="drag-chip" data-item-index="${itemIndex}" draggable="true">${escapeHtml(itemText)}</div>`;
+}
+function dragDropStudyHtml(q, savedAnswer, pending, answered){
+  const items = q.items || [];
+  const targets = q.targets || [];
+  const placements = answered && Array.isArray(savedAnswer) ? savedAnswer : pending.placements;
+  const placedIndexes = new Set(placements.filter(v => v !== null && v !== undefined));
+  const poolIndexes = items.map((_, i) => i).filter(i => !placedIndexes.has(i));
+
+  const poolHtml = poolIndexes.length
+    ? poolIndexes.map(i => {
+        const chip = dragChipHtml(items[i], i, false);
+        return (!answered && pending.selectedChip === i) ? chip.replace('class="drag-chip"', 'class="drag-chip selected-chip"') : chip;
+      }).join('')
+    : `<span class="dragdrop-empty-note">Todos os itens foram colocados.</span>`;
+
+  const targetsHtml = targets.map((target, ti) => {
+    const placedIndex = placements[ti];
+    let cls = 'drag-target';
+    let note = '';
+    if(answered){
+      const isRight = placedIndex === target.correctItemIndex;
+      cls += isRight ? ' correct filled' : ' incorrect filled';
+      if(!isRight){
+        note = `<div class="select-slot-note is-err">Correta: ${escapeHtml(items[target.correctItemIndex] ?? '')}</div>`;
+      }
+    } else if(placedIndex !== null && placedIndex !== undefined){
+      cls += ' filled';
+    }
+    const slotInner = (placedIndex !== null && placedIndex !== undefined)
+      ? dragChipHtml(items[placedIndex], placedIndex, true)
+      : `<span class="drag-target-placeholder">Arrasta ou toca aqui</span>`;
+    return `
+      <div class="${cls}">
+        <div class="drag-target-label">${escapeHtml(target.label || '')}</div>
+        <div class="drag-target-slot" data-target-index="${ti}">${slotInner}</div>
+        ${note}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="dragdrop-pool" id="dragPool">${poolHtml}</div>
+    <div class="dragdrop-targets" id="dragTargets">${targetsHtml}</div>
+  `;
+}
+function placeDragItem(targetIndex, itemIndex){
+  if(itemIndex === null || itemIndex === undefined) return;
+  // remove este item de qualquer alvo onde já estivesse colocado
+  pendingDragAnswer.placements = pendingDragAnswer.placements.map(v => v === itemIndex ? null : v);
+  pendingDragAnswer.placements[targetIndex] = itemIndex;
+  pendingDragAnswer.selectedChip = null;
+  renderStudy();
+}
+
+/* ---------- Pergunta tipo "Sim / Não" ---------- */
+function yesNoRowHtml(stmt, i, savedAnswer, pendingSelected, answered){
+  const savedVal = answered && Array.isArray(savedAnswer) ? savedAnswer[i] : undefined;
+  const currentYes = answered ? savedVal === true : pendingSelected[i] === 'yes';
+  const currentNo = answered ? savedVal === false : pendingSelected[i] === 'no';
+  let cls = 'yesno-row';
+  let note = '';
+  if(answered){
+    const isRight = savedVal === !!stmt.correct;
+    cls += isRight ? ' correct' : ' incorrect';
+    if(!isRight){
+      note = `<div class="select-slot-note is-err">Correta: ${stmt.correct ? 'Sim' : 'Não'}</div>`;
+    }
+  }
+  return `
+    <div class="${cls}">
+      <div class="yesno-label">${escapeHtml(stmt.label || '')}</div>
+      <div class="yesno-buttons">
+        <button type="button" class="yesno-btn ${currentYes ? 'selected' : ''}" data-stmt-index="${i}" data-value="yes" ${answered ? 'disabled' : ''}>Sim</button>
+        <button type="button" class="yesno-btn ${currentNo ? 'selected' : ''}" data-stmt-index="${i}" data-value="no" ${answered ? 'disabled' : ''}>Não</button>
+      </div>
+      ${note}
+    </div>
+  `;
+}
+
 /* ---------- Gerir perguntas ---------- */
 function renderQuestionList(){
   const root = document.getElementById('questionList');
@@ -1062,9 +1377,14 @@ function renderQuestionList(){
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
         <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)}</div>
-        <div class="q-list-meta">${isSelectQuestion(q)
-          ? `${(q.slots || []).length} seletor(es) · corretas: ${(q.slots || []).map(s => s.options[s.correctIndex] ?? '').join(' / ')}`
-          : `${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}`
+        <div class="q-list-meta">${
+          isSelectQuestion(q)
+            ? `${(q.slots || []).length} seletor(es) · corretas: ${(q.slots || []).map(s => s.options[s.correctIndex] ?? '').join(' / ')}`
+            : isDragDropQuestion(q)
+            ? `${(q.targets || []).length} alvo(s) · drag and drop`
+            : isYesNoQuestion(q)
+            ? `${(q.statements || []).length} afirmação(ões) · Sim/Não`
+            : `${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}`
         }</div>
       </div>
       <div class="q-list-actions">
@@ -1111,8 +1431,20 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
 
   const valid = [];
   const problems = [];
+
+  function parseImportTable(item){
+    if(!item || item.table === undefined || item.table === null) return { table: null, ok: true };
+    const t = item.table;
+    const headers = Array.isArray(t.headers) ? t.headers.map(h => (h || '').toString().trim()).filter(Boolean) : [];
+    const rows = Array.isArray(t.rows) ? t.rows.map(r => Array.isArray(r) ? r.map(c => (c || '').toString().trim()) : []) : [];
+    if(headers.length === 0 || rows.length === 0) return { table: null, ok: false };
+    return { table: { headers, rows }, ok: true };
+  }
+
   parsed.forEach((item, i) => {
     const text = (item && item.text || '').toString().trim();
+    const { table, ok: tableOk } = parseImportTable(item);
+    if(!tableOk){ problems.push(i + 1); return; }
 
     if((item && item.type) === 'select'){
       const rawSlots = Array.isArray(item && item.slots) ? item.slots : [];
@@ -1130,7 +1462,53 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         return;
       }
       valid.push({
-        type: 'select', text, slots,
+        type: 'select', text, slots, table,
+        explanation: (item.explanation || '').toString().trim(),
+        image: null,
+        createdAt: Date.now()
+      });
+      return;
+    }
+
+    if((item && item.type) === 'dragdrop'){
+      const rawItems = Array.isArray(item && item.items) ? item.items.map(x => (x || '').toString().trim()) : [];
+      const rawTargets = Array.isArray(item && item.targets) ? item.targets : [];
+      let targetsOk = rawItems.length >= 2 && rawItems.every(Boolean) && rawTargets.length > 0;
+      const targets = [];
+      rawTargets.forEach(t => {
+        const label = ((t && t.label) || '').toString().trim();
+        const correctItemIndex = Number.isInteger(t && t.correctItemIndex) ? t.correctItemIndex : -1;
+        if(!label || correctItemIndex < 0 || correctItemIndex >= rawItems.length){ targetsOk = false; return; }
+        targets.push({ label, correctItemIndex });
+      });
+      if(!text || !targetsOk){
+        problems.push(i + 1);
+        return;
+      }
+      valid.push({
+        type: 'dragdrop', text, items: rawItems, targets, table,
+        explanation: (item.explanation || '').toString().trim(),
+        image: null,
+        createdAt: Date.now()
+      });
+      return;
+    }
+
+    if((item && item.type) === 'yesno'){
+      const rawStatements = Array.isArray(item && item.statements) ? item.statements : [];
+      const statements = [];
+      let statementsOk = rawStatements.length > 0;
+      rawStatements.forEach(s => {
+        const label = ((s && s.label) || '').toString().trim();
+        if(!label || typeof (s && s.correct) !== 'boolean'){ statementsOk = false; return; }
+        statements.push({ label, correct: s.correct });
+      });
+      if(!text || !statementsOk){
+        problems.push(i + 1);
+        return;
+      }
+      valid.push({
+        type: 'yesno', text, statements, table,
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
@@ -1155,7 +1533,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     // senão infere-se automaticamente de haver mais que uma correta.
     const multiple = typeof (item && item.multiple) === 'boolean' ? item.multiple : correctIndexes.length > 1;
     valid.push({
-      type: 'choice', text, options, correctIndexes, multiple, correctIndex: correctIndexes[0],
+      type: 'choice', text, options, correctIndexes, multiple, correctIndex: correctIndexes[0], table,
       explanation: (item.explanation || '').toString().trim(),
       image: null,
       createdAt: Date.now()
@@ -1290,16 +1668,145 @@ function addSlotRow(labelValue, optionsArray, correctIndex){
 }
 document.getElementById('addSlotBtn').addEventListener('click', ()=> addSlotRow('', ['', ''], 0));
 
+/* ---------- Edição de perguntas tipo "drag and drop" ---------- */
+function addDragItemRow(value){
+  const list = document.getElementById('dragItemsList');
+  const row = document.createElement('div');
+  row.className = 'option-edit-row drag-item-edit-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Texto do item" value="${escapeHtml(value || '')}">
+    <button type="button" class="option-remove-btn" title="Remover item">✕</button>
+  `;
+  row.querySelector('input[type="text"]').addEventListener('input', refreshDragTargetSelects);
+  row.querySelector('.option-remove-btn').addEventListener('click', ()=>{
+    if(document.querySelectorAll('.drag-item-edit-row').length <= 2){ alert('É preciso pelo menos 2 itens.'); return; }
+    row.remove();
+    refreshDragTargetSelects();
+  });
+  list.appendChild(row);
+}
+function addDragTargetRow(label, correctItemIndex){
+  const list = document.getElementById('dragTargetsList');
+  const row = document.createElement('div');
+  row.className = 'option-edit-row drag-target-edit-row';
+  row.dataset.pendingCorrectIndex = Number.isInteger(correctItemIndex) ? correctItemIndex : 0;
+  row.innerHTML = `
+    <input type="text" placeholder="Nome do alvo" value="${escapeHtml(label || '')}">
+    <select class="drag-target-correct-select"></select>
+    <button type="button" class="option-remove-btn" title="Remover alvo">✕</button>
+  `;
+  row.querySelector('.option-remove-btn').addEventListener('click', ()=>{
+    if(document.querySelectorAll('.drag-target-edit-row').length <= 1){ alert('É preciso pelo menos 1 alvo.'); return; }
+    row.remove();
+  });
+  list.appendChild(row);
+  refreshDragTargetSelects();
+}
+function refreshDragTargetSelects(){
+  const itemTexts = [...document.querySelectorAll('.drag-item-edit-row input[type="text"]')].map(i => i.value);
+  document.querySelectorAll('.drag-target-edit-row').forEach(row=>{
+    const sel = row.querySelector('.drag-target-correct-select');
+    const prevIndex = sel.options.length ? sel.selectedIndex : parseInt(row.dataset.pendingCorrectIndex || '0', 10);
+    sel.innerHTML = itemTexts.map((t, i) => `<option value="${i}">${escapeHtml(t || ('Item ' + (i + 1)))}</option>`).join('');
+    const idx = Math.min(Math.max(prevIndex, 0), itemTexts.length - 1);
+    if(idx >= 0) sel.selectedIndex = idx;
+  });
+}
+document.getElementById('addDragItemBtn').addEventListener('click', ()=>{
+  addDragItemRow('');
+  refreshDragTargetSelects();
+});
+document.getElementById('addDragTargetBtn').addEventListener('click', ()=> addDragTargetRow('', 0));
+
+/* ---------- Edição de perguntas tipo "Sim / Não" ---------- */
+let yesnoCount = 0;
+function addYesNoStmtRow(label, correct){
+  yesnoCount++;
+  const id = 'stmt_' + yesnoCount;
+  const list = document.getElementById('yesnoStatementsList');
+  const row = document.createElement('div');
+  row.className = 'yesno-edit-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Texto da afirmação" value="${escapeHtml(label || '')}">
+    <div class="yesno-edit-radios">
+      <label><input type="radio" name="yn_${id}" value="yes" ${correct ? 'checked' : ''}> Sim</label>
+      <label><input type="radio" name="yn_${id}" value="no" ${!correct ? 'checked' : ''}> Não</label>
+    </div>
+    <button type="button" class="option-remove-btn" title="Remover afirmação">✕</button>
+  `;
+  row.querySelector('.option-remove-btn').addEventListener('click', ()=>{
+    if(document.querySelectorAll('.yesno-edit-row').length <= 1){ alert('É preciso pelo menos 1 afirmação.'); return; }
+    row.remove();
+  });
+  list.appendChild(row);
+}
+document.getElementById('addYesNoStmtBtn').addEventListener('click', ()=> addYesNoStmtRow('', true));
+
+/* ---------- Edição da tabela opcional (qualquer tipo de pergunta) ---------- */
+function addTableRowCell(rowEl, value){
+  const cellInput = document.createElement('input');
+  cellInput.type = 'text';
+  cellInput.value = value || '';
+  cellInput.placeholder = 'Valor';
+  rowEl.insertBefore(cellInput, rowEl.lastElementChild);
+}
+function addTableColumn(headerValue){
+  const headersRow = document.getElementById('tableHeadersEditRow');
+  const idx = headersRow.children.length;
+  const cell = document.createElement('div');
+  cell.className = 'table-edit-cell';
+  cell.innerHTML = `
+    <input type="text" placeholder="Coluna ${idx + 1}" value="${escapeHtml(headerValue || '')}">
+    <button type="button" class="table-col-remove-btn" title="Remover coluna">✕</button>
+  `;
+  cell.querySelector('.table-col-remove-btn').addEventListener('click', ()=>{
+    if(headersRow.children.length <= 1){ alert('É preciso pelo menos 1 coluna.'); return; }
+    const colIndex = [...headersRow.children].indexOf(cell);
+    cell.remove();
+    document.querySelectorAll('.table-edit-data-row').forEach(r=>{
+      const inputs = r.querySelectorAll('input[type="text"]');
+      if(inputs[colIndex]) inputs[colIndex].remove();
+    });
+  });
+  headersRow.appendChild(cell);
+  document.querySelectorAll('.table-edit-data-row').forEach(r => addTableRowCell(r, ''));
+}
+function addTableDataRow(values){
+  const list = document.getElementById('tableRowsEditList');
+  const colCount = document.getElementById('tableHeadersEditRow').children.length;
+  const row = document.createElement('div');
+  row.className = 'table-edit-row table-edit-data-row';
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'table-row-remove-btn';
+  removeBtn.title = 'Remover linha';
+  removeBtn.textContent = '✕';
+  row.appendChild(removeBtn);
+  for(let i = 0; i < colCount; i++){
+    addTableRowCell(row, values && values[i]);
+  }
+  removeBtn.addEventListener('click', ()=> row.remove());
+  list.appendChild(row);
+}
+document.getElementById('addTableColBtn').addEventListener('click', ()=> addTableColumn(''));
+document.getElementById('addTableRowBtn').addEventListener('click', ()=> addTableDataRow([]));
+document.getElementById('qTableToggle').addEventListener('change', (e)=>{
+  document.getElementById('tableEditWrap').style.display = e.target.checked ? 'block' : 'none';
+});
+
 function setQuestionTypeUi(type){
   document.getElementById('qTypeSelect').value = type;
-  document.getElementById('choiceFields').style.display = type === 'select' ? 'none' : 'block';
+  document.getElementById('choiceFields').style.display = type === 'choice' ? 'block' : 'none';
   document.getElementById('selectFields').style.display = type === 'select' ? 'block' : 'none';
+  document.getElementById('dragdropFields').style.display = type === 'dragdrop' ? 'block' : 'none';
+  document.getElementById('yesnoFields').style.display = type === 'yesno' ? 'block' : 'none';
 }
 document.getElementById('qTypeSelect').addEventListener('change', (e)=> setQuestionTypeUi(e.target.value));
 
 function openQuestionModal(questionId){
   editingQuestionId = questionId;
   const q = questionId ? questions.find(x => x.id === questionId) : null;
+  const isChoice = !q || (!isSelectQuestion(q) && !isDragDropQuestion(q) && !isYesNoQuestion(q));
   document.getElementById('questionModalTitle').textContent = q ? 'Editar pergunta' : 'Nova pergunta';
   document.getElementById('qTextInput').value = q ? q.text : '';
   document.getElementById('qExplanationInput').value = q ? (q.explanation || '') : '';
@@ -1312,12 +1819,26 @@ function openQuestionModal(questionId){
   document.getElementById('qRemovePhotoBtn').style.display = pendingPhoto ? 'inline-block' : 'none';
   document.getElementById('qPhotoInput').value = '';
 
-  const correctIdxs = q && !isSelectQuestion(q) ? getCorrectIndexes(q) : [0];
-  document.getElementById('qMultipleToggle').checked = q ? isMultipleQuestion(q) : false;
+  document.getElementById('tableHeadersEditRow').innerHTML = '';
+  document.getElementById('tableRowsEditList').innerHTML = '';
+  if(q && q.table && Array.isArray(q.table.headers) && q.table.headers.length){
+    document.getElementById('qTableToggle').checked = true;
+    document.getElementById('tableEditWrap').style.display = 'block';
+    q.table.headers.forEach(h => addTableColumn(h));
+    (q.table.rows || []).forEach(r => addTableDataRow(r));
+  } else {
+    document.getElementById('qTableToggle').checked = false;
+    document.getElementById('tableEditWrap').style.display = 'none';
+    addTableColumn('');
+    addTableColumn('');
+  }
+
+  const correctIdxs = isChoice && q ? getCorrectIndexes(q) : [0];
+  document.getElementById('qMultipleToggle').checked = isChoice && q ? isMultipleQuestion(q) : false;
 
   document.getElementById('optionsEditList').innerHTML = '';
   optionCount = 0;
-  const opts = q && !isSelectQuestion(q) ? q.options : ['', '', '', ''];
+  const opts = isChoice && q ? q.options : ['', '', '', ''];
   opts.forEach((opt, i) => addOptionRow(opt, correctIdxs.includes(i)));
   document.getElementById('optionsEditLabel').innerHTML = document.getElementById('qMultipleToggle').checked
     ? 'Opções de resposta <span style="color:var(--ink-faint);">(marca todas as corretas)</span>'
@@ -1330,7 +1851,27 @@ function openQuestionModal(questionId){
   } else {
     addSlotRow('', ['', ''], 0);
   }
-  setQuestionTypeUi(q && isSelectQuestion(q) ? 'select' : 'choice');
+
+  document.getElementById('dragItemsList').innerHTML = '';
+  document.getElementById('dragTargetsList').innerHTML = '';
+  if(q && isDragDropQuestion(q)){
+    (q.items || []).forEach(item => addDragItemRow(item));
+    (q.targets || []).forEach(t => addDragTargetRow(t.label, t.correctItemIndex));
+  } else {
+    addDragItemRow('');
+    addDragItemRow('');
+    addDragTargetRow('', 0);
+  }
+
+  document.getElementById('yesnoStatementsList').innerHTML = '';
+  yesnoCount = 0;
+  if(q && isYesNoQuestion(q)){
+    (q.statements || []).forEach(s => addYesNoStmtRow(s.label, !!s.correct));
+  } else {
+    addYesNoStmtRow('', true);
+  }
+
+  setQuestionTypeUi(q ? (q.type || 'choice') : 'choice');
 
   document.getElementById('questionModalOverlay').classList.add('open');
 }
@@ -1386,7 +1927,25 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
   if(!text){ alert('Escreve o texto da pergunta.'); return; }
   const image = photoRemoved ? null : pendingPhoto;
 
-  let payload;
+  // Tabela opcional (partilhada por todos os tipos de pergunta)
+  let table = null;
+  if(document.getElementById('qTableToggle').checked){
+    const headers = [...document.querySelectorAll('#tableHeadersEditRow input[type="text"]')].map(i => i.value.trim());
+    const rows = [...document.querySelectorAll('.table-edit-data-row')].map(r =>
+      [...r.querySelectorAll('input[type="text"]')].map(i => i.value.trim())
+    );
+    if(headers.some(h => !h)){ alert('Preenche o nome de todas as colunas da tabela ou remove-as.'); return; }
+    if(rows.length === 0){ alert('Adiciona pelo menos uma linha à tabela ou desativa a opção de tabela.'); return; }
+    table = { headers, rows };
+  }
+
+  // Campos específicos de cada tipo — começam todos a null; só os do tipo ativo são preenchidos.
+  // Isto garante que, ao mudar o tipo de uma pergunta já existente, os campos do tipo antigo são limpos.
+  const typeFields = {
+    options: null, correctIndex: null, correctIndexes: null, multiple: null,
+    slots: null, items: null, targets: null, statements: null
+  };
+
   if(type === 'select'){
     const slotBlocks = [...document.querySelectorAll('.slot-edit-block')];
     if(slotBlocks.length === 0){ alert('Adiciona pelo menos um seletor.'); return; }
@@ -1401,13 +1960,31 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
       if(correctIndex === -1){ alert('Marca a opção correta em cada seletor.'); return; }
       slots.push({ label, options, correctIndex });
     }
-    payload = { type: 'select', text, slots, explanation, image };
-    if(editingQuestionId){
-      payload.options = firebase.firestore.FieldValue.delete();
-      payload.correctIndex = firebase.firestore.FieldValue.delete();
-      payload.correctIndexes = firebase.firestore.FieldValue.delete();
-      payload.multiple = firebase.firestore.FieldValue.delete();
-    }
+    typeFields.slots = slots;
+  } else if(type === 'dragdrop'){
+    const itemRows = [...document.querySelectorAll('.drag-item-edit-row')];
+    const targetRows = [...document.querySelectorAll('.drag-target-edit-row')];
+    if(itemRows.length < 2){ alert('Adiciona pelo menos 2 itens.'); return; }
+    if(targetRows.length === 0){ alert('Adiciona pelo menos um alvo.'); return; }
+    const items = itemRows.map(r => r.querySelector('input[type="text"]').value.trim());
+    if(items.some(i => !i)){ alert('Preenche o texto de todos os itens ou remove os vazios.'); return; }
+    const targets = targetRows.map(r => ({
+      label: r.querySelector('input[type="text"]').value.trim(),
+      correctItemIndex: parseInt(r.querySelector('.drag-target-correct-select').value, 10)
+    }));
+    if(targets.some(t => !t.label)){ alert('Preenche o nome de todos os alvos.'); return; }
+    if(targets.some(t => !Number.isInteger(t.correctItemIndex))){ alert('Escolhe o item correto para cada alvo.'); return; }
+    typeFields.items = items;
+    typeFields.targets = targets;
+  } else if(type === 'yesno'){
+    const stmtRows = [...document.querySelectorAll('.yesno-edit-row')];
+    if(stmtRows.length === 0){ alert('Adiciona pelo menos uma afirmação.'); return; }
+    const statements = stmtRows.map(r => ({
+      label: r.querySelector('input[type="text"]').value.trim(),
+      correct: r.querySelector('input[type="radio"][value="yes"]').checked
+    }));
+    if(statements.some(s => !s.label)){ alert('Preenche o texto de todas as afirmações.'); return; }
+    typeFields.statements = statements;
   } else {
     const isMultiple = document.getElementById('qMultipleToggle').checked;
     const rows = [...document.querySelectorAll('#choiceFields .option-edit-row')];
@@ -1419,11 +1996,13 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
     if(options.some(o => !o)){ alert('Preenche todas as opções ou remove as vazias.'); return; }
     if(correctIndexes.length === 0){ alert('Marca pelo menos uma opção correta.'); return; }
 
-    payload = { type: 'choice', text, options, correctIndexes, multiple: isMultiple, correctIndex: correctIndexes[0], explanation, image };
-    if(editingQuestionId){
-      payload.slots = firebase.firestore.FieldValue.delete();
-    }
+    typeFields.options = options;
+    typeFields.correctIndexes = correctIndexes;
+    typeFields.multiple = isMultiple;
+    typeFields.correctIndex = correctIndexes[0];
   }
+
+  const payload = { type, text, explanation, image, table, ...typeFields };
 
   try{
     if(editingQuestionId){
