@@ -32,6 +32,22 @@
     --err-soft:rgba(216,72,63,0.10);
     --radius:14px;
   }
+  :root[data-theme="dark"]{
+    --bg:#10142A;
+    --surface:#1B2340;
+    --surface-2:#242C4D;
+    --border:#323B5E;
+    --ink:#E8EAF5;
+    --ink-soft:#A6AFCB;
+    --ink-faint:#6C7599;
+    --accent:#6C8CFF;
+    --accent-soft:rgba(108,140,255,0.16);
+    --gold:#F0BC5A;
+    --ok:#45C382;
+    --ok-soft:rgba(69,195,130,0.16);
+    --err:#F0685E;
+    --err-soft:rgba(240,104,94,0.14);
+  }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;}
   body{
@@ -294,7 +310,7 @@
 
       <div id="manageTab" style="display:none;">
         <div class="page-head" style="margin-bottom:14px;">
-          <div></div>
+          <button class="btn-secondary" id="importQuestionsBtn">Importar perguntas</button>
           <button class="btn-primary" id="newQuestionBtn">+ Nova pergunta</button>
         </div>
         <div id="questionList"></div>
@@ -361,6 +377,33 @@
       <button class="btn-danger-text" id="qDeleteBtn" style="margin-right:auto;display:none;">Remover pergunta</button>
       <button class="btn-secondary" id="qCancelBtn">Cancelar</button>
       <button class="btn-primary" id="qSaveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="importModalOverlay">
+  <div class="modal" style="width:640px;">
+    <h3>Importar perguntas</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. O campo <code>explanation</code> é opcional. Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
+    <div class="field">
+      <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
+  {
+    "text": "Qual comando lista as VMs no Azure CLI?",
+    "options": ["az vm list", "az vm show", "az list vm", "vm list az"],
+    "correctIndex": 0,
+    "explanation": "az vm list é o comando correto para listar VMs."
+  },
+  {
+    "text": "O que significa RBAC?",
+    "options": ["Role-Based Access Control", "Remote Backup and Control", "Regional Base Access Code"],
+    "correctIndex": 0
+  }
+]'></textarea>
+    </div>
+    <div id="importStatus" style="font-size:12.5px;color:var(--ink-soft);margin-top:-8px;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="importCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="importConfirmBtn">Importar</button>
     </div>
   </div>
 </div>
@@ -773,6 +816,77 @@ function renderQuestionList(){
 }
 
 document.getElementById('newQuestionBtn').addEventListener('click', ()=> openQuestionModal(null));
+
+document.getElementById('importQuestionsBtn').addEventListener('click', ()=>{
+  document.getElementById('importTextarea').value = '';
+  document.getElementById('importStatus').textContent = '';
+  document.getElementById('importModalOverlay').classList.add('open');
+});
+document.getElementById('importCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('importModalOverlay').classList.remove('open');
+});
+document.getElementById('importModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'importModalOverlay') document.getElementById('importModalOverlay').classList.remove('open');
+});
+document.getElementById('importConfirmBtn').addEventListener('click', async ()=>{
+  const statusEl = document.getElementById('importStatus');
+  const raw = document.getElementById('importTextarea').value.trim();
+  if(!raw){ statusEl.textContent = 'Cola a lista de perguntas em JSON primeiro.'; statusEl.style.color = 'var(--err)'; return; }
+
+  let parsed;
+  try{ parsed = JSON.parse(raw); }
+  catch(e){ statusEl.textContent = 'JSON inválido — verifica vírgulas e chavetas.'; statusEl.style.color = 'var(--err)'; return; }
+  if(!Array.isArray(parsed)){ statusEl.textContent = 'Tem de ser uma lista (começa e acaba com [ ]).'; statusEl.style.color = 'var(--err)'; return; }
+
+  const valid = [];
+  const problems = [];
+  parsed.forEach((item, i) => {
+    const text = (item && item.text || '').toString().trim();
+    const options = Array.isArray(item && item.options) ? item.options.map(o => (o || '').toString().trim()).filter(Boolean) : [];
+    const correctIndex = Number.isInteger(item && item.correctIndex) ? item.correctIndex : -1;
+    if(!text || options.length < 2 || correctIndex < 0 || correctIndex >= options.length){
+      problems.push(i + 1);
+      return;
+    }
+    valid.push({
+      text, options, correctIndex,
+      explanation: (item.explanation || '').toString().trim(),
+      image: null,
+      createdAt: Date.now()
+    });
+  });
+
+  if(valid.length === 0){
+    statusEl.textContent = 'Nenhuma pergunta válida encontrada. Confirma o formato de cada campo.';
+    statusEl.style.color = 'var(--err)';
+    return;
+  }
+
+  statusEl.style.color = 'var(--ink-soft)';
+  statusEl.textContent = `A importar ${valid.length} pergunta(s)…`;
+  try{
+    const colRef = db.collection('quizModules').doc(currentModuleId).collection('questions');
+    const batches = [];
+    for(let i = 0; i < valid.length; i += 400){
+      const batch = db.batch();
+      valid.slice(i, i + 400).forEach(q => batch.set(colRef.doc(), q));
+      batches.push(batch.commit());
+    }
+    await Promise.all(batches);
+    const msg = problems.length
+      ? `${valid.length} importadas. ${problems.length} ignoradas (posições: ${problems.join(', ')}) por faltar texto, opções ou índice correto válido.`
+      : `${valid.length} pergunta(s) importada(s) com sucesso.`;
+    statusEl.textContent = msg;
+    statusEl.style.color = problems.length ? 'var(--gold)' : 'var(--ok)';
+    if(!problems.length){
+      setTimeout(()=> document.getElementById('importModalOverlay').classList.remove('open'), 900);
+    }
+  }catch(e){
+    console.error(e);
+    statusEl.textContent = 'Falha ao guardar no Firestore. Tenta novamente.';
+    statusEl.style.color = 'var(--err)';
+  }
+});
 
 function addOptionRow(value, checked){
   optionCount++;
