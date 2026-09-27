@@ -33,6 +33,7 @@
     --radius:14px;
   }
   :root{
+    --study-font-scale:1;
     --safe-t:env(safe-area-inset-top, 0px);
     --safe-b:env(safe-area-inset-bottom, 0px);
     --safe-l:env(safe-area-inset-left, 0px);
@@ -182,16 +183,23 @@
 
   /* ---------- Study card ---------- */
   .study-wrap{ max-width:640px; margin:0 auto; }
-  .study-progress{ display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-family:'IBM Plex Mono',monospace; }
+  .study-progress{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-family:'IBM Plex Mono',monospace; }
+  .font-size-toggle{ display:flex; gap:4px; }
+  .font-size-toggle button{
+    width:25px; height:25px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink-soft); font-size:11px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono',monospace;
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .font-size-toggle button:hover{ border-color:var(--accent); color:var(--accent); }
   .study-progress-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-bottom:24px; }
   .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
   .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
-  .question-text{ font-size:16.5px; font-weight:500; line-height:1.65; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
+  .question-text{ font-size:calc(16.5px * var(--study-font-scale)); font-weight:500; line-height:1.42; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
   .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
   .option-row{
     display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
     border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
-    font-size:14px;
+    font-size:calc(14px * var(--study-font-scale)); line-height:1.4;
   }
   .option-row:hover{ border-color:var(--accent); }
   .option-letter{
@@ -206,7 +214,7 @@
   .option-row.disabled{ cursor:default; }
   .explanation-box{
     margin-top:14px; padding:14px 16px; background:var(--surface-2); border-radius:10px;
-    font-size:13px; color:var(--ink-soft); line-height:1.5; white-space:pre-wrap;
+    font-size:calc(13px * var(--study-font-scale)); color:var(--ink-soft); line-height:1.45; white-space:pre-wrap;
   }
   .study-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
   .score-pill{
@@ -273,7 +281,7 @@
     .module-header{ gap:10px; }
     .module-grid{ grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:12px; }
     .question-card{ padding:18px; }
-    .question-text{ font-size:15.5px; }
+    .question-text{ font-size:calc(14px * var(--study-font-scale)); }
     .modal{ padding:20px; width:100%; max-height:92vh; }
     .modal-actions{ flex-wrap:wrap; }
     .modal-actions button{ flex:1 1 auto; min-width:110px; }
@@ -479,6 +487,22 @@ let pendingPhoto = null;
 let photoRemoved = false;
 let answeredThisQuestion = false;
 let pendingMultiAnswer = { qid: null, selected: [] };
+let studyFontScale = 1;
+
+/* ---------- Tamanho do texto no modo de estudo ---------- */
+function loadStudyFontScale(){
+  const saved = parseFloat(localStorage.getItem('studyFontScale'));
+  studyFontScale = Number.isFinite(saved) ? saved : 1;
+  applyStudyFontScale();
+}
+function applyStudyFontScale(){
+  document.documentElement.style.setProperty('--study-font-scale', studyFontScale);
+}
+function changeStudyFontScale(delta){
+  studyFontScale = Math.min(1.4, Math.max(0.8, Math.round((studyFontScale + delta) * 100) / 100));
+  try{ localStorage.setItem('studyFontScale', studyFontScale); }catch(e){}
+  applyStudyFontScale();
+}
 
 function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 function escapeHtml(str){
@@ -517,7 +541,7 @@ function formatQuestionText(text){
   const escaped = escapeHtml(text);
   // quebra depois de ".", "?" ou "!" seguido de espaço e de maiúscula/número/aspas
   // (evita cortar decimais como "3.5" ou abreviaturas seguidas de minúscula)
-  return escaped.replace(/([.?!])(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(])/g, '$1<br><br>');
+  return escaped.replace(/([.?!])(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(])/g, '$1<br>');
 }
 
 /* ---------- Tema ---------- */
@@ -803,6 +827,10 @@ function buildStudyHtml(wrap){
   wrap.innerHTML = `
     <div class="study-progress">
       <span>Pergunta ${idx + 1} de ${questions.length}</span>
+      <div class="font-size-toggle">
+        <button type="button" id="fontDecBtn" title="Diminuir tamanho do texto">A-</button>
+        <button type="button" id="fontIncBtn" title="Aumentar tamanho do texto">A+</button>
+      </div>
       <span class="score-pill">✓ ${correctCount} / ${answeredCount} respondidas</span>
     </div>
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
@@ -854,6 +882,9 @@ function buildStudyHtml(wrap){
       });
     }
   }
+
+  document.getElementById('fontDecBtn').addEventListener('click', ()=> changeStudyFontScale(-0.1));
+  document.getElementById('fontIncBtn').addEventListener('click', ()=> changeStudyFontScale(0.1));
 
   document.getElementById('prevQBtn').addEventListener('click', ()=>{
     progress.currentIndex = Math.max(0, progress.currentIndex - 1);
@@ -1181,6 +1212,7 @@ document.addEventListener('keydown', (e)=>{
 
 /* ---------- Arranque ---------- */
 initTheme();
+loadStudyFontScale();
 auth.onAuthStateChanged(user=>{
   currentUser = user;
   if(!user){
