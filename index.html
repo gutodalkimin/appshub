@@ -2,680 +2,300 @@
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hub</title>
-<link rel="apple-touch-icon" href="data:image/png;base64,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">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0D12'/%3E%3Crect x='6' y='6' width='8' height='8' rx='2' fill='%238B7FFF'/%3E%3Crect x='18' y='6' width='8' height='8' rx='2' fill='%238B7FFF' opacity='0.55'/%3E%3Crect x='6' y='18' width='8' height='8' rx='2' fill='%238B7FFF' opacity='0.55'/%3E%3Crect x='18' y='18' width='8' height='8' rx='2' fill='%238B7FFF'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<meta name="theme-color" content="#0B0D12">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Certificações</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="theme-color" content="#2F5FE0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Hub">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-title" content="Certificações">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B2340'/%3E%3Ccircle cx='16' cy='13' r='7' fill='none' stroke='%23E0A72F' stroke-width='2.4'/%3E%3Cpath d='M13 13.2 L15.2 15.5 L19.5 10.8' fill='none' stroke='%23E0A72F' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 19 L9 27 L16 24 L23 27 L20 19' fill='%232F5FE0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <style>
   :root{
-    --bg:#0B0D12;
-    --surface:#12151C;
-    --surface-2:#191D26;
-    --border:#242933;
-    --border-soft:#1C202A;
-    --text:#EDEFF3;
-    --text-muted:#8A90A0;
-    --text-faint:#565C6B;
-    --accent:#8B7FFF;
-    --accent-soft:rgba(139,127,255,0.14);
-    --amber:#F5A65B;
-    --ok:#5FB3A3;
-    --err:#E8735B;
-    --radius-tile:14px;
-    --radius-sm:6px;
-  }
-  :root[data-theme="light"]{
-    --bg:#F5F4F2;
+    --bg:#F4F6FA;
     --surface:#FFFFFF;
-    --surface-2:#EEECE8;
-    --border:#DEDBD5;
-    --border-soft:#E7E4DE;
-    --text:#1B1D22;
-    --text-muted:#63676F;
-    --text-faint:#9A9DA4;
-    --accent:#6C5CE0;
-    --accent-soft:rgba(108,92,224,0.10);
-    --amber:#B9752E;
+    --surface-2:#E9EDF5;
+    --border:#D7DEEA;
+    --ink:#1B2340;
+    --ink-soft:#5B6584;
+    --ink-faint:#98A2BE;
+    --accent:#2F5FE0;
+    --accent-soft:rgba(47,95,224,0.10);
+    --gold:#E0A72F;
+    --ok:#2E9E64;
+    --ok-soft:rgba(46,158,100,0.12);
+    --err:#D8483F;
+    --err-soft:rgba(216,72,63,0.10);
+    --radius:14px;
+  }
+  :root{
+    --safe-t:env(safe-area-inset-top, 0px);
+    --safe-b:env(safe-area-inset-bottom, 0px);
+    --safe-l:env(safe-area-inset-left, 0px);
+    --safe-r:env(safe-area-inset-right, 0px);
+  }
+  :root[data-theme="dark"]{
+    --bg:#10142A;
+    --surface:#1B2340;
+    --surface-2:#242C4D;
+    --border:#323B5E;
+    --ink:#E8EAF5;
+    --ink-soft:#A6AFCB;
+    --ink-faint:#6C7599;
+    --accent:#6C8CFF;
+    --accent-soft:rgba(108,140,255,0.16);
+    --gold:#F0BC5A;
+    --ok:#45C382;
+    --ok-soft:rgba(69,195,130,0.16);
+    --err:#F0685E;
+    --err-soft:rgba(240,104,94,0.14);
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  html,body{margin:0;padding:0;height:100%;}
   body{
     background:var(--bg);
-    color:var(--text);
+    color:var(--ink);
     font-family:'Inter',sans-serif;
-    min-height:100vh;
-    display:flex;
-    overflow-x:hidden;
-  }
-  ::selection{background:var(--accent-soft);color:var(--text);}
-
-  /* ---------- Sidebar ---------- */
-  .sidebar{
-    width:230px;
-    flex-shrink:0;
-    background:var(--surface);
-    border-right:1px solid var(--border-soft);
-    padding:28px 16px;
-    display:flex;
-    flex-direction:column;
-    gap:28px;
-    height:100vh;
-    position:sticky;
-    top:0;
-  }
-  .brand{
-    padding:0 8px;
-  }
-  .brand-title{
-    font-family:'Sora',sans-serif;
-    font-weight:700;
-    font-size:22px;
-    letter-spacing:-0.02em;
-  }
-  .brand-clock{
-    color:var(--text-muted);
-    font-size:13px;
-    margin-top:4px;
-  }
-  .sync-status{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:11.5px;
-    color:var(--text-faint);
-    margin-top:6px;
-  }
-  .theme-toggle{
-    position:fixed;
-    top:16px; right:16px;
-    z-index:60;
-    width:36px;height:36px;
-    border-radius:50%;
-    border:1px solid var(--border);
-    background:var(--surface);
-    color:var(--text);
-    font-size:15px;
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .15s ease;
-  }
-  .theme-toggle:hover{ transform:scale(1.06); }
-  .menu-toggle{
-    display:none;
-    position:fixed;
-    top:16px; left:16px;
-    z-index:60;
-    width:36px;height:36px;
-    border-radius:50%;
-    border:1px solid var(--border);
-    background:var(--surface);
-    color:var(--text);
-    cursor:pointer;
-    align-items:center;justify-content:center;
-  }
-  .sidebar-backdrop{
-    position:fixed; inset:0;
-    background:rgba(0,0,0,0.5);
-    z-index:65;
-    display:none;
-  }
-  .sidebar-backdrop.open{ display:block; }
-  .nav-list{
-    list-style:none;
-    margin:0;padding:0;
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-  }
-  .nav-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:9px 10px;
-    border-radius:var(--radius-sm);
-    color:var(--text-muted);
-    font-size:14.5px;
-    cursor:pointer;
-    border-left:2px solid transparent;
-    transition:background .15s ease, color .15s ease;
-  }
-  .nav-item:hover{ background:var(--surface-2); color:var(--text); }
-  .nav-item.active{
-    color:var(--text);
-    border-left:2px solid var(--accent);
-    background:var(--accent-soft);
-  }
-  .nav-count{
-    font-size:12px;
-    color:var(--text-faint);
-  }
-  .nav-item.active .nav-count{ color:var(--accent); }
-
-  .sidebar-footer{
-    margin-top:auto;
-    padding:0 8px;
-    color:var(--text-faint);
-    font-size:12.5px;
-    line-height:1.5;
-  }
-  .auth-btn{
-    width:100%;
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:9px 10px;
-    border-radius:8px;
-    font-size:13px;
-    font-family:inherit;
-    cursor:pointer;
-    transition:border-color .15s ease;
-  }
-  .auth-btn:hover{ border-color:var(--accent); }
-  .auth-note{
-    color:var(--text-faint);
-    font-size:11.5px;
-    margin-top:6px;
-  }
-  .auth-user{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin-bottom:8px;
-    color:var(--text-muted);
-    font-size:13px;
-  }
-  .auth-avatar{
-    width:22px;height:22px;
-    border-radius:50%;
-    background:var(--surface-2);
-  }
-  .sync-dot{
-    display:inline-block;
-    width:6px;height:6px;
-    border-radius:50%;
-    background:var(--text-faint);
-    flex-shrink:0;
-  }
-  .sync-dot.ok{ background:var(--ok); }
-  .sync-dot.err{ background:var(--err); }
-  .sync-dot.pending{ background:var(--amber); }
-  .io-row{
-    display:flex;
-    gap:6px;
-    margin-top:10px;
-  }
-  .io-btn{
-    flex:1;
-    background:transparent;
-    border:1px solid var(--border);
-    color:var(--text-muted);
-    padding:7px 8px;
-    border-radius:7px;
-    font-size:11.5px;
-    font-family:inherit;
-    cursor:pointer;
-    transition:border-color .15s ease, color .15s ease;
-  }
-  .io-btn:hover{ border-color:var(--accent); color:var(--text); }
-
-  /* ---------- Login screen ---------- */
-  .login-screen{
-    width:100%;
-    min-height:100vh;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-  }
-  .login-card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:42px 36px;
-    width:340px;
-    max-width:90vw;
-    text-align:center;
-  }
-  .login-title{
-    font-family:'Sora',sans-serif;
-    font-weight:700;
-    font-size:25px;
-    letter-spacing:-0.02em;
-    margin-bottom:8px;
-  }
-  .login-sub{
-    color:var(--text-muted);
-    font-size:14px;
-    line-height:1.55;
-    margin-bottom:30px;
-  }
-  .google-btn{
-    width:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    background:#fff;
-    color:#1f1f1f;
-    border:none;
-    padding:12px 16px;
-    border-radius:10px;
-    font-family:'Inter',sans-serif;
-    font-weight:600;
-    font-size:14px;
-    cursor:pointer;
-    transition:filter .15s ease, transform .1s ease;
-  }
-  .google-btn:hover{ filter:brightness(0.96); }
-  .google-btn:active{ transform:scale(0.98); }
-  .login-note{
-    margin-top:18px;
-    color:var(--text-faint);
-    font-size:12px;
-    line-height:1.5;
-  }
-  .login-error{
-    margin-top:14px;
-    color:#E8735B;
-    font-size:12.5px;
-    display:none;
-  }
-  .app-shell{
-    display:none;
-    width:100%;
-  }
-
-  /* ---------- Main ---------- */
-  .main{
-    flex:1;
-    padding:32px 40px 60px;
-    max-width:1100px;
-  }
-  .topbar{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin-bottom:34px;
-  }
-  .search-wrap{
-    flex:1;
-    position:relative;
-  }
-  .search-input{
-    width:100%;
-    background:var(--surface);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:11px 14px 11px 38px;
-    border-radius:10px;
-    font-size:14.5px;
-    font-family:inherit;
-    outline:none;
-    transition:border-color .15s ease;
-  }
-  .search-input:focus{ border-color:var(--accent); }
-  .search-input::placeholder{ color:var(--text-faint); }
-  .search-icon{
-    position:absolute;
-    left:13px;
-    top:50%;
-    transform:translateY(-50%);
-    width:15px;height:15px;
-    color:var(--text-faint);
-  }
-  .add-btn{
-    background:var(--accent);
-    color:#0B0D12;
-    border:none;
-    padding:11px 18px;
-    border-radius:10px;
-    font-family:'Sora',sans-serif;
-    font-weight:600;
-    font-size:14px;
-    cursor:pointer;
-    white-space:nowrap;
-    transition:filter .15s ease, transform .1s ease;
-  }
-  .add-btn:hover{ filter:brightness(1.08); }
-  .add-btn:active{ transform:scale(0.97); }
-
-  .section{
-    margin-bottom:38px;
-  }
-  .section-head{
-    display:flex;
-    align-items:baseline;
-    gap:10px;
-    margin-bottom:14px;
-  }
-  .section-title{
-    font-family:'Sora',sans-serif;
-    font-weight:600;
-    font-size:17px;
-  }
-  .section-sub{
-    color:var(--text-faint);
-    font-size:13px;
-  }
-
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(140px,1fr));
-    gap:10px;
-  }
-
-  .tile{
-    position:relative;
-    border:1px solid rgba(0,0,0,0.12);
-    border-radius:var(--radius-tile);
-    padding:15px 14px;
-    cursor:pointer;
-    display:flex;
-    flex-direction:column;
-    gap:11px;
-    text-decoration:none;
-    opacity:0;
-    box-shadow:0 1px 2px rgba(0,0,0,0.15);
-    animation:rise .45s ease forwards;
-    transition:transform .12s ease, box-shadow .15s ease, filter .15s ease, opacity .15s ease;
-  }
-  .tile:hover{
-    transform:translateY(-3px);
-    box-shadow:0 12px 22px rgba(0,0,0,0.28);
-    filter:brightness(1.06);
-  }
-  .tile.dragging{ opacity:0.35; }
-  .tile.drag-over{ box-shadow:0 0 0 3px var(--accent); }
-  @keyframes rise{
-    from{ opacity:0; transform:translateY(8px); }
-    to{ opacity:1; transform:translateY(0); }
-  }
-  .tile-icon{
-    position:relative;
-    width:40px;height:40px;
-    border-radius:11px;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Sora',sans-serif;
-    font-weight:600;
-    font-size:16px;
     overflow:hidden;
-    flex-shrink:0;
   }
-  .tile-icon-img{
-    position:absolute;
-    inset:0;
-    width:100%;height:100%;
-    object-fit:cover;
-    background:#fff;
-    padding:7px;
-    box-sizing:border-box;
-  }
-  .tile-name{
-    font-size:14.5px;
-    font-weight:600;
-    line-height:1.3;
-  }
-  .tile-url{
-    font-size:11.5px;
-    opacity:0.7;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .tile-actions{
-    position:absolute;
-    top:8px; right:8px;
-    display:flex;
-    gap:4px;
-    opacity:0;
-    transition:opacity .12s ease;
-  }
-  .tile:hover .tile-actions{ opacity:1; }
-  .tile-action-btn{
-    width:22px;height:22px;
-    border-radius:6px;
-    border:none;
-    background:rgba(0,0,0,0.4);
-    color:#fff;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    font-size:12px;
-  }
-  .tile-action-btn:hover{ background:rgba(0,0,0,0.6); }
-  .tile-pin{
-    position:absolute;
-    top:9px; left:9px;
-    width:20px;height:20px;
-    border-radius:50%;
-    background:rgba(0,0,0,0.35);
-    color:#FFD166;
-    font-size:10.5px;
-    display:flex;align-items:center;justify-content:center;
-  }
-
-  .empty-state{
-    border:1px dashed var(--border);
-    border-radius:var(--radius-tile);
-    padding:36px 20px;
-    text-align:center;
-    color:var(--text-muted);
-    font-size:14px;
-  }
-  .empty-state span{
-    display:block;
-    color:var(--text-faint);
-    font-size:12.5px;
-    margin-top:4px;
-  }
-
-  /* ---------- Modal ---------- */
-  .overlay{
-    position:fixed; inset:0;
-    background:rgba(6,7,10,0.6);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:50;
-    backdrop-filter:blur(2px);
-  }
-  .overlay.open{ display:flex; }
-  .modal{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:26px;
-    width:380px;
-    max-width:90vw;
-    max-height:85vh;
-    overflow-y:auto;
-  }
-  .modal-title{
-    font-family:'Sora',sans-serif;
-    font-weight:600;
-    font-size:17px;
-    margin-bottom:18px;
-  }
-  .field{ margin-bottom:14px; }
-  .field label{
-    display:block;
-    font-size:12.5px;
-    color:var(--text-muted);
-    margin-bottom:6px;
-  }
-  .field input, .field select{
-    width:100%;
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:9px 11px;
-    border-radius:8px;
-    font-size:14px;
-    font-family:inherit;
-    outline:none;
-  }
-  .field input:focus, .field select:focus{ border-color:var(--accent); }
-  .color-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:2px;
-  }
-  .color-dot{
-    width:24px;height:24px;
-    border-radius:50%;
-    cursor:pointer;
-    border:2px solid transparent;
-  }
-  .color-dot.selected{ border-color:var(--text); }
-  .checkbox-row{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:13.5px;
-    color:var(--text-muted);
-    margin-bottom:18px;
-  }
-  .modal-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-  }
-  .btn-secondary{
-    background:transparent;
-    border:1px solid var(--border);
-    color:var(--text-muted);
-    padding:9px 16px;
-    border-radius:8px;
-    font-size:13.5px;
-    cursor:pointer;
-    font-family:inherit;
-  }
-  .btn-secondary:hover{ color:var(--text); border-color:var(--text-faint); }
-  .btn-primary{
-    background:var(--accent);
-    border:none;
-    color:#0B0D12;
-    padding:9px 16px;
-    border-radius:8px;
-    font-size:13.5px;
-    font-weight:600;
-    cursor:pointer;
-    font-family:'Sora',sans-serif;
-  }
-  .btn-danger-text{
-    color:#E8735B;
-    background:none;
-    border:none;
-    font-size:12.5px;
-    cursor:pointer;
-    padding:0;
-  }
-  .confirm-modal{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:24px;
-    width:320px;
-    max-width:90vw;
-  }
-  .confirm-title{
-    font-family:'Sora',sans-serif;
-    font-weight:600;
-    font-size:16px;
-    margin-bottom:8px;
-  }
-  .confirm-body{
-    color:var(--text-muted);
-    font-size:13.5px;
-    line-height:1.5;
-    margin-bottom:20px;
-  }
-  .btn-danger{
-    background:var(--err);
-    border:none;
-    color:#fff;
-    padding:9px 16px;
-    border-radius:8px;
-    font-size:13.5px;
-    font-weight:600;
-    cursor:pointer;
-    font-family:'Sora',sans-serif;
-  }
-
+  h1,h2,h3{ font-family:'Space Grotesk',sans-serif; margin:0; }
+  ::selection{ background:var(--accent-soft); }
   ::-webkit-scrollbar{ width:8px; }
   ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:8px; }
 
+  /* ---------- Login ---------- */
+  .login-screen{
+    width:100%; min-height:100vh; display:none;
+    align-items:center; justify-content:center;
+    padding:calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
+  }
+  .login-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:18px;
+    padding:44px 36px; width:360px; max-width:90vw; text-align:center;
+    box-shadow:0 16px 40px rgba(27,35,64,0.08);
+  }
+  .login-badge{
+    width:56px; height:56px; border-radius:16px; background:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+    font-size:26px;
+  }
+  .login-title{ font-size:25px; font-weight:700; margin-bottom:8px; }
+  .login-sub{ color:var(--ink-soft); font-size:13.5px; line-height:1.55; margin-bottom:28px; }
+  .google-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#fff; color:#1f1f1f; border:1px solid var(--border); padding:11px 16px;
+    border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px;
+    cursor:pointer; transition:border-color .15s ease;
+  }
+  .google-btn:hover{ border-color:var(--accent); }
+  .login-error{ margin-top:14px; font-size:12.5px; color:var(--err); display:none; }
+
+  /* ---------- Shell ---------- */
+  #appShell{ display:none; height:100%; flex-direction:column; }
+  .topbar{
+    flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px; padding-top:calc(16px + var(--safe-t));
+    padding-left:calc(28px + var(--safe-l)); padding-right:calc(28px + var(--safe-r));
+    border-bottom:1px solid var(--border); background:var(--surface);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; }
+  .brand-icon{ width:30px; height:30px; border-radius:9px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .account-box{ display:flex; align-items:center; gap:8px; }
+  .account-user{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); }
+  .account-user img{ width:24px; height:24px; border-radius:50%; }
+  .account-btn{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+    padding:7px 13px; border-radius:9px; font-size:12.5px; font-family:inherit; cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .account-btn:hover{ border-color:var(--accent); }
+  .account-btn.icon-only{ width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; }
+
+  .app-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .page{
+    max-width:1000px; margin:0 auto;
+    padding:32px calc(28px + var(--safe-r)) calc(70px + var(--safe-b)) calc(28px + var(--safe-l));
+  }
+
+  .page-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
+  .page-head h1{ font-size:23px; }
+  .btn-primary{
+    background:var(--accent); color:#fff; border:none; padding:10px 18px; border-radius:10px;
+    font-weight:600; font-size:13.5px; cursor:pointer; font-family:'Inter',sans-serif;
+    transition:filter .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); }
+  .btn-primary:active{ transform:scale(0.97); }
+  .btn-secondary{
+    background:transparent; border:1px solid var(--border); color:var(--ink-soft);
+    padding:9px 16px; border-radius:9px; font-size:13.5px; cursor:pointer; font-family:inherit;
+  }
+  .btn-secondary:hover{ border-color:var(--ink-faint); color:var(--ink); }
+  .btn-danger{ background:var(--err); color:#fff; border:none; padding:9px 16px; border-radius:9px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .btn-danger-text{ background:none; border:none; color:var(--err); font-size:12.5px; cursor:pointer; padding:0; }
+
+  /* ---------- Module grid ---------- */
+  .module-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px; }
+  .module-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:12px;
+    transition:transform .12s ease, box-shadow .15s ease;
+  }
+  .module-card:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(27,35,64,0.08); }
+  .module-code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+    background:var(--accent-soft); display:inline-block; padding:3px 9px; border-radius:20px;
+    width:fit-content;
+  }
+  .module-name{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16.5px; }
+  .module-meta{ font-size:12px; color:var(--ink-soft); }
+  .module-progress-bar{ height:5px; border-radius:4px; background:var(--surface-2); overflow:hidden; }
+  .module-progress-fill{ height:100%; background:var(--accent); border-radius:4px; }
+  .module-delete{
+    position:absolute; top:14px; right:14px; background:none; border:none; color:var(--ink-faint);
+    cursor:pointer; font-size:13px;
+  }
+  .module-card{ position:relative; }
+  .module-delete:hover{ color:var(--err); }
+
+  .empty-state{
+    border:1px dashed var(--border); border-radius:var(--radius); padding:44px 20px;
+    text-align:center; color:var(--ink-soft); font-size:14px; grid-column:1/-1;
+  }
+  .empty-state span{ display:block; color:var(--ink-faint); font-size:12.5px; margin-top:6px; }
+
+  /* ---------- Module detail ---------- */
+  .back-link{ background:none; border:none; color:var(--ink-soft); font-size:13px; cursor:pointer; padding:0; margin-bottom:14px; font-family:inherit; }
+  .back-link:hover{ color:var(--accent); }
+  .module-header{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:6px; }
+  .module-header h1{ font-size:22px; }
+  .subtabs{ display:flex; gap:6px; margin:18px 0 22px; border-bottom:1px solid var(--border); }
+  .subtab{
+    background:none; border:none; padding:10px 4px; margin-right:22px; font-size:14px; font-weight:600;
+    color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; font-family:inherit;
+  }
+  .subtab.active{ color:var(--accent); border-bottom-color:var(--accent); }
+
+  /* ---------- Study card ---------- */
+  .study-wrap{ max-width:640px; margin:0 auto; }
+  .study-progress{ display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-family:'IBM Plex Mono',monospace; }
+  .study-progress-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-bottom:24px; }
+  .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
+  .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
+  .question-text{ font-size:17px; font-weight:600; line-height:1.5; margin-bottom:16px; white-space:pre-wrap; }
+  .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
+  .option-row{
+    display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
+    border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
+    font-size:14px;
+  }
+  .option-row:hover{ border-color:var(--accent); }
+  .option-letter{
+    width:26px; height:26px; border-radius:50%; background:var(--surface-2); color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0;
+  }
+  .option-row.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .option-row.correct{ border-color:var(--ok); background:var(--ok-soft); }
+  .option-row.correct .option-letter{ background:var(--ok); color:#fff; }
+  .option-row.incorrect{ border-color:var(--err); background:var(--err-soft); }
+  .option-row.incorrect .option-letter{ background:var(--err); color:#fff; }
+  .option-row.disabled{ cursor:default; }
+  .explanation-box{
+    margin-top:14px; padding:14px 16px; background:var(--surface-2); border-radius:10px;
+    font-size:13px; color:var(--ink-soft); line-height:1.5; white-space:pre-wrap;
+  }
+  .study-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
+  .score-pill{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);
+    background:var(--surface-2); padding:6px 12px; border-radius:20px;
+  }
+
+  /* ---------- Question list (manage) ---------- */
+  .q-list-row{
+    display:flex; align-items:flex-start; gap:14px; padding:14px 4px; border-bottom:1px dashed var(--border);
+  }
+  .q-list-row:last-child{ border-bottom:none; }
+  .q-list-thumb{ width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid var(--border); }
+  .q-list-body{ flex:1; min-width:0; }
+  .q-list-text{ font-size:14px; font-weight:500; margin-bottom:4px; white-space:pre-wrap; }
+  .q-list-meta{ font-size:11.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; }
+  .q-list-actions{ display:flex; gap:6px; flex-shrink:0; }
+  .icon-btn{
+    width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;
+  }
+  .icon-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(27,35,64,0.4); display:none;
+    align-items:center; justify-content:center; z-index:2000;
+    padding:calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--surface); border-radius:16px; padding:26px 28px; width:560px; max-width:100%;
+    max-height:88vh; overflow-y:auto; box-shadow:0 20px 50px rgba(27,35,64,0.2);
+  }
+  .modal h3{ font-size:18px; margin-bottom:18px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:5px; }
+  .field input[type="text"], .field textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:8px;
+    padding:10px 12px; font-size:14px; font-family:inherit; color:var(--ink); outline:none;
+  }
+  .field input:focus, .field textarea:focus{ border-color:var(--accent); }
+  .field textarea{ resize:vertical; min-height:70px; }
+  .option-edit-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .option-edit-row input[type="text"]{ flex:1; }
+  .option-edit-row input[type="radio"]{ width:18px; height:18px; accent-color:var(--ok); flex-shrink:0; }
+  .option-remove-btn{ background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:14px; flex-shrink:0; }
+  .option-remove-btn:hover{ color:var(--err); }
+  .photo-preview{ width:100%; max-height:200px; object-fit:contain; border-radius:8px; margin-bottom:10px; background:var(--surface-2); display:block; }
+  .photo-input-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .photo-input-row input[type="file"]{ flex:1; min-width:160px; font-size:12.5px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+
   @media (max-width:720px){
-    body{ flex-direction:column; }
-    .app-shell{ flex-direction:column; }
-    .theme-toggle{ top:auto; bottom:16px; right:16px; }
-    .menu-toggle{ display:flex; }
-    .sidebar{
-      position:fixed;
-      top:0; left:0;
-      width:260px;
-      max-width:82vw;
-      height:100vh;
-      transform:translateX(-100%);
-      transition:transform .25s ease;
-      z-index:70;
-      flex-direction:column;
-      align-items:stretch;
-      overflow-x:visible;
-      overflow-y:auto;
-      padding:26px 16px;
+    .topbar{
+      padding:12px 16px; padding-top:calc(12px + var(--safe-t));
+      padding-left:calc(16px + var(--safe-l)); padding-right:calc(16px + var(--safe-r));
     }
-    .sidebar.open{
-      transform:translateX(0);
-      box-shadow:16px 0 34px rgba(0,0,0,0.35);
-    }
-    .brand{ padding:0 8px; margin-right:0; }
-    .nav-list{ flex-direction:column; }
-    .nav-item{ white-space:normal; border-left:2px solid transparent; border-bottom:none; }
-    .nav-item.active{ border-left:2px solid var(--accent); border-bottom:none; }
-    .sidebar-footer{
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      gap:10px;
-      margin-left:0;
-      padding-left:0;
-      border-left:none;
-      border-top:1px solid var(--border-soft);
-      padding-top:14px;
-    }
-    .topbar{ flex-wrap:wrap; padding-left:44px; }
-    .add-btn{ flex:1 1 auto; }
-    .grid{ grid-template-columns:repeat(auto-fill, minmax(104px,1fr)); gap:8px; }
-    .tile{ padding:11px 10px; gap:8px; }
-    .tile-icon{ width:32px; height:32px; border-radius:9px; font-size:13px; }
-    .tile-name{ font-size:13px; }
-    .tile-url{ font-size:10.5px; }
-    .section-title{ font-size:15.5px; }
-    .main{ padding:24px 18px 70px; }
+    .page{ padding:20px calc(16px + var(--safe-r)) calc(60px + var(--safe-b)) calc(16px + var(--safe-l)); }
+    .account-user span{ display:none; }
+    .brand{ font-size:14.5px; }
+    .page-head h1{ font-size:19px; }
+    .module-header h1{ font-size:19px; }
+    .module-header{ gap:10px; }
+    .module-grid{ grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:12px; }
+    .question-card{ padding:18px; }
+    .question-text{ font-size:15.5px; }
+    .modal{ padding:20px; width:100%; max-height:92vh; }
+    .modal-actions{ flex-wrap:wrap; }
+    .modal-actions button{ flex:1 1 auto; min-width:110px; }
+    .login-card{ padding:34px 24px; }
+    .subtabs{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .study-actions{ flex-wrap:wrap; gap:10px; }
+    .study-actions button{ flex:1 1 auto; }
+  }
+
+  @media (max-width:380px){
+    .module-grid{ grid-template-columns:1fr 1fr; }
+    .page-head{ gap:8px; }
   }
 </style>
 </head>
 <body>
 
-<button class="menu-toggle" id="menuToggle" title="Menu" aria-label="Abrir menu">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-</button>
-<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="login-title">Hub</div>
-    <div class="login-sub">Inicia sessão para acederes às tuas aplicações, sincronizadas em todos os dispositivos.</div>
+    <div class="login-badge">🎓</div>
+    <div class="login-title">Certificações</div>
+    <div class="login-sub">Inicia sessão com o Google para estudares e guardares o teu progresso.</div>
     <button class="google-btn" id="googleSignInBtn">
       <svg width="18" height="18" viewBox="0 0 18 18">
         <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"/>
@@ -686,109 +306,153 @@
       Continuar com o Google
     </button>
     <div class="login-error" id="loginError">Não foi possível iniciar sessão. Tenta novamente.</div>
-    <div class="login-note">Os teus dados ficam associados só à tua conta.</div>
   </div>
 </div>
 
-<div class="app-shell" id="appShell">
-<aside class="sidebar">
-  <div class="brand">
-    <div class="brand-title">Hub</div>
-    <div class="brand-clock" id="clock"></div>
-    <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">A ligar…</span></div>
-  </div>
-  <ul class="nav-list" id="navList"></ul>
-  <div class="sidebar-footer">
-    <div id="authArea"></div>
-    <button class="auth-btn" id="themeToggleBtn">🌙 Tema escuro</button>
-    <div class="io-row">
-      <button class="io-btn" id="exportBtn">Exportar</button>
-      <label class="io-btn" style="text-align:center;display:block;">Importar<input id="importInput" type="file" accept="application/json" style="display:none;"></label>
-    </div>
-  </div>
-</aside>
-
-<main class="main">
+<div id="appShell">
   <div class="topbar">
-    <div class="search-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="search-input" id="searchInput" placeholder="Procurar aplicações...">
+    <div class="brand"><div class="brand-icon">🎓</div>Certificações</div>
+    <div class="account-box">
+      <div class="account-user" id="accountUser"></div>
+      <button class="account-btn icon-only" id="themeToggleBtn" title="Alternar tema">🌙</button>
+      <button class="account-btn" id="signOutBtn">Sair</button>
     </div>
-    <button class="add-btn" id="openAddBtn">+ Adicionar app</button>
   </div>
 
-  <div id="content"></div>
-</main>
+  <div class="app-scroll">
+    <div class="page" id="modulesPage">
+      <div class="page-head">
+        <h1>Módulos de certificação</h1>
+        <button class="btn-primary" id="newModuleBtn">+ Novo módulo</button>
+      </div>
+      <div class="module-grid" id="moduleGrid"></div>
+    </div>
+
+    <div class="page" id="modulePage" style="display:none;">
+      <button class="back-link" id="backToModulesBtn">← Módulos</button>
+      <div class="module-header">
+        <h1 id="moduleTitle"></h1>
+        <button class="btn-danger-text" id="deleteModuleBtn">Eliminar módulo</button>
+      </div>
+      <div class="subtabs">
+        <button class="subtab active" data-subtab="study">Estudar</button>
+        <button class="subtab" data-subtab="manage">Perguntas</button>
+      </div>
+
+      <div id="studyTab">
+        <div class="study-wrap" id="studyWrap"></div>
+      </div>
+
+      <div id="manageTab" style="display:none;">
+        <div class="page-head" style="margin-bottom:14px;">
+          <button class="btn-secondary" id="importQuestionsBtn">Importar perguntas</button>
+          <button class="btn-primary" id="newQuestionBtn">+ Nova pergunta</button>
+        </div>
+        <div id="questionList"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="modal-title" id="modalTitle">Nova aplicação</div>
+<div class="overlay" id="moduleModalOverlay">
+  <div class="modal" style="width:420px;">
+    <h3>Novo módulo</h3>
     <div class="field">
-      <label>Nome</label>
-      <input id="fName" placeholder="ex: Notion">
+      <label for="moduleCodeInput">Código</label>
+      <input type="text" id="moduleCodeInput" placeholder="ex: AZ-104">
     </div>
     <div class="field">
-      <label>Endereço (URL)</label>
-      <input id="fUrl" placeholder="ex: https://notion.so">
-    </div>
-    <div class="field">
-      <label>Categoria</label>
-      <input id="fCategory" list="categoryList" placeholder="ex: Trabalho">
-      <datalist id="categoryList"></datalist>
-    </div>
-    <div class="field">
-      <label>Cor</label>
-      <div class="color-row" id="colorRow"></div>
-    </div>
-    <div class="checkbox-row">
-      <input type="checkbox" id="fPin">
-      <label for="fPin" style="margin:0;">Fixar em acesso rápido</label>
+      <label for="moduleNameInput">Nome (opcional)</label>
+      <input type="text" id="moduleNameInput" placeholder="ex: Microsoft Azure Administrator">
     </div>
     <div class="modal-actions">
-      <button class="btn-danger-text" id="deleteBtn" style="display:none;margin-right:auto;">Remover</button>
-      <button class="btn-secondary" id="cancelBtn">Cancelar</button>
-      <button class="btn-primary" id="saveBtn">Guardar</button>
+      <button class="btn-secondary" id="moduleCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="moduleSaveBtn">Criar</button>
     </div>
   </div>
 </div>
 
 <div class="overlay" id="confirmOverlay">
-  <div class="confirm-modal">
-    <div class="confirm-title" id="confirmTitle">Remover aplicação?</div>
-    <div class="confirm-body" id="confirmBody">Esta ação não pode ser desfeita.</div>
+  <div class="modal" style="width:340px;">
+    <h3 id="confirmTitle">Confirmar</h3>
+    <p id="confirmBody" style="font-size:13.5px;color:var(--ink-soft);margin:0 0 20px;"></p>
     <div class="modal-actions">
       <button class="btn-secondary" id="confirmCancelBtn">Cancelar</button>
-      <button class="btn-danger" id="confirmOkBtn">Remover</button>
+      <button class="btn-danger" id="confirmOkBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="questionModalOverlay">
+  <div class="modal">
+    <h3 id="questionModalTitle">Nova pergunta</h3>
+    <div class="field">
+      <label for="qTextInput">Pergunta</label>
+      <textarea id="qTextInput" placeholder="Escreve a pergunta..."></textarea>
+    </div>
+    <div class="field">
+      <label>Imagem (opcional)</label>
+      <div id="qPhotoPreviewWrap"></div>
+      <div class="photo-input-row">
+        <input type="file" accept="image/*" id="qPhotoInput">
+        <button type="button" class="btn-secondary" id="qRemovePhotoBtn" style="display:none;">Remover imagem</button>
+      </div>
+      <div style="font-size:11.5px;color:var(--ink-soft);margin-top:5px;">Também podes colar uma imagem copiada com Ctrl+V.</div>
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="qMultipleToggle" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+      <label for="qMultipleToggle" style="margin:0;font-size:13px;color:var(--ink);">Esta pergunta tem várias respostas corretas</label>
+    </div>
+    <div class="field">
+      <label id="optionsEditLabel">Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span></label>
+      <div id="optionsEditList"></div>
+      <button type="button" class="btn-secondary" id="addOptionBtn" style="margin-top:4px;">+ Adicionar opção</button>
+    </div>
+    <div class="field">
+      <label for="qExplanationInput">Explicação (opcional, mostrada depois de responder)</label>
+      <textarea id="qExplanationInput" placeholder="Porque é que esta é a resposta certa..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger-text" id="qDeleteBtn" style="margin-right:auto;display:none;">Remover pergunta</button>
+      <button class="btn-secondary" id="qCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="qSaveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="importModalOverlay">
+  <div class="modal" style="width:640px;">
+    <h3>Importar perguntas</h3>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. O campo <code>explanation</code> é opcional.<br>
+    Para perguntas de <strong>resposta única</strong>: usa <code>"correctIndex": N</code>.<br>
+    Para perguntas de <strong>várias respostas certas</strong>: usa <code>"multiple": true</code> e <code>"correctIndexes": [N, N, ...]</code>.<br>
+    Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
+    <div class="field">
+      <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
+  {
+    "text": "Qual comando lista as VMs no Azure CLI?",
+    "options": ["az vm list", "az vm show", "az list vm", "vm list az"],
+    "correctIndex": 0,
+    "explanation": "az vm list é o comando correto para listar VMs."
+  },
+  {
+    "text": "Quais destas opções são serviços de armazenamento na Azure? (várias corretas)",
+    "options": ["Blob Storage", "Queue Storage", "Azure Functions", "Table Storage"],
+    "multiple": true,
+    "correctIndexes": [0, 1, 3]
+  }
+]'></textarea>
+    </div>
+    <div id="importStatus" style="font-size:12.5px;color:var(--ink-soft);margin-top:-8px;margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="importCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="importConfirmBtn">Importar</button>
     </div>
   </div>
 </div>
 
 <script>
-const LOCAL_KEY = 'hub-apps-v1';
-const COLORS = [
-  '#524656','#cf4747','#e4dccb','#a6c4bc',
-  '#66aba5','#fcf3d3','#e26b5a','#f1b04e',
-  '#91493b','#d87f4f','#0a8392','#a5c6c4',
-  '#6a87a5','#eae5d9','#c76e7a','#895570',
-  '#b53866','#64beb5','#e4ddbf','#298f9f'
-];
-
-/* ---------- Firebase ----------
-   1. Cria um projeto em https://console.firebase.google.com
-   2. Ativa Authentication > Sign-in method > Google
-   3. Cria uma base de dados em Firestore Database (modo produção)
-   4. Em Firestore > Regras, cola:
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
-            match /hubs/{userId} {
-              allow read, write: if request.auth != null && request.auth.uid == userId;
-            }
-          }
-        }
-   5. Em Definições do projeto > Geral, copia a config da app web e cola abaixo.
------------------------------------- */
+/* ---------- Firebase (mesmo projeto do hub / planeador de viagem) ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyAE2W69g2EMObYj4dztEDIMYO82KaLIpSA",
   authDomain: "planeador-viagem.firebaseapp.com",
@@ -797,526 +461,729 @@ const firebaseConfig = {
   messagingSenderId: "901648697808",
   appId: "1:901648697808:web:6e76ed1a9c9ff84db2d1d5"
 };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-let fbEnabled = false;
-try{
-  if(firebaseConfig.apiKey !== "COLOCA_AQUI"){
-    firebase.initializeApp(firebaseConfig);
-    fbEnabled = true;
-  }
-}catch(e){ console.warn('Firebase não configurado corretamente.', e); }
-
-const auth = fbEnabled ? firebase.auth() : null;
-const db = fbEnabled ? firebase.firestore() : null;
 let currentUser = null;
-let unsubscribeSnapshot = null;
+let modules = [];
+let modulesUnsub = null;
+let currentModuleId = null;
+let questions = [];
+let questionsUnsub = null;
+let progress = { currentIndex: 0, answers: {} };
+let progressUnsub = null;
+let editingQuestionId = null;
+let optionCount = 0;
+let pendingPhoto = null;
+let photoRemoved = false;
+let answeredThisQuestion = false;
+let pendingMultiAnswer = { qid: null, selected: [] };
 
-let apps = [];
-let activeCategory = 'Todas';
-let searchQuery = '';
-let editingId = null;
+function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
 
-const sidebarEl = document.querySelector('.sidebar');
-const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-function openSidebar(){ sidebarEl.classList.add('open'); sidebarBackdrop.classList.add('open'); }
-function closeSidebar(){ sidebarEl.classList.remove('open'); sidebarBackdrop.classList.remove('open'); }
-document.getElementById('menuToggle').addEventListener('click', ()=>{
-  sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
-});
-sidebarBackdrop.addEventListener('click', closeSidebar);
+/* ---------- Suporte a perguntas de resposta única ou múltipla ---------- */
+function getCorrectIndexes(q){
+  if(Array.isArray(q.correctIndexes)) return q.correctIndexes;
+  if(Number.isInteger(q.correctIndex)) return [q.correctIndex];
+  return [];
+}
+function isMultipleQuestion(q){
+  return q.multiple === true || getCorrectIndexes(q).length > 1;
+}
+function arraysMatch(a, b){
+  if(!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+  const sa = [...a].sort((x,y)=>x-y);
+  const sb = [...b].sort((x,y)=>x-y);
+  return sa.every((v,i)=> v === sb[i]);
+}
+function isAnswerCorrect(q, answer){
+  const correct = getCorrectIndexes(q);
+  if(isMultipleQuestion(q)) return arraysMatch(Array.isArray(answer) ? answer : [], correct);
+  return answer === correct[0];
+}
+function correctLettersLabel(q){
+  return getCorrectIndexes(q).map(i => String.fromCharCode(65 + i)).join(', ');
+}
 
-const seed = [
-  {id:cryptoId(), name:'Gmail', url:'https://mail.google.com', category:'Trabalho', color:COLORS[0], pinned:true},
-  {id:cryptoId(), name:'Google Calendar', url:'https://calendar.google.com', category:'Trabalho', color:COLORS[5], pinned:true},
-  {id:cryptoId(), name:'Notion', url:'https://notion.so', category:'Trabalho', color:COLORS[1], pinned:false},
-  {id:cryptoId(), name:'GitHub', url:'https://github.com', category:'Dev', color:COLORS[2], pinned:true},
-  {id:cryptoId(), name:'Figma', url:'https://figma.com', category:'Dev', color:COLORS[3], pinned:false},
-  {id:cryptoId(), name:'Spotify', url:'https://open.spotify.com', category:'Pessoal', color:COLORS[2], pinned:false},
-  {id:cryptoId(), name:'Instagram', url:'https://instagram.com', category:'Social', color:COLORS[6], pinned:false},
-];
-
+/* ---------- Tema ---------- */
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
-  try{ localStorage.setItem('hub-theme-pref', theme); }catch(e){}
-  document.getElementById('themeToggleBtn').textContent = theme === 'light' ? '🌙 Tema escuro' : '☀️ Tema claro';
+  try{ localStorage.setItem('cert-theme', theme); }catch(e){}
+  document.getElementById('themeToggleBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 function initTheme(){
   let saved = null;
-  try{ saved = localStorage.getItem('hub-theme-pref'); }catch(e){}
-  applyTheme(saved || 'dark');
+  try{ saved = localStorage.getItem('cert-theme'); }catch(e){}
+  applyTheme(saved || 'light');
 }
 document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
-  const current = document.documentElement.getAttribute('data-theme');
-  applyTheme(current === 'light' ? 'dark' : 'light');
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 });
-initTheme();
 
-function setSyncStatus(state, text){
-  document.getElementById('syncDot').className = 'sync-dot' + (state ? ' ' + state : '');
-  document.getElementById('syncText').textContent = text;
-}
-
-function cryptoId(){
-  return Math.random().toString(36).slice(2,10);
-}
-
-function loadLocal(){
-  try{
-    const raw = localStorage.getItem(LOCAL_KEY);
-    const parsed = raw ? JSON.parse(raw) : null;
-    return (parsed && parsed.length) ? parsed : null;
-  }catch(e){ return null; }
-}
-
-function saveLocal(){
-  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(apps)); }catch(e){}
-}
-
-async function persist(){
-  saveLocal();
-  if(fbEnabled && currentUser){
-    setSyncStatus('pending', 'A guardar…');
-    try{
-      await db.collection('hubs').doc(currentUser.uid).set({ apps });
-      setSyncStatus('ok', 'Sincronizado');
-    }catch(e){
-      console.error('Não foi possível sincronizar com a nuvem', e);
-      setSyncStatus('err', 'Falha ao sincronizar');
-    }
-  }
-}
-
+/* ---------- Login / Auth ---------- */
 function showLogin(){
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('appShell').style.display = 'none';
 }
-
 function showApp(){
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'flex';
 }
-
-function renderAuthArea(){
-  const el = document.getElementById('authArea');
-  if(!currentUser) return;
-  el.innerHTML = `
-    <div class="auth-user">
-      ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" class="auth-avatar">` : ''}
-      <span>${escapeHtml(currentUser.displayName || currentUser.email || 'Sessão iniciada')}</span>
-    </div>
-    <button class="auth-btn" id="signOutBtn">Terminar sessão</button>
-  `;
-  document.getElementById('signOutBtn').addEventListener('click', ()=>auth.signOut());
-}
-
 function attemptSignIn(){
-  const errorEl = document.getElementById('loginError');
-  errorEl.style.display = 'none';
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(err=>{
     console.error('Erro no login', err);
-    errorEl.style.display = 'block';
+    errEl.style.display = 'block';
+  });
+}
+document.getElementById('googleSignInBtn').addEventListener('click', attemptSignIn);
+document.getElementById('signOutBtn').addEventListener('click', ()=> auth.signOut());
+
+function renderAccountUser(){
+  const el = document.getElementById('accountUser');
+  if(!currentUser){ el.innerHTML = ''; return; }
+  el.innerHTML = `
+    ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" alt="">` : ''}
+    <span>${escapeHtml(currentUser.displayName || currentUser.email || '')}</span>
+  `;
+}
+
+/* ---------- Compressão de imagem ---------- */
+function compressImageToDataUrl(file, maxDim = 900, quality = 0.65){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let { width, height } = img;
+        if(width > height && width > maxDim){ height = Math.round(height * maxDim / width); width = maxDim; }
+        else if(height >= width && height > maxDim){ width = Math.round(width * maxDim / height); height = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
-async function init(){
-  if(!fbEnabled){
-    apps = loadLocal() || seed;
-    showApp();
-    render();
-    setSyncStatus('', 'Guardado só neste dispositivo');
+/* ---------- Módulos ---------- */
+function loadModules(){
+  if(modulesUnsub) modulesUnsub();
+  modulesUnsub = db.collection('quizModules').orderBy('createdAt', 'asc').onSnapshot(snap=>{
+    modules = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderModuleGrid();
+  }, err=>console.error('Erro a carregar módulos', err));
+}
+
+async function computeModuleProgress(moduleId){
+  try{
+    const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
+    const total = qSnap.size;
+    if(total === 0) return { total: 0, answered: 0 };
+    const pDoc = await db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).get();
+    const answered = pDoc.exists ? Object.keys(pDoc.data().answers || {}).length : 0;
+    return { total, answered };
+  }catch(e){
+    return { total: 0, answered: 0 };
+  }
+}
+
+async function renderModuleGrid(){
+  const grid = document.getElementById('moduleGrid');
+  if(modules.length === 0){
+    grid.innerHTML = `<div class="empty-state">Ainda não criaste nenhum módulo.<span>Usa "+ Novo módulo" para começar (ex: AZ-104, MD-102, VMCE).</span></div>`;
     return;
   }
-
-  document.getElementById('googleSignInBtn').addEventListener('click', attemptSignIn);
-
-  auth.onAuthStateChanged(async user=>{
-    if(unsubscribeSnapshot){ unsubscribeSnapshot(); unsubscribeSnapshot = null; }
-
-    currentUser = user;
-
-    if(!user){
-      showLogin();
-      return;
-    }
-
-    showApp();
-    renderAuthArea();
-    apps = loadLocal() || seed;
-    render();
-    setSyncStatus('pending', 'A ligar à base de dados…');
-
-    const ref = db.collection('hubs').doc(user.uid);
-    let firstSnapshot = true;
-
-    unsubscribeSnapshot = ref.onSnapshot(async doc=>{
-      if(doc.exists && doc.data().apps && doc.data().apps.length){
-        const incoming = doc.data().apps;
-        if(JSON.stringify(incoming) !== JSON.stringify(apps)){
-          apps = incoming;
-          saveLocal();
-          render();
-        }
-      } else if(firstSnapshot){
-        try{ await ref.set({ apps }); }catch(e){ console.error('Erro a criar o documento inicial', e); }
-      }
-      firstSnapshot = false;
-      setSyncStatus('ok', 'Sincronizado');
-    }, err=>{
-      console.error('Erro a sincronizar', err);
-      setSyncStatus('err', 'Sem ligação à base de dados');
-    });
-  });
-}
-
-function getCategories(){
-  const set = [...new Set(apps.map(a=>a.category))];
-  return set.sort((a,b)=>a.localeCompare(b));
-}
-
-function updateClock(){
-  const now = new Date();
-  const days = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${days[now.getDay()]}, ${hh}:${mm}`;
-}
-updateClock();
-setInterval(updateClock, 1000*30);
-
-function renderNav(){
-  const categories = getCategories();
-  const navList = document.getElementById('navList');
-  const counts = {Todas: apps.length};
-  categories.forEach(c => counts[c] = apps.filter(a=>a.category===c).length);
-  const items = ['Todas', ...categories];
-  navList.innerHTML = items.map(cat => `
-    <li class="nav-item ${activeCategory===cat?'active':''}" data-cat="${escapeAttr(cat)}">
-      <span>${escapeHtml(cat)}</span>
-      <span class="nav-count">${counts[cat]}</span>
-    </li>
+  grid.innerHTML = modules.map(m => `
+    <div class="module-card" data-id="${m.id}">
+      <button class="module-delete" data-action="delete-module" data-id="${m.id}" title="Eliminar módulo">✕</button>
+      <span class="module-code">${escapeHtml(m.code)}</span>
+      <div class="module-name">${escapeHtml(m.name || m.code)}</div>
+      <div class="module-meta" data-meta="${m.id}">a carregar…</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" data-fill="${m.id}" style="width:0%"></div></div>
+    </div>
   `).join('');
-  navList.querySelectorAll('.nav-item').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      activeCategory = el.dataset.cat;
-      render();
-      closeSidebar();
+
+  grid.querySelectorAll('.module-card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-action="delete-module"]')) return;
+      openModule(card.dataset.id);
+    });
+  });
+  grid.querySelectorAll('[data-action="delete-module"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> confirmDeleteModule(btn.dataset.id));
+  });
+
+  modules.forEach(async m=>{
+    const { total, answered } = await computeModuleProgress(m.id);
+    const metaEl = grid.querySelector(`[data-meta="${m.id}"]`);
+    const fillEl = grid.querySelector(`[data-fill="${m.id}"]`);
+    if(!metaEl) return;
+    metaEl.textContent = total === 0 ? 'Sem perguntas ainda' : `${answered} / ${total} respondidas`;
+    if(fillEl) fillEl.style.width = total > 0 ? Math.round(answered / total * 100) + '%' : '0%';
+  });
+}
+
+document.getElementById('newModuleBtn').addEventListener('click', ()=>{
+  document.getElementById('moduleCodeInput').value = '';
+  document.getElementById('moduleNameInput').value = '';
+  document.getElementById('moduleModalOverlay').classList.add('open');
+  document.getElementById('moduleCodeInput').focus();
+});
+document.getElementById('moduleCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('moduleModalOverlay').classList.remove('open');
+});
+document.getElementById('moduleModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'moduleModalOverlay') document.getElementById('moduleModalOverlay').classList.remove('open');
+});
+document.getElementById('moduleSaveBtn').addEventListener('click', async ()=>{
+  const code = document.getElementById('moduleCodeInput').value.trim();
+  const name = document.getElementById('moduleNameInput').value.trim();
+  if(!code) { alert('Escreve pelo menos o código do módulo (ex: AZ-104).'); return; }
+  try{
+    await db.collection('quizModules').add({ code, name, createdAt: Date.now() });
+    document.getElementById('moduleModalOverlay').classList.remove('open');
+  }catch(e){ console.error(e); alert('Não foi possível criar o módulo.'); }
+});
+
+function confirmDeleteModule(moduleId){
+  openConfirm('Eliminar módulo?', 'Isto remove o módulo e todas as suas perguntas. Não pode ser desfeito.', async ()=>{
+    try{
+      const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
+      const batch = db.batch();
+      qSnap.docs.forEach(d => batch.delete(d.ref));
+      batch.delete(db.collection('quizModules').doc(moduleId));
+      await batch.commit();
+      db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).delete().catch(()=>{});
+    }catch(e){ console.error(e); alert('Não foi possível eliminar o módulo.'); }
+  });
+}
+document.getElementById('deleteModuleBtn').addEventListener('click', ()=>{
+  if(!currentModuleId) return;
+  const m = modules.find(x => x.id === currentModuleId);
+  openConfirm('Eliminar módulo?', `Isto remove "${m ? m.code : ''}" e todas as suas perguntas. Não pode ser desfeito.`, async ()=>{
+    await confirmDeleteModuleAction(currentModuleId);
+    goToModules();
+  });
+});
+async function confirmDeleteModuleAction(moduleId){
+  try{
+    const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
+    const batch = db.batch();
+    qSnap.docs.forEach(d => batch.delete(d.ref));
+    batch.delete(db.collection('quizModules').doc(moduleId));
+    await batch.commit();
+    db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).delete().catch(()=>{});
+  }catch(e){ console.error(e); alert('Não foi possível eliminar o módulo.'); }
+}
+
+/* ---------- Confirmação genérica ---------- */
+let confirmCallback = null;
+function openConfirm(title, body, onConfirm){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').textContent = body;
+  confirmCallback = onConfirm;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+  confirmCallback = null;
+});
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'confirmOverlay'){ document.getElementById('confirmOverlay').classList.remove('open'); confirmCallback = null; }
+});
+document.getElementById('confirmOkBtn').addEventListener('click', async ()=>{
+  const cb = confirmCallback;
+  document.getElementById('confirmOverlay').classList.remove('open');
+  confirmCallback = null;
+  if(cb) await cb();
+});
+
+/* ---------- Navegação módulo ---------- */
+function goToModules(){
+  currentModuleId = null;
+  if(questionsUnsub){ questionsUnsub(); questionsUnsub = null; }
+  if(progressUnsub){ progressUnsub(); progressUnsub = null; }
+  document.getElementById('modulePage').style.display = 'none';
+  document.getElementById('modulesPage').style.display = 'block';
+  renderModuleGrid();
+}
+document.getElementById('backToModulesBtn').addEventListener('click', goToModules);
+
+function openModule(moduleId){
+  currentModuleId = moduleId;
+  const m = modules.find(x => x.id === moduleId);
+  document.getElementById('moduleTitle').textContent = m ? (m.name ? `${m.code} — ${m.name}` : m.code) : '';
+  document.getElementById('modulesPage').style.display = 'none';
+  document.getElementById('modulePage').style.display = 'block';
+  switchSubtab('study');
+
+  if(questionsUnsub) questionsUnsub();
+  questionsUnsub = db.collection('quizModules').doc(moduleId).collection('questions').orderBy('createdAt', 'asc').onSnapshot(snap=>{
+    questions = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderQuestionList();
+    renderStudy();
+  }, err=>console.error('Erro a carregar perguntas', err));
+
+  if(progressUnsub) progressUnsub();
+  progressUnsub = db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).onSnapshot(doc=>{
+    progress = doc.exists ? Object.assign({ currentIndex:0, answers:{} }, doc.data()) : { currentIndex:0, answers:{} };
+    renderStudy();
+  }, err=>console.error('Erro a carregar progresso', err));
+}
+
+document.querySelectorAll('.subtab').forEach(btn=>{
+  btn.addEventListener('click', ()=> switchSubtab(btn.dataset.subtab));
+});
+function switchSubtab(name){
+  document.querySelectorAll('.subtab').forEach(b => b.classList.toggle('active', b.dataset.subtab === name));
+  document.getElementById('studyTab').style.display = name === 'study' ? 'block' : 'none';
+  document.getElementById('manageTab').style.display = name === 'manage' ? 'block' : 'none';
+}
+
+function saveProgress(){
+  if(!currentModuleId || !currentUser) return;
+  db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(currentModuleId)
+    .set({ currentIndex: progress.currentIndex, answers: progress.answers, updatedAt: Date.now() }, { merge:true })
+    .catch(e => console.error('Erro a guardar progresso', e));
+}
+
+/* ---------- Estudar ---------- */
+function renderStudy(){
+  const wrap = document.getElementById('studyWrap');
+  if(wrap) buildStudyHtml(wrap);
+}
+
+function buildStudyHtml(wrap){
+  if(questions.length === 0){
+    wrap.innerHTML = `<div class="empty-state">Este módulo ainda não tem perguntas.<span>Vai a "Perguntas" para adicionares a primeira.</span></div>`;
+    return;
+  }
+  if(progress.currentIndex >= questions.length) progress.currentIndex = questions.length - 1;
+  if(progress.currentIndex < 0) progress.currentIndex = 0;
+
+  const idx = progress.currentIndex;
+  const q = questions[idx];
+  const savedAnswer = progress.answers && progress.answers[q.id];
+  answeredThisQuestion = savedAnswer !== undefined;
+  const multiple = isMultipleQuestion(q);
+
+  if(pendingMultiAnswer.qid !== q.id){
+    pendingMultiAnswer = { qid: q.id, selected: [] };
+  }
+
+  const correctCount = Object.keys(progress.answers || {}).filter(qid=>{
+    const qq = questions.find(x => x.id === qid);
+    return qq && isAnswerCorrect(qq, progress.answers[qid]);
+  }).length;
+  const answeredCount = Object.keys(progress.answers || {}).length;
+
+  wrap.innerHTML = `
+    <div class="study-progress">
+      <span>Pergunta ${idx + 1} de ${questions.length}</span>
+      <span class="score-pill">✓ ${correctCount} / ${answeredCount} respondidas</span>
+    </div>
+    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
+    <div class="question-card">
+      ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
+      <div class="question-text">${escapeHtml(q.text)}</div>
+      ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
+      <div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>
+      ${multiple && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
+      ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${escapeHtml(q.explanation)}</div>` : ''}
+    </div>
+    <div class="study-actions">
+      <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
+      <button class="btn-secondary" id="resetProgressBtn">Recomeçar módulo</button>
+      <button class="btn-primary" id="nextQBtn" ${idx === questions.length - 1 ? 'disabled' : ''}>Seguinte →</button>
+    </div>
+  `;
+
+  if(!answeredThisQuestion){
+    if(multiple){
+      wrap.querySelectorAll('.option-row').forEach(row=>{
+        row.addEventListener('click', ()=>{
+          const i = parseInt(row.dataset.index, 10);
+          const pos = pendingMultiAnswer.selected.indexOf(i);
+          if(pos === -1) pendingMultiAnswer.selected.push(i);
+          else pendingMultiAnswer.selected.splice(pos, 1);
+          renderStudy();
+        });
+      });
+      const confirmBtn = document.getElementById('confirmMultiBtn');
+      if(confirmBtn){
+        confirmBtn.addEventListener('click', ()=>{
+          if(pendingMultiAnswer.selected.length === 0){ alert('Escolhe pelo menos uma opção.'); return; }
+          progress.answers = progress.answers || {};
+          progress.answers[q.id] = [...pendingMultiAnswer.selected].sort((a,b)=>a-b);
+          saveProgress();
+          renderStudy();
+        });
+      }
+    } else {
+      wrap.querySelectorAll('.option-row').forEach(row=>{
+        row.addEventListener('click', ()=>{
+          const chosen = parseInt(row.dataset.index, 10);
+          progress.answers = progress.answers || {};
+          progress.answers[q.id] = chosen;
+          saveProgress();
+          renderStudy();
+        });
+      });
+    }
+  }
+
+  document.getElementById('prevQBtn').addEventListener('click', ()=>{
+    progress.currentIndex = Math.max(0, progress.currentIndex - 1);
+    saveProgress();
+    renderStudy();
+  });
+  document.getElementById('nextQBtn').addEventListener('click', ()=>{
+    progress.currentIndex = Math.min(questions.length - 1, progress.currentIndex + 1);
+    saveProgress();
+    renderStudy();
+  });
+  document.getElementById('resetProgressBtn').addEventListener('click', ()=>{
+    openConfirm('Recomeçar módulo?', 'Isto apaga as tuas respostas guardadas neste módulo e volta à primeira pergunta.', ()=>{
+      progress = { currentIndex: 0, answers: {} };
+      pendingMultiAnswer = { qid: null, selected: [] };
+      saveProgress();
+      renderStudy();
     });
   });
 }
 
-function hubIconFallback(img){
-  const stage = parseInt(img.dataset.stage || '0', 10);
-  const baseDir = img.dataset.basedir;
-  const hostname = img.dataset.hostname;
-  const attempts = [
-    `${baseDir}favicon.svg`,
-    `${baseDir}favicon.png`,
-    `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(hostname)}`
-  ];
-  if(stage < attempts.length){
-    img.dataset.stage = String(stage + 1);
-    img.src = attempts[stage];
-  } else {
-    img.remove();
+function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected){
+  const letter = String.fromCharCode(65 + index);
+  const correctIndexes = getCorrectIndexes(q);
+  let cls = 'option-row';
+  if(savedAnswer !== undefined){
+    cls += ' disabled';
+    const selectedIndexes = multiple ? (Array.isArray(savedAnswer) ? savedAnswer : []) : [savedAnswer];
+    if(correctIndexes.includes(index)) cls += ' correct';
+    else if(selectedIndexes.includes(index)) cls += ' incorrect';
+  } else if(multiple && pendingSelected.includes(index)){
+    cls += ' selected';
   }
-}
-
-function getContrastColor(hex){
-  const c = hex.replace('#','');
-  const r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
-  const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
-  return luminance > 0.62 ? '#12151C' : '#FFFFFF';
-}
-
-function getBaseDir(url){
-  try{
-    const u = new URL(url);
-    if(u.pathname.endsWith('/')) return u.origin + u.pathname;
-    const lastSegment = u.pathname.split('/').pop();
-    if(lastSegment && lastSegment.includes('.')){
-      // é um ficheiro (ex: index.html) — usa a pasta que o contém
-      return u.origin + u.pathname.substring(0, u.pathname.lastIndexOf('/') + 1);
-    }
-    // sem extensão no fim — trata como pasta (ex: /appshub/planeador-viagem)
-    return u.origin + u.pathname + '/';
-  }catch(e){ return ''; }
-}
-
-function tileHtml(app){
-  const initial = app.name.trim().charAt(0).toUpperCase() || '?';
-  let hostname = '';
-  try{ hostname = new URL(app.url).hostname.replace('www.',''); }catch(e){ hostname = app.url; }
-  const baseDir = getBaseDir(app.url);
-  const textColor = getContrastColor(app.color);
-  const iconBg = textColor === '#FFFFFF' ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.12)';
   return `
-    <div class="tile" draggable="true" style="animation-delay:${Math.random()*0.15}s; background:${app.color}; color:${textColor};" data-id="${app.id}">
-      ${app.pinned ? '<span class="tile-pin">★</span>' : ''}
-      <div class="tile-actions">
-        <button class="tile-action-btn" data-action="edit" data-id="${app.id}" title="Editar">✎</button>
-      </div>
-      <div class="tile-icon" style="background:${iconBg};">
-        ${escapeHtml(initial)}
-        ${baseDir ? `<img class="tile-icon-img" alt="" loading="lazy" data-hostname="${escapeAttr(hostname)}" data-basedir="${escapeAttr(baseDir)}" data-stage="0" src="${baseDir}favicon.ico" onerror="hubIconFallback(this)">` : ''}
-      </div>
-      <div>
-        <div class="tile-name">${escapeHtml(app.name)}</div>
-        <div class="tile-url">${escapeHtml(hostname)}</div>
-      </div>
+    <div class="${cls}" data-index="${index}">
+      <span class="option-letter">${letter}</span>
+      <span>${escapeHtml(text)}</span>
     </div>
   `;
 }
 
-function render(){
-  renderNav();
-  const content = document.getElementById('content');
-  const q = searchQuery.trim().toLowerCase();
-
-  let filtered = apps.filter(a=>{
-    const matchesQuery = !q || a.name.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
-    return matchesQuery;
-  });
-
-  let html = '';
-
-  if(activeCategory === 'Todas'){
-    const pinned = filtered.filter(a=>a.pinned);
-    if(pinned.length){
-      html += `<div class="section"><div class="section-head"><div class="section-title">Acesso rápido</div></div>
-        <div class="grid">${pinned.map(tileHtml).join('')}</div></div>`;
-    }
-    const categories = getCategories();
-    categories.forEach(cat=>{
-      const inCat = filtered.filter(a=>a.category===cat);
-      if(!inCat.length) return;
-      html += `<div class="section"><div class="section-head"><div class="section-title">${escapeHtml(cat)}</div>
-        <div class="section-sub">${inCat.length}</div></div>
-        <div class="grid">${inCat.map(tileHtml).join('')}</div></div>`;
-    });
-    if(!filtered.length){
-      html = emptyStateHtml();
-    }
-  } else {
-    const inCat = filtered.filter(a=>a.category===activeCategory);
-    if(inCat.length){
-      html = `<div class="section"><div class="grid">${inCat.map(tileHtml).join('')}</div></div>`;
-    } else {
-      html = emptyStateHtml();
-    }
-  }
-
-  content.innerHTML = html;
-
-  content.querySelectorAll('.tile').forEach(tile=>{
-    tile.addEventListener('click', (e)=>{
-      if(e.target.closest('[data-action="edit"]')) return;
-      const app = apps.find(a=>a.id===tile.dataset.id);
-      if(app) window.open(app.url, '_blank');
-    });
-    tile.addEventListener('dragstart', (e)=>{
-      e.dataTransfer.setData('text/plain', tile.dataset.id);
-      e.dataTransfer.effectAllowed = 'move';
-      tile.classList.add('dragging');
-    });
-    tile.addEventListener('dragend', ()=>{
-      tile.classList.remove('dragging');
-      content.querySelectorAll('.tile.drag-over').forEach(t=>t.classList.remove('drag-over'));
-    });
-    tile.addEventListener('dragover', (e)=>{
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      tile.classList.add('drag-over');
-    });
-    tile.addEventListener('dragleave', ()=>{
-      tile.classList.remove('drag-over');
-    });
-    tile.addEventListener('drop', (e)=>{
-      e.preventDefault();
-      tile.classList.remove('drag-over');
-      const sourceId = e.dataTransfer.getData('text/plain');
-      const targetId = tile.dataset.id;
-      if(!sourceId || sourceId === targetId) return;
-      const fromIndex = apps.findIndex(a=>a.id===sourceId);
-      const toIndex = apps.findIndex(a=>a.id===targetId);
-      if(fromIndex === -1 || toIndex === -1) return;
-      const [moved] = apps.splice(fromIndex, 1);
-      apps.splice(toIndex, 0, moved);
-      persist();
-      render();
-    });
-  });
-  content.querySelectorAll('[data-action="edit"]').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      openModal(btn.dataset.id);
-    });
-  });
-}
-
-function emptyStateHtml(){
-  return `<div class="empty-state">Sem aplicações aqui.<span>Experimenta outra categoria ou adiciona uma nova app.</span></div>`;
-}
-
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-function escapeAttr(str){ return escapeHtml(str); }
-
-/* ---------- Search ---------- */
-document.getElementById('searchInput').addEventListener('input', (e)=>{
-  searchQuery = e.target.value;
-  render();
-});
-
-/* ---------- Modal ---------- */
-const overlay = document.getElementById('overlay');
-const colorRow = document.getElementById('colorRow');
-let selectedColor = COLORS[0];
-
-function buildColorRow(){
-  colorRow.innerHTML = COLORS.map(c=>`<div class="color-dot ${c===selectedColor?'selected':''}" style="background:${c}" data-color="${c}"></div>`).join('');
-  colorRow.querySelectorAll('.color-dot').forEach(dot=>{
-    dot.addEventListener('click', ()=>{
-      selectedColor = dot.dataset.color;
-      buildColorRow();
-    });
-  });
-}
-
-function openModal(id){
-  editingId = id || null;
-  const app = id ? apps.find(a=>a.id===id) : null;
-  document.getElementById('modalTitle').textContent = app ? 'Editar aplicação' : 'Nova aplicação';
-  document.getElementById('fName').value = app ? app.name : '';
-  document.getElementById('fUrl').value = app ? app.url : '';
-  document.getElementById('fCategory').value = app ? app.category : '';
-  document.getElementById('fPin').checked = app ? !!app.pinned : false;
-  selectedColor = app ? app.color : COLORS[apps.length % COLORS.length];
-  buildColorRow();
-  document.getElementById('deleteBtn').style.display = app ? 'block' : 'none';
-
-  const datalist = document.getElementById('categoryList');
-  datalist.innerHTML = getCategories().map(c=>`<option value="${escapeAttr(c)}">`).join('');
-
-  overlay.classList.add('open');
-  document.getElementById('fName').focus();
-}
-
-function closeModal(){
-  overlay.classList.remove('open');
-  editingId = null;
-}
-
-document.getElementById('openAddBtn').addEventListener('click', ()=>openModal(null));
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
-overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
-
-document.getElementById('saveBtn').addEventListener('click', ()=>{
-  const name = document.getElementById('fName').value.trim();
-  let url = document.getElementById('fUrl').value.trim();
-  const category = document.getElementById('fCategory').value.trim() || 'Geral';
-  const pinned = document.getElementById('fPin').checked;
-
-  if(!name || !url) return;
-  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
-
-  if(editingId){
-    const app = apps.find(a=>a.id===editingId);
-    Object.assign(app, {name, url, category, color:selectedColor, pinned});
-  } else {
-    apps.push({id:cryptoId(), name, url, category, color:selectedColor, pinned});
-  }
-  persist();
-  closeModal();
-  render();
-});
-
-document.getElementById('deleteBtn').addEventListener('click', ()=>{
-  const app = apps.find(a=>a.id===editingId);
-  if(!app) return;
-  document.getElementById('confirmTitle').textContent = `Remover "${app.name}"?`;
-  document.getElementById('confirmBody').textContent = 'Esta ação não pode ser desfeita.';
-  document.getElementById('confirmOverlay').classList.add('open');
-});
-
-document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
-  document.getElementById('confirmOverlay').classList.remove('open');
-});
-
-document.getElementById('confirmOkBtn').addEventListener('click', ()=>{
-  apps = apps.filter(a=>a.id !== editingId);
-  persist();
-  document.getElementById('confirmOverlay').classList.remove('open');
-  closeModal();
-  if(activeCategory !== 'Todas' && !apps.some(a=>a.category===activeCategory)){
-    activeCategory = 'Todas';
-  }
-  render();
-});
-
-document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
-  if(e.target === document.getElementById('confirmOverlay')) document.getElementById('confirmOverlay').classList.remove('open');
-});
-
-document.addEventListener('keydown', (e)=>{
-  const tag = (e.target.tagName || '').toLowerCase();
-  const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
-
-  if(e.key === 'Escape'){
-    if(document.getElementById('confirmOverlay').classList.contains('open')){
-      document.getElementById('confirmOverlay').classList.remove('open');
-    } else if(overlay.classList.contains('open')){
-      closeModal();
-    } else if(sidebarEl.classList.contains('open')){
-      closeSidebar();
-    }
+/* ---------- Gerir perguntas ---------- */
+function renderQuestionList(){
+  const root = document.getElementById('questionList');
+  if(questions.length === 0){
+    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
     return;
   }
-  if(e.key === '/' && !isTyping){
-    e.preventDefault();
-    document.getElementById('searchInput').focus();
+  root.innerHTML = questions.map((q, i) => `
+    <div class="q-list-row">
+      ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
+      <div class="q-list-body">
+        <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)}</div>
+        <div class="q-list-meta">${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}</div>
+      </div>
+      <div class="q-list-actions">
+        <button class="icon-btn" title="Editar" data-action="edit-q" data-id="${q.id}">✎</button>
+        <button class="icon-btn" title="Remover" data-action="delete-q" data-id="${q.id}">✕</button>
+      </div>
+    </div>
+  `).join('');
+  root.querySelectorAll('[data-action="edit-q"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openQuestionModal(btn.dataset.id));
+  });
+  root.querySelectorAll('[data-action="delete-q"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openConfirm('Remover pergunta?', 'Esta ação não pode ser desfeita.', async ()=>{
+        try{ await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(btn.dataset.id).delete(); }
+        catch(e){ console.error(e); alert('Não foi possível remover.'); }
+      });
+    });
+  });
+}
+
+document.getElementById('newQuestionBtn').addEventListener('click', ()=> openQuestionModal(null));
+
+document.getElementById('importQuestionsBtn').addEventListener('click', ()=>{
+  document.getElementById('importTextarea').value = '';
+  document.getElementById('importStatus').textContent = '';
+  document.getElementById('importModalOverlay').classList.add('open');
+});
+document.getElementById('importCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('importModalOverlay').classList.remove('open');
+});
+document.getElementById('importModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'importModalOverlay') document.getElementById('importModalOverlay').classList.remove('open');
+});
+document.getElementById('importConfirmBtn').addEventListener('click', async ()=>{
+  const statusEl = document.getElementById('importStatus');
+  const raw = document.getElementById('importTextarea').value.trim();
+  if(!raw){ statusEl.textContent = 'Cola a lista de perguntas em JSON primeiro.'; statusEl.style.color = 'var(--err)'; return; }
+
+  let parsed;
+  try{ parsed = JSON.parse(raw); }
+  catch(e){ statusEl.textContent = 'JSON inválido — verifica vírgulas e chavetas.'; statusEl.style.color = 'var(--err)'; return; }
+  if(!Array.isArray(parsed)){ statusEl.textContent = 'Tem de ser uma lista (começa e acaba com [ ]).'; statusEl.style.color = 'var(--err)'; return; }
+
+  const valid = [];
+  const problems = [];
+  parsed.forEach((item, i) => {
+    const text = (item && item.text || '').toString().trim();
+    const options = Array.isArray(item && item.options) ? item.options.map(o => (o || '').toString().trim()).filter(Boolean) : [];
+    let correctIndexes;
+    if(Array.isArray(item && item.correctIndexes)){
+      correctIndexes = item.correctIndexes.filter(n => Number.isInteger(n) && n >= 0 && n < options.length);
+    } else if(Number.isInteger(item && item.correctIndex) && item.correctIndex >= 0 && item.correctIndex < options.length){
+      correctIndexes = [item.correctIndex];
+    } else {
+      correctIndexes = [];
+    }
+    if(!text || options.length < 2 || correctIndexes.length === 0){
+      problems.push(i + 1);
+      return;
+    }
+    // "multiple" no JSON é opcional: se vier explícito usa-se esse valor,
+    // senão infere-se automaticamente de haver mais que uma correta.
+    const multiple = typeof (item && item.multiple) === 'boolean' ? item.multiple : correctIndexes.length > 1;
+    valid.push({
+      text, options, correctIndexes, multiple, correctIndex: correctIndexes[0],
+      explanation: (item.explanation || '').toString().trim(),
+      image: null,
+      createdAt: Date.now()
+    });
+  });
+
+  if(valid.length === 0){
+    statusEl.textContent = 'Nenhuma pergunta válida encontrada. Confirma o formato de cada campo.';
+    statusEl.style.color = 'var(--err)';
+    return;
+  }
+
+  statusEl.style.color = 'var(--ink-soft)';
+  statusEl.textContent = `A importar ${valid.length} pergunta(s)…`;
+  try{
+    const colRef = db.collection('quizModules').doc(currentModuleId).collection('questions');
+    const batches = [];
+    for(let i = 0; i < valid.length; i += 400){
+      const batch = db.batch();
+      valid.slice(i, i + 400).forEach(q => batch.set(colRef.doc(), q));
+      batches.push(batch.commit());
+    }
+    await Promise.all(batches);
+    const msg = problems.length
+      ? `${valid.length} importadas. ${problems.length} ignoradas (posições: ${problems.join(', ')}) por faltar texto, opções ou índice correto válido.`
+      : `${valid.length} pergunta(s) importada(s) com sucesso.`;
+    statusEl.textContent = msg;
+    statusEl.style.color = problems.length ? 'var(--gold)' : 'var(--ok)';
+    if(!problems.length){
+      setTimeout(()=> document.getElementById('importModalOverlay').classList.remove('open'), 900);
+    }
+  }catch(e){
+    console.error(e);
+    statusEl.textContent = 'Falha ao guardar no Firestore. Tenta novamente.';
+    statusEl.style.color = 'var(--err)';
   }
 });
 
-/* ---------- Exportar / Importar ---------- */
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  const blob = new Blob([JSON.stringify(apps, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'hub-apps.json';
-  a.click();
-  URL.revokeObjectURL(url);
+function addOptionRow(value, checked){
+  optionCount++;
+  const id = 'opt_' + optionCount;
+  const list = document.getElementById('optionsEditList');
+  const isMultiple = document.getElementById('qMultipleToggle').checked;
+  const inputType = isMultiple ? 'checkbox' : 'radio';
+  const row = document.createElement('div');
+  row.className = 'option-edit-row';
+  row.dataset.optId = id;
+  row.innerHTML = `
+    <input type="${inputType}" class="correct-mark-input" name="correctOption" value="${id}" ${checked ? 'checked' : ''}>
+    <input type="text" placeholder="Texto da opção" value="${escapeHtml(value || '')}">
+    <button type="button" class="option-remove-btn" title="Remover opção">✕</button>
+  `;
+  row.querySelector('.option-remove-btn').addEventListener('click', ()=>{
+    if(document.querySelectorAll('.option-edit-row').length <= 2) { alert('É preciso pelo menos 2 opções.'); return; }
+    row.remove();
+  });
+  list.appendChild(row);
+}
+document.getElementById('addOptionBtn').addEventListener('click', ()=>{
+  if(document.querySelectorAll('.option-edit-row').length >= 6){ alert('Máximo de 6 opções.'); return; }
+  addOptionRow('', false);
 });
 
-document.getElementById('importInput').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    try{
-      const parsed = JSON.parse(reader.result);
-      if(!Array.isArray(parsed)) throw new Error('formato inválido');
-      apps = parsed.map(a=>({
-        id: a.id || cryptoId(),
-        name: a.name || 'Sem nome',
-        url: a.url || '#',
-        category: a.category || 'Geral',
-        color: a.color || COLORS[0],
-        pinned: !!a.pinned
-      }));
-      persist();
-      render();
-    }catch(err){
-      alert('Não foi possível ler este ficheiro. Verifica se é uma cópia exportada por este hub.');
+function refreshCorrectMarkInputs(){
+  const isMultiple = document.getElementById('qMultipleToggle').checked;
+  const inputs = [...document.querySelectorAll('.correct-mark-input')];
+  let alreadyKeptOne = false;
+  inputs.forEach(input=>{
+    const wasChecked = input.checked;
+    const newInput = document.createElement('input');
+    newInput.type = isMultiple ? 'checkbox' : 'radio';
+    newInput.className = 'correct-mark-input';
+    newInput.name = 'correctOption';
+    newInput.value = input.value;
+    if(isMultiple){
+      newInput.checked = wasChecked;
+    } else {
+      // radio: mantém só a primeira que estava marcada
+      if(wasChecked && !alreadyKeptOne){ newInput.checked = true; alreadyKeptOne = true; }
     }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
+    input.replaceWith(newInput);
+  });
+  document.getElementById('optionsEditLabel').innerHTML = isMultiple
+    ? 'Opções de resposta <span style="color:var(--ink-faint);">(marca todas as corretas)</span>'
+    : 'Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span>';
+}
+document.getElementById('qMultipleToggle').addEventListener('change', refreshCorrectMarkInputs);
+
+function openQuestionModal(questionId){
+  editingQuestionId = questionId;
+  const q = questionId ? questions.find(x => x.id === questionId) : null;
+  document.getElementById('questionModalTitle').textContent = q ? 'Editar pergunta' : 'Nova pergunta';
+  document.getElementById('qTextInput').value = q ? q.text : '';
+  document.getElementById('qExplanationInput').value = q ? (q.explanation || '') : '';
+  document.getElementById('qDeleteBtn').style.display = q ? 'block' : 'none';
+
+  pendingPhoto = q ? (q.image || null) : null;
+  photoRemoved = false;
+  const previewWrap = document.getElementById('qPhotoPreviewWrap');
+  previewWrap.innerHTML = pendingPhoto ? `<img src="${pendingPhoto}" class="photo-preview">` : '';
+  document.getElementById('qRemovePhotoBtn').style.display = pendingPhoto ? 'inline-block' : 'none';
+  document.getElementById('qPhotoInput').value = '';
+
+  const correctIdxs = q ? getCorrectIndexes(q) : [0];
+  document.getElementById('qMultipleToggle').checked = q ? isMultipleQuestion(q) : false;
+
+  document.getElementById('optionsEditList').innerHTML = '';
+  optionCount = 0;
+  const opts = q ? q.options : ['', '', '', ''];
+  opts.forEach((opt, i) => addOptionRow(opt, correctIdxs.includes(i)));
+  document.getElementById('optionsEditLabel').innerHTML = document.getElementById('qMultipleToggle').checked
+    ? 'Opções de resposta <span style="color:var(--ink-faint);">(marca todas as corretas)</span>'
+    : 'Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span>';
+
+  document.getElementById('questionModalOverlay').classList.add('open');
+}
+
+async function applyNewQuestionPhoto(file){
+  if(!file) return;
+  try{
+    pendingPhoto = await compressImageToDataUrl(file);
+    photoRemoved = false;
+    document.getElementById('qPhotoPreviewWrap').innerHTML = `<img src="${pendingPhoto}" class="photo-preview">`;
+    document.getElementById('qRemovePhotoBtn').style.display = 'inline-block';
+  }catch(e){ console.error(e); alert('Não foi possível processar esta imagem.'); }
+}
+document.getElementById('qPhotoInput').addEventListener('change', (e)=> applyNewQuestionPhoto(e.target.files[0]));
+document.getElementById('qRemovePhotoBtn').addEventListener('click', ()=>{
+  pendingPhoto = null;
+  photoRemoved = true;
+  document.getElementById('qPhotoPreviewWrap').innerHTML = '';
+  document.getElementById('qRemovePhotoBtn').style.display = 'none';
+});
+document.addEventListener('paste', (e)=>{
+  if(!document.getElementById('questionModalOverlay').classList.contains('open')) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for(const item of items){
+    if(item.type && item.type.startsWith('image/')){
+      e.preventDefault();
+      applyNewQuestionPhoto(item.getAsFile());
+      break;
+    }
+  }
 });
 
-init();
+document.getElementById('qCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('questionModalOverlay').classList.remove('open');
+});
+document.getElementById('questionModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'questionModalOverlay') document.getElementById('questionModalOverlay').classList.remove('open');
+});
+document.getElementById('qDeleteBtn').addEventListener('click', ()=>{
+  document.getElementById('questionModalOverlay').classList.remove('open');
+  openConfirm('Remover pergunta?', 'Esta ação não pode ser desfeita.', async ()=>{
+    try{ await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(editingQuestionId).delete(); }
+    catch(e){ console.error(e); alert('Não foi possível remover.'); }
+  });
+});
+
+document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
+  const text = document.getElementById('qTextInput').value.trim();
+  const explanation = document.getElementById('qExplanationInput').value.trim();
+  const isMultiple = document.getElementById('qMultipleToggle').checked;
+  const rows = [...document.querySelectorAll('.option-edit-row')];
+  const options = rows.map(r => r.querySelector('input[type="text"]').value.trim());
+  const correctIndexes = rows
+    .map((r, i) => r.querySelector('.correct-mark-input').checked ? i : -1)
+    .filter(i => i !== -1);
+
+  if(!text){ alert('Escreve o texto da pergunta.'); return; }
+  if(options.some(o => !o)){ alert('Preenche todas as opções ou remove as vazias.'); return; }
+  if(correctIndexes.length === 0){ alert('Marca pelo menos uma opção correta.'); return; }
+
+  const image = photoRemoved ? null : pendingPhoto;
+  const payload = { text, options, correctIndexes, multiple: isMultiple, correctIndex: correctIndexes[0], explanation, image };
+
+  try{
+    if(editingQuestionId){
+      await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(editingQuestionId).set(payload, { merge:true });
+    } else {
+      payload.createdAt = Date.now();
+      await db.collection('quizModules').doc(currentModuleId).collection('questions').add(payload);
+    }
+    document.getElementById('questionModalOverlay').classList.remove('open');
+  }catch(e){
+    console.error(e);
+    alert('Não foi possível guardar a pergunta. Se tiver uma imagem grande, tenta outra mais pequena.');
+  }
+});
+
+/* ---------- Atalhos de teclado ---------- */
+document.addEventListener('keydown', (e)=>{
+  const tag = (e.target.tagName || '').toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea';
+  if(e.key === 'Escape'){
+    document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+    return;
+  }
+  if(isTyping) return;
+  if(document.getElementById('studyTab').style.display !== 'none' && document.getElementById('modulePage').style.display !== 'none'){
+    if(e.key === 'ArrowRight'){ document.getElementById('nextQBtn')?.click(); }
+    if(e.key === 'ArrowLeft'){ document.getElementById('prevQBtn')?.click(); }
+  }
+});
+
+/* ---------- Arranque ---------- */
+initTheme();
+auth.onAuthStateChanged(user=>{
+  currentUser = user;
+  if(!user){
+    if(modulesUnsub){ modulesUnsub(); modulesUnsub = null; }
+    if(questionsUnsub){ questionsUnsub(); questionsUnsub = null; }
+    if(progressUnsub){ progressUnsub(); progressUnsub = null; }
+    showLogin();
+    return;
+  }
+  showApp();
+  renderAccountUser();
+  goToModules();
+  loadModules();
+});
 </script>
 </body>
 </html>
