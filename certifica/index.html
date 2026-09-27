@@ -475,7 +475,6 @@
     <div class="brand"><div class="brand-icon">🎓</div>Certificações</div>
     <div class="account-box">
       <div class="account-user" id="accountUser"></div>
-      <button class="account-btn icon-only" id="aiSettingsBtn" title="Definições de IA">🤖</button>
       <button class="account-btn icon-only" id="themeToggleBtn" title="Alternar tema">🌙</button>
       <button class="account-btn" id="signOutBtn">Sair</button>
     </div>
@@ -640,57 +639,10 @@
   <img id="imageModalImg" src="" alt="">
 </div>
 
-<div class="overlay" id="aiSettingsOverlay">
-  <div class="modal" style="width:480px;">
-    <h3>Definições de IA</h3>
-    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">
-      As chaves ficam guardadas apenas neste dispositivo (localStorage do browser) e são enviadas diretamente da tua app para a Claude/Gemini — nunca passam por nenhum servidor teu.
-    </p>
-    <div class="field">
-      <label>Chave da API da Anthropic (Claude)</label>
-      <input type="password" id="aiClaudeKeyInput" placeholder="sk-ant-...">
-    </div>
-    <div class="field">
-      <label>Modelo Claude</label>
-      <input type="text" id="aiClaudeModelInput" placeholder="claude-sonnet-4-6">
-    </div>
-    <div class="field">
-      <label>Chave da API do Google AI Studio (Gemini)</label>
-      <input type="password" id="aiGeminiKeyInput" placeholder="AIza...">
-    </div>
-    <div class="field">
-      <label>Modelo Gemini</label>
-      <input type="text" id="aiGeminiModelInput" placeholder="gemini-2.5-flash">
-    </div>
-    <p style="font-size:12px;color:var(--ink-soft);margin:-6px 0 14px;">
-      O ChatGPT não permite chamadas diretas a partir do browser, por isso essa opção abre o ChatGPT numa nova aba com a pergunta já copiada para colares.
-    </p>
-    <div class="modal-actions">
-      <button class="btn-secondary" id="aiSettingsCancelBtn">Fechar</button>
-      <button class="btn-primary" id="aiSettingsSaveBtn">Guardar</button>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="aiVerifyOverlay">
   <div class="modal" style="width:480px;">
     <h3>Verificar resposta com IA</h3>
-    <div id="aiVerifyBody">
-      <div class="ai-provider-grid">
-        <button type="button" class="ai-provider-btn" data-provider="claude">
-          <span class="ai-provider-icon">✳️</span>
-          <span><span>Claude</span><span class="ai-provider-sub">Chamada direta à API</span></span>
-        </button>
-        <button type="button" class="ai-provider-btn" data-provider="gemini">
-          <span class="ai-provider-icon">✨</span>
-          <span><span>Gemini</span><span class="ai-provider-sub">Chamada direta à API</span></span>
-        </button>
-        <button type="button" class="ai-provider-btn" data-provider="chatgpt">
-          <span class="ai-provider-icon">💬</span>
-          <span><span>ChatGPT</span><span class="ai-provider-sub">Abre o ChatGPT com a pergunta copiada</span></span>
-        </button>
-      </div>
-    </div>
+    <div id="aiVerifyBody"></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="aiVerifyCloseBtn">Fechar</button>
     </div>
@@ -2217,51 +2169,6 @@ document.getElementById('imageModalOverlay').addEventListener('click', (e)=>{
 document.getElementById('imageModalCloseBtn').addEventListener('click', closeImageModal);
 
 /* ---------- Verificação de respostas com IA ---------- */
-function loadAISettings(){
-  let s = {};
-  try{
-    s = {
-      claudeKey: localStorage.getItem('cert-ai-claude-key') || '',
-      claudeModel: localStorage.getItem('cert-ai-claude-model') || 'claude-sonnet-4-6',
-      geminiKey: localStorage.getItem('cert-ai-gemini-key') || '',
-      geminiModel: localStorage.getItem('cert-ai-gemini-model') || 'gemini-2.5-flash'
-    };
-  }catch(e){}
-  return s;
-}
-function saveAISettings(s){
-  try{
-    localStorage.setItem('cert-ai-claude-key', s.claudeKey || '');
-    localStorage.setItem('cert-ai-claude-model', s.claudeModel || 'claude-sonnet-4-6');
-    localStorage.setItem('cert-ai-gemini-key', s.geminiKey || '');
-    localStorage.setItem('cert-ai-gemini-model', s.geminiModel || 'gemini-2.5-flash');
-  }catch(e){}
-}
-
-document.getElementById('aiSettingsBtn').addEventListener('click', ()=>{
-  const s = loadAISettings();
-  document.getElementById('aiClaudeKeyInput').value = s.claudeKey;
-  document.getElementById('aiClaudeModelInput').value = s.claudeModel;
-  document.getElementById('aiGeminiKeyInput').value = s.geminiKey;
-  document.getElementById('aiGeminiModelInput').value = s.geminiModel;
-  document.getElementById('aiSettingsOverlay').classList.add('open');
-});
-document.getElementById('aiSettingsCancelBtn').addEventListener('click', ()=>{
-  document.getElementById('aiSettingsOverlay').classList.remove('open');
-});
-document.getElementById('aiSettingsOverlay').addEventListener('click', (e)=>{
-  if(e.target.id === 'aiSettingsOverlay') document.getElementById('aiSettingsOverlay').classList.remove('open');
-});
-document.getElementById('aiSettingsSaveBtn').addEventListener('click', ()=>{
-  saveAISettings({
-    claudeKey: document.getElementById('aiClaudeKeyInput').value.trim(),
-    claudeModel: document.getElementById('aiClaudeModelInput').value.trim(),
-    geminiKey: document.getElementById('aiGeminiKeyInput').value.trim(),
-    geminiModel: document.getElementById('aiGeminiModelInput').value.trim()
-  });
-  document.getElementById('aiSettingsOverlay').classList.remove('open');
-});
-
 /* Monta o texto da pergunta (com opções/afirmações e a resposta marcada como
    correta nos dados) para enviar à IA, pedindo-lhe para confirmar ou não. */
 function buildAIVerifyPrompt(q, answer){
@@ -2309,26 +2216,26 @@ function buildAIVerifyPrompt(q, answer){
 
 let aiVerifyCurrentPrompt = '';
 
-function aiProviderGridHtml(){
-  return `
+const AI_PROVIDERS = {
+  claude:  { label: 'Claude',  icon: '✳️', url: 'https://claude.ai/new?q=' },
+  gemini:  { label: 'Gemini',  icon: '✨', url: 'https://gemini.google.com/app?q=' },
+  chatgpt: { label: 'ChatGPT', icon: '💬', url: 'https://chatgpt.com/?q=' }
+};
+
+function showAIProviderPicker(){
+  document.getElementById('aiVerifyBody').innerHTML = `
+    <p style="font-size:13px;color:var(--ink-soft);margin:-4px 0 14px;">
+      A pergunta é copiada para a área de transferência e a IA escolhida abre numa nova aba — se o texto não aparecer já preenchido, cola-o (Ctrl/Cmd+V) na caixa de conversa.
+    </p>
     <div class="ai-provider-grid">
-      <button type="button" class="ai-provider-btn" data-provider="claude">
-        <span class="ai-provider-icon">✳️</span>
-        <span><span>Claude</span><span class="ai-provider-sub">Chamada direta à API</span></span>
-      </button>
-      <button type="button" class="ai-provider-btn" data-provider="gemini">
-        <span class="ai-provider-icon">✨</span>
-        <span><span>Gemini</span><span class="ai-provider-sub">Chamada direta à API</span></span>
-      </button>
-      <button type="button" class="ai-provider-btn" data-provider="chatgpt">
-        <span class="ai-provider-icon">💬</span>
-        <span><span>ChatGPT</span><span class="ai-provider-sub">Abre o ChatGPT com a pergunta copiada</span></span>
-      </button>
+      ${Object.entries(AI_PROVIDERS).map(([key, p]) => `
+        <button type="button" class="ai-provider-btn" data-provider="${key}">
+          <span class="ai-provider-icon">${p.icon}</span>
+          <span>${p.label}</span>
+        </button>
+      `).join('')}
     </div>
   `;
-}
-function showAIProviderPicker(){
-  document.getElementById('aiVerifyBody').innerHTML = aiProviderGridHtml();
   document.querySelectorAll('#aiVerifyBody .ai-provider-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> runAIVerify(btn.dataset.provider));
   });
@@ -2350,69 +2257,14 @@ function showAIVerifyResult(html){
 }
 
 async function runAIVerify(provider){
-  const s = loadAISettings();
+  const p = AI_PROVIDERS[provider];
+  if(!p) return;
   const prompt = aiVerifyCurrentPrompt;
 
-  if(provider === 'chatgpt'){
-    try{ await navigator.clipboard.writeText(prompt); }catch(e){}
-    window.open('https://chatgpt.com/?q=' + encodeURIComponent(prompt), '_blank', 'noopener');
-    showAIVerifyResult(`<div class="ai-result-box">A pergunta foi copiada e o ChatGPT abriu numa nova aba. Se o texto não aparecer já preenchido, cola-o (Ctrl/Cmd+V) na caixa de conversa.</div>`);
-    return;
-  }
+  try{ await navigator.clipboard.writeText(prompt); }catch(e){}
+  window.open(p.url + encodeURIComponent(prompt), '_blank', 'noopener');
 
-  if(provider === 'claude' && !s.claudeKey){
-    showAIVerifyResult(`<div class="ai-result-box error">Ainda não configuraste a chave da API da Claude. Abre as Definições de IA (🤖) no topo e adiciona a tua chave.</div>`);
-    return;
-  }
-  if(provider === 'gemini' && !s.geminiKey){
-    showAIVerifyResult(`<div class="ai-result-box error">Ainda não configuraste a chave da API do Gemini. Abre as Definições de IA (🤖) no topo e adiciona a tua chave.</div>`);
-    return;
-  }
-
-  showAIVerifyResult(`<div class="ai-result-box loading">A consultar a IA…</div>`);
-
-  try{
-    let text = '';
-    if(provider === 'claude'){
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': s.claudeKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: s.claudeModel || 'claude-sonnet-4-6',
-          max_tokens: 600,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      const data = await res.json();
-      if(!res.ok) throw new Error((data && data.error && data.error.message) || ('Erro HTTP ' + res.status));
-      text = (data.content || []).map(b => b.text || '').join('\n').trim();
-    } else if(provider === 'gemini'){
-      const model = s.geminiModel || 'gemini-2.5-flash';
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': s.geminiKey
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-      const data = await res.json();
-      if(!res.ok) throw new Error((data && data.error && data.error.message) || ('Erro HTTP ' + res.status));
-      text = ((data.candidates || [])[0]?.content?.parts || []).map(p => p.text || '').join('\n').trim();
-    }
-    if(!text) text = 'A IA não devolveu texto. Tenta novamente.';
-    showAIVerifyResult(`<div class="ai-result-box">${escapeHtml(text)}</div>`);
-  }catch(err){
-    console.error('Erro ao verificar com IA', err);
-    showAIVerifyResult(`<div class="ai-result-box error">Não foi possível obter resposta: ${escapeHtml(err.message || String(err))}</div>`);
-  }
+  showAIVerifyResult(`<div class="ai-result-box">A pergunta foi copiada e o ${p.label} abriu numa nova aba. Se o texto não aparecer já preenchido na caixa de conversa, cola-o com Ctrl/Cmd+V.</div>`);
 }
 
 document.getElementById('aiVerifyCloseBtn').addEventListener('click', ()=>{
@@ -2421,6 +2273,7 @@ document.getElementById('aiVerifyCloseBtn').addEventListener('click', ()=>{
 document.getElementById('aiVerifyOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'aiVerifyOverlay') document.getElementById('aiVerifyOverlay').classList.remove('open');
 });
+
 
 /* ---------- Atalhos de teclado ---------- */
 document.addEventListener('keydown', (e)=>{
