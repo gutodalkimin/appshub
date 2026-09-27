@@ -212,6 +212,21 @@
   .option-row.incorrect{ border-color:var(--err); background:var(--err-soft); }
   .option-row.incorrect .option-letter{ background:var(--err); color:#fff; }
   .option-row.disabled{ cursor:default; }
+
+  /* ---------- Pergunta tipo "seletores" (dropdowns) ---------- */
+  .select-slot{ margin-bottom:16px; }
+  .select-slot-label{ font-size:calc(13.5px * var(--study-font-scale)); font-weight:600; margin-bottom:6px; color:var(--ink); }
+  .select-slot select{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:11px 14px; font-size:calc(14px * var(--study-font-scale)); font-family:inherit; color:var(--ink);
+    outline:none; cursor:pointer; appearance:auto;
+  }
+  .select-slot select:focus{ border-color:var(--accent); }
+  .select-slot.correct select{ border-color:var(--ok); background:var(--ok-soft); }
+  .select-slot.incorrect select{ border-color:var(--err); background:var(--err-soft); }
+  .select-slot-note{ font-size:12px; margin-top:5px; }
+  .select-slot-note.is-ok{ color:var(--ok); }
+  .select-slot-note.is-err{ color:var(--err); }
   .explanation-box{
     margin-top:14px; padding:14px 16px; background:var(--surface-2); border-radius:10px;
     font-size:calc(13px * var(--study-font-scale)); color:var(--ink-soft); line-height:1.45; white-space:pre-wrap;
@@ -260,6 +275,22 @@
   .field textarea{ resize:vertical; min-height:70px; }
   .option-edit-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .option-edit-row input[type="text"]{ flex:1; }
+  .field select{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:8px;
+    padding:10px 12px; font-size:14px; font-family:inherit; color:var(--ink); outline:none;
+  }
+  .slot-edit-block{
+    border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:12px; background:var(--surface-2);
+  }
+  .slot-edit-block .option-edit-row input[type="text"]{ background:var(--surface); }
+  .slot-edit-block-header{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .slot-edit-block-header input[type="text"]{ flex:1; font-weight:600; }
+  .slot-remove-btn{
+    width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink-soft); cursor:pointer; flex-shrink:0; font-size:12px;
+  }
+  .slot-remove-btn:hover{ border-color:var(--err); color:var(--err); }
+  .slot-add-option-btn{ font-size:12px; padding:6px 10px; }
   .option-edit-row input[type="radio"]{ width:18px; height:18px; accent-color:var(--ok); flex-shrink:0; }
   .option-remove-btn{ background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:14px; flex-shrink:0; }
   .option-remove-btn:hover{ color:var(--err); }
@@ -407,14 +438,30 @@
       </div>
       <div style="font-size:11.5px;color:var(--ink-soft);margin-top:5px;">Também podes colar uma imagem copiada com Ctrl+V.</div>
     </div>
-    <div class="field" style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="qMultipleToggle" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
-      <label for="qMultipleToggle" style="margin:0;font-size:13px;color:var(--ink);">Esta pergunta tem várias respostas corretas</label>
-    </div>
     <div class="field">
-      <label id="optionsEditLabel">Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span></label>
-      <div id="optionsEditList"></div>
-      <button type="button" class="btn-secondary" id="addOptionBtn" style="margin-top:4px;">+ Adicionar opção</button>
+      <label for="qTypeSelect">Tipo de pergunta</label>
+      <select id="qTypeSelect">
+        <option value="choice">Escolha múltipla (opções)</option>
+        <option value="select">Seletores (dropdowns / hotspot)</option>
+      </select>
+    </div>
+    <div id="choiceFields">
+      <div class="field" style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="qMultipleToggle" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+        <label for="qMultipleToggle" style="margin:0;font-size:13px;color:var(--ink);">Esta pergunta tem várias respostas corretas</label>
+      </div>
+      <div class="field">
+        <label id="optionsEditLabel">Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span></label>
+        <div id="optionsEditList"></div>
+        <button type="button" class="btn-secondary" id="addOptionBtn" style="margin-top:4px;">+ Adicionar opção</button>
+      </div>
+    </div>
+    <div id="selectFields" style="display:none;">
+      <div class="field">
+        <label>Seletores <span style="color:var(--ink-faint);">(cada seletor é um dropdown com as suas próprias opções — usa para perguntas do tipo "escolhe o tipo" + "escolhe a quantidade", como no exemplo hotspot)</span></label>
+        <div id="slotsEditList"></div>
+        <button type="button" class="btn-secondary" id="addSlotBtn" style="margin-top:4px;">+ Adicionar seletor</button>
+      </div>
     </div>
     <div class="field">
       <label for="qExplanationInput">Explicação (opcional, mostrada depois de responder)</label>
@@ -434,6 +481,7 @@
     <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;">Cola uma lista em formato JSON, como no exemplo abaixo. O campo <code>explanation</code> é opcional.<br>
     Para perguntas de <strong>resposta única</strong>: usa <code>"correctIndex": N</code>.<br>
     Para perguntas de <strong>várias respostas certas</strong>: usa <code>"multiple": true</code> e <code>"correctIndexes": [N, N, ...]</code>.<br>
+    Para perguntas do tipo <strong>seletores / hotspot</strong> (vários dropdowns, cada um com as suas opções): usa <code>"type": "select"</code> e <code>"slots": [{"label": "...", "options": [...], "correctIndex": N}, ...]</code>.<br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
     <div class="field">
       <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
@@ -448,6 +496,15 @@
     "options": ["Blob Storage", "Queue Storage", "Azure Functions", "Table Storage"],
     "multiple": true,
     "correctIndexes": [0, 1, 3]
+  },
+  {
+    "text": "Que tipo de politica e quantas deves criar no Intune?",
+    "type": "select",
+    "slots": [
+      { "label": "Policy type:", "options": ["App configuration policy", "App protection policy", "Conditional access policy", "Device compliance policy"], "correctIndex": 1 },
+      { "label": "Minimum number of policies:", "options": ["1", "2", "3", "4", "5"], "correctIndex": 2 }
+    ],
+    "explanation": "App protection policy com MAM, mínimo de 3 (Android 8, Android 9, iOS)."
   }
 ]'></textarea>
     </div>
@@ -487,6 +544,7 @@ let pendingPhoto = null;
 let photoRemoved = false;
 let answeredThisQuestion = false;
 let pendingMultiAnswer = { qid: null, selected: [] };
+let pendingSelectAnswer = { qid: null, selected: [] };
 let studyFontScale = 1;
 
 /* ---------- Tamanho do texto no modo de estudo ---------- */
@@ -510,6 +568,9 @@ function escapeHtml(str){
 }
 
 /* ---------- Suporte a perguntas de resposta única ou múltipla ---------- */
+function isSelectQuestion(q){
+  return q && q.type === 'select';
+}
 function getCorrectIndexes(q){
   if(Array.isArray(q.correctIndexes)) return q.correctIndexes;
   if(Number.isInteger(q.correctIndex)) return [q.correctIndex];
@@ -524,7 +585,17 @@ function arraysMatch(a, b){
   const sb = [...b].sort((x,y)=>x-y);
   return sa.every((v,i)=> v === sb[i]);
 }
+/* Compara duas listas posição a posição (usado nos seletores/hotspot,
+   onde a ordem de cada dropdown importa e não pode ser reordenada). */
+function arraysMatchPositional(a, b){
+  if(!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
 function isAnswerCorrect(q, answer){
+  if(isSelectQuestion(q)){
+    const correct = (q.slots || []).map(s => s.correctIndex);
+    return arraysMatchPositional(Array.isArray(answer) ? answer : [], correct);
+  }
   const correct = getCorrectIndexes(q);
   if(isMultipleQuestion(q)) return arraysMatch(Array.isArray(answer) ? answer : [], correct);
   return answer === correct[0];
@@ -812,10 +883,14 @@ function buildStudyHtml(wrap){
   const q = questions[idx];
   const savedAnswer = progress.answers && progress.answers[q.id];
   answeredThisQuestion = savedAnswer !== undefined;
-  const multiple = isMultipleQuestion(q);
+  const isSelect = isSelectQuestion(q);
+  const multiple = !isSelect && isMultipleQuestion(q);
 
   if(pendingMultiAnswer.qid !== q.id){
     pendingMultiAnswer = { qid: q.id, selected: [] };
+  }
+  if(pendingSelectAnswer.qid !== q.id){
+    pendingSelectAnswer = { qid: q.id, selected: (q.slots || []).map(()=> '') };
   }
 
   const correctCount = Object.keys(progress.answers || {}).filter(qid=>{
@@ -838,8 +913,12 @@ function buildStudyHtml(wrap){
       ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
       <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
-      <div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>
+      ${isSelect
+        ? `<div id="slotsWrap">${(q.slots || []).map((slot, i) => selectSlotHtml(slot, i, savedAnswer, pendingSelectAnswer.selected, answeredThisQuestion)).join('')}</div>`
+        : `<div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>`
+      }
       ${multiple && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
+      ${isSelect && !answeredThisQuestion ? `<button class="btn-primary" id="confirmSelectBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(q.explanation)}</div>` : ''}
     </div>
     <div class="study-actions">
@@ -850,7 +929,25 @@ function buildStudyHtml(wrap){
   `;
 
   if(!answeredThisQuestion){
-    if(multiple){
+    if(isSelect){
+      wrap.querySelectorAll('.select-slot select').forEach(sel=>{
+        sel.addEventListener('change', ()=>{
+          const i = parseInt(sel.dataset.slotIndex, 10);
+          pendingSelectAnswer.selected[i] = sel.value === '' ? '' : parseInt(sel.value, 10);
+        });
+      });
+      const confirmSelectBtn = document.getElementById('confirmSelectBtn');
+      if(confirmSelectBtn){
+        confirmSelectBtn.addEventListener('click', ()=>{
+          const selected = pendingSelectAnswer.selected;
+          if(selected.some(v => v === '' || v === undefined)){ alert('Escolhe uma opção em cada seletor.'); return; }
+          progress.answers = progress.answers || {};
+          progress.answers[q.id] = [...selected];
+          saveProgress();
+          renderStudy();
+        });
+      }
+    } else if(multiple){
       wrap.querySelectorAll('.option-row').forEach(row=>{
         row.addEventListener('click', ()=>{
           const i = parseInt(row.dataset.index, 10);
@@ -926,6 +1023,33 @@ function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected){
   `;
 }
 
+function selectSlotHtml(slot, slotIndex, savedAnswer, pendingSelected, answered){
+  const savedVal = answered && Array.isArray(savedAnswer) ? savedAnswer[slotIndex] : undefined;
+  const currentVal = answered ? savedVal : pendingSelected[slotIndex];
+  let cls = 'select-slot';
+  let note = '';
+  if(answered){
+    const isRight = savedVal === slot.correctIndex;
+    cls += isRight ? ' correct' : ' incorrect';
+    if(!isRight){
+      note = `<div class="select-slot-note is-err">Correta: ${escapeHtml(slot.options[slot.correctIndex] ?? '')}</div>`;
+    }
+  }
+  const optionsHtml = (slot.options || []).map((opt, i) =>
+    `<option value="${i}" ${currentVal === i ? 'selected' : ''}>${escapeHtml(opt)}</option>`
+  ).join('');
+  return `
+    <div class="${cls}">
+      <div class="select-slot-label">${escapeHtml(slot.label || '')}</div>
+      <select data-slot-index="${slotIndex}" ${answered ? 'disabled' : ''}>
+        <option value="" ${currentVal === '' || currentVal === undefined ? 'selected' : ''} disabled>Escolhe...</option>
+        ${optionsHtml}
+      </select>
+      ${note}
+    </div>
+  `;
+}
+
 /* ---------- Gerir perguntas ---------- */
 function renderQuestionList(){
   const root = document.getElementById('questionList');
@@ -938,7 +1062,10 @@ function renderQuestionList(){
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
         <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)}</div>
-        <div class="q-list-meta">${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}</div>
+        <div class="q-list-meta">${isSelectQuestion(q)
+          ? `${(q.slots || []).length} seletor(es) · corretas: ${(q.slots || []).map(s => s.options[s.correctIndex] ?? '').join(' / ')}`
+          : `${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}`
+        }</div>
       </div>
       <div class="q-list-actions">
         <button class="icon-btn" title="Editar" data-action="edit-q" data-id="${q.id}">✎</button>
@@ -986,6 +1113,31 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
   const problems = [];
   parsed.forEach((item, i) => {
     const text = (item && item.text || '').toString().trim();
+
+    if((item && item.type) === 'select'){
+      const rawSlots = Array.isArray(item && item.slots) ? item.slots : [];
+      const slots = [];
+      let slotsOk = rawSlots.length > 0;
+      rawSlots.forEach(s => {
+        const label = ((s && s.label) || '').toString().trim();
+        const options = Array.isArray(s && s.options) ? s.options.map(o => (o || '').toString().trim()).filter(Boolean) : [];
+        const correctIndex = Number.isInteger(s && s.correctIndex) ? s.correctIndex : -1;
+        if(!label || options.length < 2 || correctIndex < 0 || correctIndex >= options.length){ slotsOk = false; return; }
+        slots.push({ label, options, correctIndex });
+      });
+      if(!text || !slotsOk){
+        problems.push(i + 1);
+        return;
+      }
+      valid.push({
+        type: 'select', text, slots,
+        explanation: (item.explanation || '').toString().trim(),
+        image: null,
+        createdAt: Date.now()
+      });
+      return;
+    }
+
     const options = Array.isArray(item && item.options) ? item.options.map(o => (o || '').toString().trim()).filter(Boolean) : [];
     let correctIndexes;
     if(Array.isArray(item && item.correctIndexes)){
@@ -1003,7 +1155,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     // senão infere-se automaticamente de haver mais que uma correta.
     const multiple = typeof (item && item.multiple) === 'boolean' ? item.multiple : correctIndexes.length > 1;
     valid.push({
-      text, options, correctIndexes, multiple, correctIndex: correctIndexes[0],
+      type: 'choice', text, options, correctIndexes, multiple, correctIndex: correctIndexes[0],
       explanation: (item.explanation || '').toString().trim(),
       image: null,
       createdAt: Date.now()
@@ -1092,6 +1244,59 @@ function refreshCorrectMarkInputs(){
 }
 document.getElementById('qMultipleToggle').addEventListener('change', refreshCorrectMarkInputs);
 
+/* ---------- Edição de perguntas tipo "seletores" (dropdowns / hotspot) ---------- */
+let slotCount = 0;
+function addSlotOptionRow(slotBody, slotId, value, checked){
+  const row = document.createElement('div');
+  row.className = 'option-edit-row';
+  row.innerHTML = `
+    <input type="radio" class="slot-correct-input" name="correctSlotOption_${slotId}" ${checked ? 'checked' : ''}>
+    <input type="text" placeholder="Texto da opção" value="${escapeHtml(value || '')}">
+    <button type="button" class="option-remove-btn" title="Remover opção">✕</button>
+  `;
+  row.querySelector('.option-remove-btn').addEventListener('click', ()=>{
+    if(slotBody.querySelectorAll('.option-edit-row').length <= 2){ alert('Cada seletor precisa de pelo menos 2 opções.'); return; }
+    row.remove();
+  });
+  slotBody.appendChild(row);
+}
+function addSlotRow(labelValue, optionsArray, correctIndex){
+  slotCount++;
+  const slotId = 'slot_' + slotCount;
+  const list = document.getElementById('slotsEditList');
+  const block = document.createElement('div');
+  block.className = 'slot-edit-block';
+  block.dataset.slotId = slotId;
+  block.innerHTML = `
+    <div class="slot-edit-block-header">
+      <input type="text" class="slot-label-input" placeholder="Nome do seletor, ex: Policy type:" value="${escapeHtml(labelValue || '')}">
+      <button type="button" class="slot-remove-btn" title="Remover seletor">✕</button>
+    </div>
+    <div class="slot-options-body"></div>
+    <button type="button" class="btn-secondary slot-add-option-btn">+ Adicionar opção ao seletor</button>
+  `;
+  const body = block.querySelector('.slot-options-body');
+  const opts = (optionsArray && optionsArray.length) ? optionsArray : ['', ''];
+  opts.forEach((opt, i) => addSlotOptionRow(body, slotId, opt, i === (correctIndex ?? 0)));
+  block.querySelector('.slot-remove-btn').addEventListener('click', ()=>{
+    if(document.querySelectorAll('.slot-edit-block').length <= 1){ alert('É preciso pelo menos 1 seletor.'); return; }
+    block.remove();
+  });
+  block.querySelector('.slot-add-option-btn').addEventListener('click', ()=>{
+    if(body.querySelectorAll('.option-edit-row').length >= 8){ alert('Máximo de 8 opções por seletor.'); return; }
+    addSlotOptionRow(body, slotId, '', false);
+  });
+  list.appendChild(block);
+}
+document.getElementById('addSlotBtn').addEventListener('click', ()=> addSlotRow('', ['', ''], 0));
+
+function setQuestionTypeUi(type){
+  document.getElementById('qTypeSelect').value = type;
+  document.getElementById('choiceFields').style.display = type === 'select' ? 'none' : 'block';
+  document.getElementById('selectFields').style.display = type === 'select' ? 'block' : 'none';
+}
+document.getElementById('qTypeSelect').addEventListener('change', (e)=> setQuestionTypeUi(e.target.value));
+
 function openQuestionModal(questionId){
   editingQuestionId = questionId;
   const q = questionId ? questions.find(x => x.id === questionId) : null;
@@ -1107,16 +1312,25 @@ function openQuestionModal(questionId){
   document.getElementById('qRemovePhotoBtn').style.display = pendingPhoto ? 'inline-block' : 'none';
   document.getElementById('qPhotoInput').value = '';
 
-  const correctIdxs = q ? getCorrectIndexes(q) : [0];
+  const correctIdxs = q && !isSelectQuestion(q) ? getCorrectIndexes(q) : [0];
   document.getElementById('qMultipleToggle').checked = q ? isMultipleQuestion(q) : false;
 
   document.getElementById('optionsEditList').innerHTML = '';
   optionCount = 0;
-  const opts = q ? q.options : ['', '', '', ''];
+  const opts = q && !isSelectQuestion(q) ? q.options : ['', '', '', ''];
   opts.forEach((opt, i) => addOptionRow(opt, correctIdxs.includes(i)));
   document.getElementById('optionsEditLabel').innerHTML = document.getElementById('qMultipleToggle').checked
     ? 'Opções de resposta <span style="color:var(--ink-faint);">(marca todas as corretas)</span>'
     : 'Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span>';
+
+  document.getElementById('slotsEditList').innerHTML = '';
+  slotCount = 0;
+  if(q && isSelectQuestion(q)){
+    (q.slots || []).forEach(slot => addSlotRow(slot.label, slot.options, slot.correctIndex));
+  } else {
+    addSlotRow('', ['', ''], 0);
+  }
+  setQuestionTypeUi(q && isSelectQuestion(q) ? 'select' : 'choice');
 
   document.getElementById('questionModalOverlay').classList.add('open');
 }
@@ -1167,19 +1381,49 @@ document.getElementById('qDeleteBtn').addEventListener('click', ()=>{
 document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
   const text = document.getElementById('qTextInput').value.trim();
   const explanation = document.getElementById('qExplanationInput').value.trim();
-  const isMultiple = document.getElementById('qMultipleToggle').checked;
-  const rows = [...document.querySelectorAll('.option-edit-row')];
-  const options = rows.map(r => r.querySelector('input[type="text"]').value.trim());
-  const correctIndexes = rows
-    .map((r, i) => r.querySelector('.correct-mark-input').checked ? i : -1)
-    .filter(i => i !== -1);
+  const type = document.getElementById('qTypeSelect').value;
 
   if(!text){ alert('Escreve o texto da pergunta.'); return; }
-  if(options.some(o => !o)){ alert('Preenche todas as opções ou remove as vazias.'); return; }
-  if(correctIndexes.length === 0){ alert('Marca pelo menos uma opção correta.'); return; }
-
   const image = photoRemoved ? null : pendingPhoto;
-  const payload = { text, options, correctIndexes, multiple: isMultiple, correctIndex: correctIndexes[0], explanation, image };
+
+  let payload;
+  if(type === 'select'){
+    const slotBlocks = [...document.querySelectorAll('.slot-edit-block')];
+    if(slotBlocks.length === 0){ alert('Adiciona pelo menos um seletor.'); return; }
+    const slots = [];
+    for(const block of slotBlocks){
+      const label = block.querySelector('.slot-label-input').value.trim();
+      const optRows = [...block.querySelectorAll('.option-edit-row')];
+      const options = optRows.map(r => r.querySelector('input[type="text"]').value.trim());
+      const correctIndex = optRows.findIndex(r => r.querySelector('.slot-correct-input').checked);
+      if(!label){ alert('Preenche o nome de todos os seletores.'); return; }
+      if(options.some(o => !o)){ alert('Preenche todas as opções de cada seletor ou remove as vazias.'); return; }
+      if(correctIndex === -1){ alert('Marca a opção correta em cada seletor.'); return; }
+      slots.push({ label, options, correctIndex });
+    }
+    payload = { type: 'select', text, slots, explanation, image };
+    if(editingQuestionId){
+      payload.options = firebase.firestore.FieldValue.delete();
+      payload.correctIndex = firebase.firestore.FieldValue.delete();
+      payload.correctIndexes = firebase.firestore.FieldValue.delete();
+      payload.multiple = firebase.firestore.FieldValue.delete();
+    }
+  } else {
+    const isMultiple = document.getElementById('qMultipleToggle').checked;
+    const rows = [...document.querySelectorAll('#choiceFields .option-edit-row')];
+    const options = rows.map(r => r.querySelector('input[type="text"]').value.trim());
+    const correctIndexes = rows
+      .map((r, i) => r.querySelector('.correct-mark-input').checked ? i : -1)
+      .filter(i => i !== -1);
+
+    if(options.some(o => !o)){ alert('Preenche todas as opções ou remove as vazias.'); return; }
+    if(correctIndexes.length === 0){ alert('Marca pelo menos uma opção correta.'); return; }
+
+    payload = { type: 'choice', text, options, correctIndexes, multiple: isMultiple, correctIndex: correctIndexes[0], explanation, image };
+    if(editingQuestionId){
+      payload.slots = firebase.firestore.FieldValue.delete();
+    }
+  }
 
   try{
     if(editingQuestionId){
