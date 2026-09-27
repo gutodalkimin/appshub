@@ -1,1 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Certificações</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="theme-color" content="#2F5FE0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Certificações">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B2340'/%3E%3Ccircle cx='16' cy='13' r='7' fill='none' stroke='%23E0A72F' stroke-width='2.4'/%3E%3Cpath d='M13 13.2 L15.2 15.5 L19.5 10.8' fill='none' stroke='%23E0A72F' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 19 L9 27 L16 24 L23 27 L20 19' fill='%232F5FE0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg:#F4F6FA;
+    --surface:#FFFFFF;
+    --surface-2:#E9EDF5;
+    --border:#D7DEEA;
+    --ink:#1B2340;
+    --ink-soft:#5B6584;
+    --ink-faint:#98A2BE;
+    --accent:#2F5FE0;
+    --accent-soft:rgba(47,95,224,0.10);
+    --gold:#E0A72F;
+    --ok:#2E9E64;
+    --ok-soft:rgba(46,158,100,0.12);
+    --err:#D8483F;
+    --err-soft:rgba(216,72,63,0.10);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk',sans-serif; margin:0; }
+  ::selection{ background:var(--accent-soft); }
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:8px; }
 
+  /* ---------- Login ---------- */
+  .login-screen{
+    width:100%; min-height:100vh; display:none;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .login-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:18px;
+    padding:44px 36px; width:360px; max-width:90vw; text-align:center;
+    box-shadow:0 16px 40px rgba(27,35,64,0.08);
+  }
+  .login-badge{
+    width:56px; height:56px; border-radius:16px; background:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+    font-size:26px;
+  }
+  .login-title{ font-size:25px; font-weight:700; margin-bottom:8px; }
+  .login-sub{ color:var(--ink-soft); font-size:13.5px; line-height:1.55; margin-bottom:28px; }
+  .google-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#fff; color:#1f1f1f; border:1px solid var(--border); padding:11px 16px;
+    border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px;
+    cursor:pointer; transition:border-color .15s ease;
+  }
+  .google-btn:hover{ border-color:var(--accent); }
+  .login-error{ margin-top:14px; font-size:12.5px; color:var(--err); display:none; }
+
+  /* ---------- Shell ---------- */
+  #appShell{ display:none; height:100%; flex-direction:column; }
+  .topbar{
+    flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px; border-bottom:1px solid var(--border); background:var(--surface);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; }
+  .brand-icon{ width:30px; height:30px; border-radius:9px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .account-box{ display:flex; align-items:center; gap:8px; }
+  .account-user{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); }
+  .account-user img{ width:24px; height:24px; border-radius:50%; }
+  .account-btn{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--ink);
+    padding:7px 13px; border-radius:9px; font-size:12.5px; font-family:inherit; cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .account-btn:hover{ border-color:var(--accent); }
+  .account-btn.icon-only{ width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; }
+
+  .app-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .page{ max-width:1000px; margin:0 auto; padding:32px 28px 70px; }
+
+  .page-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
+  .page-head h1{ font-size:23px; }
+  .btn-primary{
+    background:var(--accent); color:#fff; border:none; padding:10px 18px; border-radius:10px;
+    font-weight:600; font-size:13.5px; cursor:pointer; font-family:'Inter',sans-serif;
+    transition:filter .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover{ filter:brightness(1.08); }
+  .btn-primary:active{ transform:scale(0.97); }
+  .btn-secondary{
+    background:transparent; border:1px solid var(--border); color:var(--ink-soft);
+    padding:9px 16px; border-radius:9px; font-size:13.5px; cursor:pointer; font-family:inherit;
+  }
+  .btn-secondary:hover{ border-color:var(--ink-faint); color:var(--ink); }
+  .btn-danger{ background:var(--err); color:#fff; border:none; padding:9px 16px; border-radius:9px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .btn-danger-text{ background:none; border:none; color:var(--err); font-size:12.5px; cursor:pointer; padding:0; }
+
+  /* ---------- Module grid ---------- */
+  .module-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px; }
+  .module-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:12px;
+    transition:transform .12s ease, box-shadow .15s ease;
+  }
+  .module-card:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(27,35,64,0.08); }
+  .module-code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent);
+    background:var(--accent-soft); display:inline-block; padding:3px 9px; border-radius:20px;
+    width:fit-content;
+  }
+  .module-name{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:16.5px; }
+  .module-meta{ font-size:12px; color:var(--ink-soft); }
+  .module-progress-bar{ height:5px; border-radius:4px; background:var(--surface-2); overflow:hidden; }
+  .module-progress-fill{ height:100%; background:var(--accent); border-radius:4px; }
+  .module-delete{
+    position:absolute; top:14px; right:14px; background:none; border:none; color:var(--ink-faint);
+    cursor:pointer; font-size:13px;
+  }
+  .module-card{ position:relative; }
+  .module-delete:hover{ color:var(--err); }
+
+  .empty-state{
+    border:1px dashed var(--border); border-radius:var(--radius); padding:44px 20px;
+    text-align:center; color:var(--ink-soft); font-size:14px; grid-column:1/-1;
+  }
+  .empty-state span{ display:block; color:var(--ink-faint); font-size:12.5px; margin-top:6px; }
+
+  /* ---------- Module detail ---------- */
+  .back-link{ background:none; border:none; color:var(--ink-soft); font-size:13px; cursor:pointer; padding:0; margin-bottom:14px; font-family:inherit; }
+  .back-link:hover{ color:var(--accent); }
+  .module-header{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:6px; }
+  .module-header h1{ font-size:22px; }
+  .subtabs{ display:flex; gap:6px; margin:18px 0 22px; border-bottom:1px solid var(--border); }
+  .subtab{
+    background:none; border:none; padding:10px 4px; margin-right:22px; font-size:14px; font-weight:600;
+    color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; font-family:inherit;
+  }
+  .subtab.active{ color:var(--accent); border-bottom-color:var(--accent); }
+
+  /* ---------- Study card ---------- */
+  .study-wrap{ max-width:640px; margin:0 auto; }
+  .study-progress{ display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-family:'IBM Plex Mono',monospace; }
+  .study-progress-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-bottom:24px; }
+  .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
+  .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
+  .question-text{ font-size:17px; font-weight:600; line-height:1.5; margin-bottom:16px; }
+  .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
+  .option-row{
+    display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
+    border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
+    font-size:14px;
+  }
+  .option-row:hover{ border-color:var(--accent); }
+  .option-letter{
+    width:26px; height:26px; border-radius:50%; background:var(--surface-2); color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0;
+  }
+  .option-row.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .option-row.correct{ border-color:var(--ok); background:var(--ok-soft); }
+  .option-row.correct .option-letter{ background:var(--ok); color:#fff; }
+  .option-row.incorrect{ border-color:var(--err); background:var(--err-soft); }
+  .option-row.incorrect .option-letter{ background:var(--err); color:#fff; }
+  .option-row.disabled{ cursor:default; }
+  .explanation-box{
+    margin-top:14px; padding:14px 16px; background:var(--surface-2); border-radius:10px;
+    font-size:13px; color:var(--ink-soft); line-height:1.5;
+  }
+  .study-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
+  .score-pill{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);
+    background:var(--surface-2); padding:6px 12px; border-radius:20px;
+  }
+
+  /* ---------- Question list (manage) ---------- */
+  .q-list-row{
+    display:flex; align-items:flex-start; gap:14px; padding:14px 4px; border-bottom:1px dashed var(--border);
+  }
+  .q-list-row:last-child{ border-bottom:none; }
+  .q-list-thumb{ width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid var(--border); }
+  .q-list-body{ flex:1; min-width:0; }
+  .q-list-text{ font-size:14px; font-weight:500; margin-bottom:4px; }
+  .q-list-meta{ font-size:11.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; }
+  .q-list-actions{ display:flex; gap:6px; flex-shrink:0; }
+  .icon-btn{
+    width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;
+  }
+  .icon-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(27,35,64,0.4); display:none;
+    align-items:center; justify-content:center; z-index:2000; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--surface); border-radius:16px; padding:26px 28px; width:560px; max-width:100%;
+    max-height:88vh; overflow-y:auto; box-shadow:0 20px 50px rgba(27,35,64,0.2);
+  }
+  .modal h3{ font-size:18px; margin-bottom:18px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:5px; }
+  .field input[type="text"], .field textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:8px;
+    padding:10px 12px; font-size:14px; font-family:inherit; color:var(--ink); outline:none;
+  }
+  .field input:focus, .field textarea:focus{ border-color:var(--accent); }
+  .field textarea{ resize:vertical; min-height:70px; }
+  .option-edit-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .option-edit-row input[type="text"]{ flex:1; }
+  .option-edit-row input[type="radio"]{ width:18px; height:18px; accent-color:var(--ok); flex-shrink:0; }
+  .option-remove-btn{ background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:14px; flex-shrink:0; }
+  .option-remove-btn:hover{ color:var(--err); }
+  .photo-preview{ width:100%; max-height:200px; object-fit:contain; border-radius:8px; margin-bottom:10px; background:var(--surface-2); display:block; }
+  .photo-input-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .photo-input-row input[type="file"]{ flex:1; min-width:160px; font-size:12.5px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+
+  @media (max-width:720px){
+    .topbar{ padding:12px 16px; }
+    .page{ padding:22px 16px 60px; }
+    .account-user span{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-badge">🎓</div>
+    <div class="login-title">Certificações</div>
+    <div class="login-sub">Inicia sessão com o Google para estudares e guardares o teu progresso.</div>
+    <button class="google-btn" id="googleSignInBtn">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.96 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.97H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.03l3-2.33z"/>
+        <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.97l3 2.33C4.67 5.16 6.66 3.58 9 3.58z"/>
+      </svg>
+      Continuar com o Google
+    </button>
+    <div class="login-error" id="loginError">Não foi possível iniciar sessão. Tenta novamente.</div>
+  </div>
+</div>
+
+<div id="appShell">
+  <div class="topbar">
+    <div class="brand"><div class="brand-icon">🎓</div>Certificações</div>
+    <div class="account-box">
+      <div class="account-user" id="accountUser"></div>
+      <button class="account-btn icon-only" id="themeToggleBtn" title="Alternar tema">🌙</button>
+      <button class="account-btn" id="signOutBtn">Sair</button>
+    </div>
+  </div>
+
+  <div class="app-scroll">
+    <div class="page" id="modulesPage">
+      <div class="page-head">
+        <h1>Módulos de certificação</h1>
+        <button class="btn-primary" id="newModuleBtn">+ Novo módulo</button>
+      </div>
+      <div class="module-grid" id="moduleGrid"></div>
+    </div>
+
+    <div class="page" id="modulePage" style="display:none;">
+      <button class="back-link" id="backToModulesBtn">← Módulos</button>
+      <div class="module-header">
+        <h1 id="moduleTitle"></h1>
+        <button class="btn-danger-text" id="deleteModuleBtn">Eliminar módulo</button>
+      </div>
+      <div class="subtabs">
+        <button class="subtab active" data-subtab="study">Estudar</button>
+        <button class="subtab" data-subtab="manage">Perguntas</button>
+      </div>
+
+      <div id="studyTab">
+        <div class="study-wrap" id="studyWrap"></div>
+      </div>
+
+      <div id="manageTab" style="display:none;">
+        <div class="page-head" style="margin-bottom:14px;">
+          <div></div>
+          <button class="btn-primary" id="newQuestionBtn">+ Nova pergunta</button>
+        </div>
+        <div id="questionList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="moduleModalOverlay">
+  <div class="modal" style="width:420px;">
+    <h3>Novo módulo</h3>
+    <div class="field">
+      <label for="moduleCodeInput">Código</label>
+      <input type="text" id="moduleCodeInput" placeholder="ex: AZ-104">
+    </div>
+    <div class="field">
+      <label for="moduleNameInput">Nome (opcional)</label>
+      <input type="text" id="moduleNameInput" placeholder="ex: Microsoft Azure Administrator">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="moduleCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="moduleSaveBtn">Criar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="modal" style="width:340px;">
+    <h3 id="confirmTitle">Confirmar</h3>
+    <p id="confirmBody" style="font-size:13.5px;color:var(--ink-soft);margin:0 0 20px;"></p>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="confirmCancelBtn">Cancelar</button>
+      <button class="btn-danger" id="confirmOkBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="questionModalOverlay">
+  <div class="modal">
+    <h3 id="questionModalTitle">Nova pergunta</h3>
+    <div class="field">
+      <label for="qTextInput">Pergunta</label>
+      <textarea id="qTextInput" placeholder="Escreve a pergunta..."></textarea>
+    </div>
+    <div class="field">
+      <label>Imagem (opcional)</label>
+      <div id="qPhotoPreviewWrap"></div>
+      <div class="photo-input-row">
+        <input type="file" accept="image/*" id="qPhotoInput">
+        <button type="button" class="btn-secondary" id="qRemovePhotoBtn" style="display:none;">Remover imagem</button>
+      </div>
+      <div style="font-size:11.5px;color:var(--ink-soft);margin-top:5px;">Também podes colar uma imagem copiada com Ctrl+V.</div>
+    </div>
+    <div class="field">
+      <label>Opções de resposta <span style="color:var(--ink-faint);">(marca a correta)</span></label>
+      <div id="optionsEditList"></div>
+      <button type="button" class="btn-secondary" id="addOptionBtn" style="margin-top:4px;">+ Adicionar opção</button>
+    </div>
+    <div class="field">
+      <label for="qExplanationInput">Explicação (opcional, mostrada depois de responder)</label>
+      <textarea id="qExplanationInput" placeholder="Porque é que esta é a resposta certa..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger-text" id="qDeleteBtn" style="margin-right:auto;display:none;">Remover pergunta</button>
+      <button class="btn-secondary" id="qCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="qSaveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Firebase (mesmo projeto do hub / planeador de viagem) ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyAE2W69g2EMObYj4dztEDIMYO82KaLIpSA",
+  authDomain: "planeador-viagem.firebaseapp.com",
+  projectId: "planeador-viagem",
+  storageBucket: "planeador-viagem.firebasestorage.app",
+  messagingSenderId: "901648697808",
+  appId: "1:901648697808:web:6e76ed1a9c9ff84db2d1d5"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+let modules = [];
+let modulesUnsub = null;
+let currentModuleId = null;
+let questions = [];
+let questionsUnsub = null;
+let progress = { currentIndex: 0, answers: {} };
+let progressUnsub = null;
+let editingQuestionId = null;
+let optionCount = 0;
+let pendingPhoto = null;
+let photoRemoved = false;
+let answeredThisQuestion = false;
+
+function uid(){ return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ---------- Tema ---------- */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  try{ localStorage.setItem('cert-theme', theme); }catch(e){}
+  document.getElementById('themeToggleBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('cert-theme'); }catch(e){}
+  applyTheme(saved || 'light');
+}
+document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+/* ---------- Login / Auth ---------- */
+function showLogin(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'none';
+}
+function showApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+}
+function attemptSignIn(){
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err=>{
+    console.error('Erro no login', err);
+    errEl.style.display = 'block';
+  });
+}
+document.getElementById('googleSignInBtn').addEventListener('click', attemptSignIn);
+document.getElementById('signOutBtn').addEventListener('click', ()=> auth.signOut());
+
+function renderAccountUser(){
+  const el = document.getElementById('accountUser');
+  if(!currentUser){ el.innerHTML = ''; return; }
+  el.innerHTML = `
+    ${currentUser.photoURL ? `<img src="${currentUser.photoURL}" alt="">` : ''}
+    <span>${escapeHtml(currentUser.displayName || currentUser.email || '')}</span>
+  `;
+}
+
+/* ---------- Compressão de imagem ---------- */
+function compressImageToDataUrl(file, maxDim = 900, quality = 0.65){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let { width, height } = img;
+        if(width > height && width > maxDim){ height = Math.round(height * maxDim / width); width = maxDim; }
+        else if(height >= width && height > maxDim){ width = Math.round(width * maxDim / height); height = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------- Módulos ---------- */
+function loadModules(){
+  if(modulesUnsub) modulesUnsub();
+  modulesUnsub = db.collection('quizModules').orderBy('createdAt', 'asc').onSnapshot(snap=>{
+    modules = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderModuleGrid();
+  }, err=>console.error('Erro a carregar módulos', err));
+}
+
+async function computeModuleProgress(moduleId){
+  try{
+    const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
+    const total = qSnap.size;
+    if(total === 0) return { total: 0, answered: 0 };
+    const pDoc = await db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).get();
+    const answered = pDoc.exists ? Object.keys(pDoc.data().answers || {}).length : 0;
+    return { total, answered };
+  }catch(e){
+    return { total: 0, answered: 0 };
+  }
+}
+
+async function renderModuleGrid(){
+  const grid = document.getElementById('moduleGrid');
+  if(modules.length === 0){
+    grid.innerHTML = `<div class="empty-state">Ainda não criaste nenhum módulo.<span>Usa "+ Novo módulo" para começar (ex: AZ-104, MD-102, VMCE).</span></div>`;
+    return;
+  }
+  grid.innerHTML = modules.map(m => `
+    <div class="module-card" data-id="${m.id}">
+      <button class="module-delete" data-action="delete-module" data-id="${m.id}" title="Eliminar módulo">✕</button>
+      <span class="module-code">${escapeHtml(m.code)}</span>
+      <div class="module-name">${escapeHtml(m.name || m.code)}</div>
+      <div class="module-meta" data-meta="${m.id}">a carregar…</div>
+      <div class="module-progress-bar"><div class="module-progress-fill" data-fill="${m.id}" style="width:0%"></div></div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.module-card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-action="delete-module"]')) return;
+      openModule(card.dataset.id);
+    });
+  });
+  grid.querySelectorAll('[data-action="delete-module"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> confirmDeleteModule(btn.dataset.id));
+  });
+
+  modules.forEach(async m=>{
+    const { total, answered } = await computeModuleProgress(m.id);
+    const metaEl = grid.querySelector(`[data-meta="${m.id}"]`);
+    const fillEl = grid.querySelector(`[data-fill="${m.id}"]`);
+    if(!metaEl) return;
+    metaEl.textContent = total === 0 ? 'Sem perguntas ainda' : `${answered} / ${total} respondidas`;
+    if(fillEl) fillEl.style.width = total > 0 ? Math.round(answered / total * 100) + '%' : '0%';
+  });
+}
+
+document.getElementById('newModuleBtn').addEventListener('click', ()=>{
+  document.getElementById('moduleCodeInput').value = '';
+  document.getElementById('moduleNameInput').value = '';
+  document.getElementById('moduleModalOverlay').classList.add('open');
+  document.getElementById('moduleCodeInput').focus();
+});
+document.getElementById('moduleCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('moduleModalOverlay').classList.remove('open');
+});
+document.getElementById('moduleModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'moduleModalOverlay') document.getElementById('moduleModalOverlay').classList.remove('open');
+});
+document.getElementById('moduleSaveBtn').addEventListener('click', async ()=>{
+  const code = document.getElementById('moduleCodeInput').value.trim();
+  const name = document.getElementById('moduleNameInput').value.trim();
+  if(!code) { alert('Escreve pelo menos o código do módulo (ex: AZ-104).'); return; }
+  try{
+    await db.collection('quizModules').add({ code, name, createdAt: Date.now() });
+    document.getElementById('moduleModalOverlay').classList.remove('open');
+  }catch(e){ console.error(e); alert('Não foi possível criar o módulo.'); }
+});
+
+function confirmDeleteModule(moduleId){
+  openConfirm('Eliminar módulo?', 'Isto remove o módulo e todas as suas perguntas. Não pode ser desfeito.', async ()=>{
+    try{
+      const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
+      const batch = db.batch();
+      qSnap.docs.forEach(d => batch.delete(d.ref));
+      batch.delete(db.collection('quizModules').doc(moduleId));
+      await batch.commit();
+      db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).delete().catch(()=>{});
+    }catch(e){ console.error(e); alert('Não foi possível eliminar o módulo.'); }
+  });
+}
+document.getElementById('deleteModuleBtn').addEventListener('click', ()=>{
+  if(!currentModuleId) return;
+  const m = modules.find(x => x.id === currentModuleId);
+  openConfirm('Eliminar módulo?', `Isto remove "${m ? m.code : ''}" e todas as suas perguntas. Não pode ser desfeito.`, async ()=>{
+    await confirmDeleteModuleAction(currentModuleId);
+    goToModules();
+  });
+});
+async function confirmDeleteModuleAction(moduleId){
+  try{
+    const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
+    const batch = db.batch();
+    qSnap.docs.forEach(d => batch.delete(d.ref));
+    batch.delete(db.collection('quizModules').doc(moduleId));
+    await batch.commit();
+    db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).delete().catch(()=>{});
+  }catch(e){ console.error(e); alert('Não foi possível eliminar o módulo.'); }
+}
+
+/* ---------- Confirmação genérica ---------- */
+let confirmCallback = null;
+function openConfirm(title, body, onConfirm){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').textContent = body;
+  confirmCallback = onConfirm;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('confirmOverlay').classList.remove('open');
+  confirmCallback = null;
+});
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'confirmOverlay'){ document.getElementById('confirmOverlay').classList.remove('open'); confirmCallback = null; }
+});
+document.getElementById('confirmOkBtn').addEventListener('click', async ()=>{
+  const cb = confirmCallback;
+  document.getElementById('confirmOverlay').classList.remove('open');
+  confirmCallback = null;
+  if(cb) await cb();
+});
+
+/* ---------- Navegação módulo ---------- */
+function goToModules(){
+  currentModuleId = null;
+  if(questionsUnsub){ questionsUnsub(); questionsUnsub = null; }
+  if(progressUnsub){ progressUnsub(); progressUnsub = null; }
+  document.getElementById('modulePage').style.display = 'none';
+  document.getElementById('modulesPage').style.display = 'block';
+  renderModuleGrid();
+}
+document.getElementById('backToModulesBtn').addEventListener('click', goToModules);
+
+function openModule(moduleId){
+  currentModuleId = moduleId;
+  const m = modules.find(x => x.id === moduleId);
+  document.getElementById('moduleTitle').textContent = m ? (m.name ? `${m.code} — ${m.name}` : m.code) : '';
+  document.getElementById('modulesPage').style.display = 'none';
+  document.getElementById('modulePage').style.display = 'block';
+  switchSubtab('study');
+
+  if(questionsUnsub) questionsUnsub();
+  questionsUnsub = db.collection('quizModules').doc(moduleId).collection('questions').orderBy('createdAt', 'asc').onSnapshot(snap=>{
+    questions = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderQuestionList();
+    renderStudy();
+  }, err=>console.error('Erro a carregar perguntas', err));
+
+  if(progressUnsub) progressUnsub();
+  progressUnsub = db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).onSnapshot(doc=>{
+    progress = doc.exists ? Object.assign({ currentIndex:0, answers:{} }, doc.data()) : { currentIndex:0, answers:{} };
+    renderStudy();
+  }, err=>console.error('Erro a carregar progresso', err));
+}
+
+document.querySelectorAll('.subtab').forEach(btn=>{
+  btn.addEventListener('click', ()=> switchSubtab(btn.dataset.subtab));
+});
+function switchSubtab(name){
+  document.querySelectorAll('.subtab').forEach(b => b.classList.toggle('active', b.dataset.subtab === name));
+  document.getElementById('studyTab').style.display = name === 'study' ? 'block' : 'none';
+  document.getElementById('manageTab').style.display = name === 'manage' ? 'block' : 'none';
+}
+
+function saveProgress(){
+  if(!currentModuleId || !currentUser) return;
+  db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(currentModuleId)
+    .set({ currentIndex: progress.currentIndex, answers: progress.answers, updatedAt: Date.now() }, { merge:true })
+    .catch(e => console.error('Erro a guardar progresso', e));
+}
+
+/* ---------- Estudar ---------- */
+function renderStudy(){
+  const wrap = document.getElementById('studyWrap');
+  if(wrap) buildStudyHtml(wrap);
+}
+
+function buildStudyHtml(wrap){
+  if(questions.length === 0){
+    wrap.innerHTML = `<div class="empty-state">Este módulo ainda não tem perguntas.<span>Vai a "Perguntas" para adicionares a primeira.</span></div>`;
+    return;
+  }
+  if(progress.currentIndex >= questions.length) progress.currentIndex = questions.length - 1;
+  if(progress.currentIndex < 0) progress.currentIndex = 0;
+
+  const idx = progress.currentIndex;
+  const q = questions[idx];
+  const savedAnswer = progress.answers && progress.answers[q.id];
+  answeredThisQuestion = savedAnswer !== undefined;
+
+  const correctCount = Object.keys(progress.answers || {}).filter(qid=>{
+    const qq = questions.find(x => x.id === qid);
+    return qq && progress.answers[qid] === qq.correctIndex;
+  }).length;
+  const answeredCount = Object.keys(progress.answers || {}).length;
+
+  wrap.innerHTML = `
+    <div class="study-progress">
+      <span>Pergunta ${idx + 1} de ${questions.length}</span>
+      <span class="score-pill">✓ ${correctCount} / ${answeredCount} respondidas</span>
+    </div>
+    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
+    <div class="question-card">
+      ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
+      <div class="question-text">${escapeHtml(q.text)}</div>
+      <div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(opt, i, savedAnswer, q.correctIndex)).join('')}</div>
+      ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${escapeHtml(q.explanation)}</div>` : ''}
+    </div>
+    <div class="study-actions">
+      <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
+      <button class="btn-secondary" id="resetProgressBtn">Recomeçar módulo</button>
+      <button class="btn-primary" id="nextQBtn" ${idx === questions.length - 1 ? 'disabled' : ''}>Seguinte →</button>
+    </div>
+  `;
+
+  if(!answeredThisQuestion){
+    wrap.querySelectorAll('.option-row').forEach(row=>{
+      row.addEventListener('click', ()=>{
+        const chosen = parseInt(row.dataset.index, 10);
+        progress.answers = progress.answers || {};
+        progress.answers[q.id] = chosen;
+        saveProgress();
+        renderStudy();
+      });
+    });
+  }
+
+  document.getElementById('prevQBtn').addEventListener('click', ()=>{
+    progress.currentIndex = Math.max(0, progress.currentIndex - 1);
+    saveProgress();
+    renderStudy();
+  });
+  document.getElementById('nextQBtn').addEventListener('click', ()=>{
+    progress.currentIndex = Math.min(questions.length - 1, progress.currentIndex + 1);
+    saveProgress();
+    renderStudy();
+  });
+  document.getElementById('resetProgressBtn').addEventListener('click', ()=>{
+    openConfirm('Recomeçar módulo?', 'Isto apaga as tuas respostas guardadas neste módulo e volta à primeira pergunta.', ()=>{
+      progress = { currentIndex: 0, answers: {} };
+      saveProgress();
+      renderStudy();
+    });
+  });
+}
+
+function optionRowHtml(text, index, savedAnswer, correctIndex){
+  const letter = String.fromCharCode(65 + index);
+  let cls = 'option-row';
+  if(savedAnswer !== undefined){
+    cls += ' disabled';
+    if(index === correctIndex) cls += ' correct';
+    else if(index === savedAnswer) cls += ' incorrect';
+  }
+  return `
+    <div class="${cls}" data-index="${index}">
+      <span class="option-letter">${letter}</span>
+      <span>${escapeHtml(text)}</span>
+    </div>
+  `;
+}
+
+/* ---------- Gerir perguntas ---------- */
+function renderQuestionList(){
+  const root = document.getElementById('questionList');
+  if(questions.length === 0){
+    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
+    return;
+  }
+  root.innerHTML = questions.map((q, i) => `
+    <div class="q-list-row">
+      ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
+      <div class="q-list-body">
+        <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)}</div>
+        <div class="q-list-meta">${(q.options || []).length} opções · correta: ${String.fromCharCode(65 + (q.correctIndex || 0))}</div>
+      </div>
+      <div class="q-list-actions">
+        <button class="icon-btn" title="Editar" data-action="edit-q" data-id="${q.id}">✎</button>
+        <button class="icon-btn" title="Remover" data-action="delete-q" data-id="${q.id}">✕</button>
+      </div>
+    </div>
+  `).join('');
+  root.querySelectorAll('[data-action="edit-q"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openQuestionModal(btn.dataset.id));
+  });
+  root.querySelectorAll('[data-action="delete-q"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openConfirm('Remover pergunta?', 'Esta ação não pode ser desfeita.', async ()=>{
+        try{ await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(btn.dataset.id).delete(); }
+        catch(e){ console.error(e); alert('Não foi possível remover.'); }
+      });
+    });
+  });
+}
+
+document.getElementById('newQuestionBtn').addEventListener('click', ()=> openQuestionModal(null));
+
+function addOptionRow(value, checked){
+  optionCount++;
+  const id = 'opt_' + optionCount;
+  const list = document.getElementById('optionsEditList');
+  const row = document.createElement('div');
+  row.className = 'option-edit-row';
+  row.dataset.optId = id;
+  row.innerHTML = `
+    <input type="radio" name="correctOption" value="${id}" ${checked ? 'checked' : ''}>
+    <input type="text" placeholder="Texto da opção" value="${escapeHtml(value || '')}">
+    <button type="button" class="option-remove-btn" title="Remover opção">✕</button>
+  `;
+  row.querySelector('.option-remove-btn').addEventListener('click', ()=>{
+    if(document.querySelectorAll('.option-edit-row').length <= 2) { alert('É preciso pelo menos 2 opções.'); return; }
+    row.remove();
+  });
+  list.appendChild(row);
+}
+document.getElementById('addOptionBtn').addEventListener('click', ()=>{
+  if(document.querySelectorAll('.option-edit-row').length >= 6){ alert('Máximo de 6 opções.'); return; }
+  addOptionRow('', false);
+});
+
+function openQuestionModal(questionId){
+  editingQuestionId = questionId;
+  const q = questionId ? questions.find(x => x.id === questionId) : null;
+  document.getElementById('questionModalTitle').textContent = q ? 'Editar pergunta' : 'Nova pergunta';
+  document.getElementById('qTextInput').value = q ? q.text : '';
+  document.getElementById('qExplanationInput').value = q ? (q.explanation || '') : '';
+  document.getElementById('qDeleteBtn').style.display = q ? 'block' : 'none';
+
+  pendingPhoto = q ? (q.image || null) : null;
+  photoRemoved = false;
+  const previewWrap = document.getElementById('qPhotoPreviewWrap');
+  previewWrap.innerHTML = pendingPhoto ? `<img src="${pendingPhoto}" class="photo-preview">` : '';
+  document.getElementById('qRemovePhotoBtn').style.display = pendingPhoto ? 'inline-block' : 'none';
+  document.getElementById('qPhotoInput').value = '';
+
+  document.getElementById('optionsEditList').innerHTML = '';
+  optionCount = 0;
+  const opts = q ? q.options : ['', '', '', ''];
+  const correctIdx = q ? q.correctIndex : 0;
+  opts.forEach((opt, i) => addOptionRow(opt, i === correctIdx));
+
+  document.getElementById('questionModalOverlay').classList.add('open');
+}
+
+async function applyNewQuestionPhoto(file){
+  if(!file) return;
+  try{
+    pendingPhoto = await compressImageToDataUrl(file);
+    photoRemoved = false;
+    document.getElementById('qPhotoPreviewWrap').innerHTML = `<img src="${pendingPhoto}" class="photo-preview">`;
+    document.getElementById('qRemovePhotoBtn').style.display = 'inline-block';
+  }catch(e){ console.error(e); alert('Não foi possível processar esta imagem.'); }
+}
+document.getElementById('qPhotoInput').addEventListener('change', (e)=> applyNewQuestionPhoto(e.target.files[0]));
+document.getElementById('qRemovePhotoBtn').addEventListener('click', ()=>{
+  pendingPhoto = null;
+  photoRemoved = true;
+  document.getElementById('qPhotoPreviewWrap').innerHTML = '';
+  document.getElementById('qRemovePhotoBtn').style.display = 'none';
+});
+document.addEventListener('paste', (e)=>{
+  if(!document.getElementById('questionModalOverlay').classList.contains('open')) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for(const item of items){
+    if(item.type && item.type.startsWith('image/')){
+      e.preventDefault();
+      applyNewQuestionPhoto(item.getAsFile());
+      break;
+    }
+  }
+});
+
+document.getElementById('qCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('questionModalOverlay').classList.remove('open');
+});
+document.getElementById('questionModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'questionModalOverlay') document.getElementById('questionModalOverlay').classList.remove('open');
+});
+document.getElementById('qDeleteBtn').addEventListener('click', ()=>{
+  document.getElementById('questionModalOverlay').classList.remove('open');
+  openConfirm('Remover pergunta?', 'Esta ação não pode ser desfeita.', async ()=>{
+    try{ await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(editingQuestionId).delete(); }
+    catch(e){ console.error(e); alert('Não foi possível remover.'); }
+  });
+});
+
+document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
+  const text = document.getElementById('qTextInput').value.trim();
+  const explanation = document.getElementById('qExplanationInput').value.trim();
+  const rows = [...document.querySelectorAll('.option-edit-row')];
+  const options = rows.map(r => r.querySelector('input[type="text"]').value.trim());
+  const correctRow = rows.findIndex(r => r.querySelector('input[type="radio"]').checked);
+
+  if(!text){ alert('Escreve o texto da pergunta.'); return; }
+  if(options.some(o => !o)){ alert('Preenche todas as opções ou remove as vazias.'); return; }
+  if(correctRow === -1){ alert('Marca qual é a opção correta.'); return; }
+
+  const image = photoRemoved ? null : pendingPhoto;
+  const payload = { text, options, correctIndex: correctRow, explanation, image };
+
+  try{
+    if(editingQuestionId){
+      await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(editingQuestionId).set(payload, { merge:true });
+    } else {
+      payload.createdAt = Date.now();
+      await db.collection('quizModules').doc(currentModuleId).collection('questions').add(payload);
+    }
+    document.getElementById('questionModalOverlay').classList.remove('open');
+  }catch(e){
+    console.error(e);
+    alert('Não foi possível guardar a pergunta. Se tiver uma imagem grande, tenta outra mais pequena.');
+  }
+});
+
+/* ---------- Atalhos de teclado ---------- */
+document.addEventListener('keydown', (e)=>{
+  const tag = (e.target.tagName || '').toLowerCase();
+  const isTyping = tag === 'input' || tag === 'textarea';
+  if(e.key === 'Escape'){
+    document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+    return;
+  }
+  if(isTyping) return;
+  if(document.getElementById('studyTab').style.display !== 'none' && document.getElementById('modulePage').style.display !== 'none'){
+    if(e.key === 'ArrowRight'){ document.getElementById('nextQBtn')?.click(); }
+    if(e.key === 'ArrowLeft'){ document.getElementById('prevQBtn')?.click(); }
+  }
+});
+
+/* ---------- Arranque ---------- */
+initTheme();
+auth.onAuthStateChanged(user=>{
+  currentUser = user;
+  if(!user){
+    if(modulesUnsub){ modulesUnsub(); modulesUnsub = null; }
+    if(questionsUnsub){ questionsUnsub(); questionsUnsub = null; }
+    if(progressUnsub){ progressUnsub(); progressUnsub = null; }
+    showLogin();
+    return;
+  }
+  showApp();
+  renderAccountUser();
+  goToModules();
+  loadModules();
+});
+</script>
+</body>
+</html>
