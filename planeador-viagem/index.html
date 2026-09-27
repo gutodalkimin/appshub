@@ -328,12 +328,6 @@
   }
   .day-city-input::placeholder { color: var(--ink-soft); font-weight: 400; }
   .day-city-input:hover, .day-city-input:focus { border-bottom: 1px dashed var(--air-blue); outline: none; }
-  .day-transport-select {
-    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--ink-soft);
-    border: none; background: transparent; padding: 1px 14px 1px 0; border-bottom: 1px dashed transparent;
-    width: auto; cursor: pointer;
-  }
-  .day-transport-select:hover, .day-transport-select:focus { border-bottom: 1px dashed var(--air-blue); outline: none; color: var(--ink); }
   .day-remove { opacity: 0.45; transition: opacity 0.15s ease; flex-shrink: 0; }
   .day-card:hover .day-remove, .day-remove:focus { opacity: 1; }
   .day-head input {
@@ -1256,7 +1250,7 @@
   }
 
   document.getElementById('addDayBtn').addEventListener('click', () => {
-    itinerary.push({ id: uid(), label: `Dia ${itinerary.length + 1}`, city: '', transportMode: '', stops: [] });
+    itinerary.push({ id: uid(), label: `Dia ${itinerary.length + 1}`, city: '', stops: [] });
     saveItinerary();
     renderItinerary();
   });
@@ -1268,10 +1262,10 @@
     renderItinerary();
   }
 
-  async function addStop(dayId, time, title, note, photo, expenseAmount, address, showOnMap) {
+  async function addStop(dayId, time, title, note, photo, expenseAmount, address, showOnMap, transportMode) {
     const day = itinerary.find(d => d.id === dayId);
     if (!day || !title.trim()) return;
-    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), address: (address||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null, showOnMap: showOnMap !== false };
+    const stop = { id: uid(), time: (time||'').trim(), title: title.trim(), note: (note||'').trim(), address: (address||'').trim(), lat: null, lng: null, geoStatus: 'pending', photo: photo || null, expenseId: null, expenseAmount: null, showOnMap: showOnMap !== false, transportMode: transportMode || '' };
     syncStopExpense(stop, expenseAmount);
     day.stops.push(stop);
     saveItinerary();
@@ -1369,6 +1363,8 @@
     const day = itinerary.find(d => d.id === dayId);
     if (!day) return;
     const stop = stopId ? day.stops.find(s => s.id === stopId) : null;
+    const stopIndex = stop ? day.stops.indexOf(stop) : day.stops.length;
+    const isFirstOfDay = stopIndex === 0;
     const root = document.getElementById('modalRoot');
 
     root.innerHTML = `
@@ -1385,6 +1381,15 @@
               <label for="stopAddressInput" style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;">Endereço específico (opcional)</label>
               <input type="text" id="stopAddressInput" placeholder="Usa isto se 'O quê?' não localizar bem no mapa" value="${stop ? escapeHtml(stop.address || '') : ''}">
             </div>
+            ${!isFirstOfDay ? `
+            <div style="margin-top:14px;">
+              <label for="stopTransportSelect" style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:4px;">Como chegaste aqui (desde a atividade anterior)?</label>
+              <select id="stopTransportSelect">
+                <option value="" ${!stop || !stop.transportMode ? 'selected' : ''}>Linha reta</option>
+                <option value="car" ${stop && stop.transportMode === 'car' ? 'selected' : ''}>De carro</option>
+                <option value="foot" ${stop && stop.transportMode === 'foot' ? 'selected' : ''}>A pé</option>
+              </select>
+            </div>` : ''}
             <label class="map-toggle-row" for="stopShowOnMapInput">
               <span>Mostrar esta atividade no mapa</span>
               <span class="switch">
@@ -1476,6 +1481,8 @@
       const note = document.getElementById('stopNoteInput').value.trim();
       const address = document.getElementById('stopAddressInput').value.trim();
       const showOnMap = document.getElementById('stopShowOnMapInput').checked;
+      const transportSelect = document.getElementById('stopTransportSelect');
+      const transportMode = transportSelect ? transportSelect.value : '';
       if (!title) { alert('Escreve pelo menos o nome da atividade.'); return; }
 
       if (stop) {
@@ -1486,6 +1493,7 @@
         stop.note = note;
         stop.address = address;
         stop.showOnMap = showOnMap;
+        stop.transportMode = transportMode;
         stop.photo = photoRemoved ? null : (pendingPhoto || stop.photo || null);
         syncStopExpense(stop, expenseAmount);
         if (changedLocation) { stop.geoStatus = 'pending'; stop.lat = null; stop.lng = null; }
@@ -1506,7 +1514,7 @@
       } else {
         const expenseAmount = parseFloat(document.getElementById('stopExpenseInput').value);
         close();
-        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount, address, showOnMap);
+        await addStop(dayId, time, title, note, pendingPhoto, expenseAmount, address, showOnMap, transportMode);
       }
     };
   }
@@ -1527,11 +1535,6 @@
             <input value="${escapeHtml(day.label)}" data-day="${day.id}" class="day-label-input" />
             <div class="day-sub-row">
               <input value="${escapeHtml(day.city || '')}" data-day="${day.id}" class="day-city-input" placeholder="Cidade / região" />
-              <select data-day="${day.id}" class="day-transport-select" title="Como traçar o percurso entre atividades">
-                <option value="" ${!day.transportMode ? 'selected' : ''}>Linha reta</option>
-                <option value="car" ${day.transportMode === 'car' ? 'selected' : ''}>De carro</option>
-                <option value="foot" ${day.transportMode === 'foot' ? 'selected' : ''}>A pé</option>
-              </select>
             </div>
           </div>
           <button class="icon-btn day-remove" title="Remover dia" onclick="removeDay('${day.id}')">✕</button>
@@ -1578,13 +1581,6 @@
       inp.addEventListener('blur', () => {
         const day = itinerary.find(d => d.id === inp.dataset.day);
         if (day) { day.city = inp.value.trim(); saveItinerary(); populateCityFilter(); }
-      });
-    });
-
-    root.querySelectorAll('.day-transport-select').forEach(sel => {
-      sel.addEventListener('change', () => {
-        const day = itinerary.find(d => d.id === sel.dataset.day);
-        if (day) { day.transportMode = sel.value; saveItinerary(); initDayMaps(); }
       });
     });
 
@@ -1723,13 +1719,17 @@
       });
       const latlngs = points.map(p => [p.lat, p.lng]);
       points.forEach((p, i) => L.marker([p.lat, p.lng]).addTo(map).bindTooltip(`${i + 1}. ${p.title}`));
-      const mode = day.transportMode;
-      const profile = ROUTE_PROFILES[mode];
-      if (latlngs.length > 1) {
+      // Cada troço (entre uma atividade e a seguinte) pode ter o seu próprio meio de transporte —
+      // o modo guardado na atividade de chegada descreve como se chegou lá desde a anterior.
+      for (let i = 0; i < points.length - 1; i++) {
+        const from = [points[i].lat, points[i].lng];
+        const to = [points[i + 1].lat, points[i + 1].lng];
+        const mode = points[i + 1].transportMode;
+        const profile = ROUTE_PROFILES[mode];
         if (profile) {
           // Linha tracejada como referência imediata, substituída pelo percurso real assim que chegar.
-          const placeholder = L.polyline(latlngs, { color: profile.color, weight: 3, dashArray: '7 7', opacity: 0.6 }).addTo(map);
-          fetchRoute(mode, latlngs).then(routeLatLngs => {
+          const placeholder = L.polyline([from, to], { color: profile.color, weight: 3, dashArray: '7 7', opacity: 0.6 }).addTo(map);
+          fetchRoute(mode, [from, to]).then(routeLatLngs => {
             if (dayMaps[day.id] !== map) return; // este mapa já foi substituído (mudou de tema, etc.)
             if (routeLatLngs) {
               placeholder.remove();
@@ -1737,10 +1737,11 @@
             }
           });
         } else {
-          L.polyline(latlngs, { color: '#C23B34', weight: 3, dashArray: '7 7' }).addTo(map);
+          L.polyline([from, to], { color: '#C23B34', weight: 3, dashArray: '7 7' }).addTo(map);
         }
-        map.fitBounds(latlngs, { padding: [28, 28], maxZoom: 15 });
-      } else { map.setView(latlngs[0], 14); }
+      }
+      if (latlngs.length > 1) map.fitBounds(latlngs, { padding: [28, 28], maxZoom: 15 });
+      else map.setView(latlngs[0], 14);
       dayMaps[day.id] = map;
     });
   }
