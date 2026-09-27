@@ -356,6 +356,11 @@
   .stop-row:last-of-type .stop-time::after { display: none; }
   .stop-title { font-weight: 500; }
   .stop-note { color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
+  .stop-connector {
+    display: flex; align-items: center; gap: 6px; padding: 3px 0 5px 27px;
+    font-size: 11px; color: var(--ink-soft); font-style: italic;
+  }
+  .stop-connector .connector-icon { font-size: 12px; font-style: normal; }
   .stop-actions { display: flex; align-items: center; gap: 4px; }
   .stop-thumb { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; cursor: pointer; border: 1px solid var(--kraft-line); }
   .modal.wide { max-width: 440px; }
@@ -1569,6 +1574,17 @@
                 <button class="icon-btn" title="Remover" onclick="removeStop('${day.id}','${s.id}')">✕</button>
               </div>
             </div>
+            ${(() => {
+              const next = day.stops[i + 1];
+              const profile = next && ROUTE_PROFILES[next.transportMode];
+              const canRoute = profile && s.lat != null && s.lng != null && s.showOnMap !== false &&
+                next.lat != null && next.lng != null && next.showOnMap !== false;
+              return canRoute ? `
+              <div class="stop-connector" id="connector-${day.id}-${next.id}">
+                <span class="connector-icon">${profile.icon}</span>
+                <span class="connector-text">a calcular…</span>
+              </div>` : '';
+            })()}
           `).join('')}</div>`
         }
         ${geoPoints.length > 0
@@ -1707,10 +1723,21 @@
   }
 
   const ROUTE_PROFILES = {
-    car: { url: 'https://router.project-osrm.org/route/v1/driving/', color: '#1F4E8C', label: 'De carro' },
-    foot: { url: 'https://routing.openstreetmap.de/routed-foot/route/v1/foot/', color: '#2E8B57', label: 'A pé' },
+    car: { url: 'https://router.project-osrm.org/route/v1/driving/', color: '#1F4E8C', label: 'De carro', icon: '🚗' },
+    foot: { url: 'https://routing.openstreetmap.de/routed-foot/route/v1/foot/', color: '#2E8B57', label: 'A pé', icon: '🚶' },
   };
   const routeCache = {};
+  function formatDuration(sec) {
+    const totalMin = Math.round(sec / 60);
+    if (totalMin < 1) return '<1 min';
+    if (totalMin < 60) return `${totalMin} min`;
+    const h = Math.floor(totalMin / 60), m = totalMin % 60;
+    return m === 0 ? `${h} h` : `${h} h ${m} min`;
+  }
+  function formatDistance(m) {
+    if (m < 1000) return `${Math.round(m)} m`;
+    return `${(m / 1000).toFixed(1)} km`;
+  }
   async function fetchRoute(mode, latlngs) {
     const profile = ROUTE_PROFILES[mode];
     if (!profile || latlngs.length < 2) return null;
@@ -1725,7 +1752,11 @@
       const route = data && data.routes && data.routes[0];
       const coords = route && route.geometry && route.geometry.coordinates;
       if (!Array.isArray(coords) || coords.length < 2) return null;
-      const result = coords.map(c => [c[1], c[0]]);
+      const result = {
+        latlngs: coords.map(c => [c[1], c[0]]),
+        durationSec: route.duration,
+        distanceM: route.distance,
+      };
       routeCache[key] = result;
       return result;
     } catch (e) { console.warn('Falha ao calcular rota:', e); return null; }
@@ -1773,11 +1804,17 @@
         if (profile) {
           // Linha tracejada como referência imediata, substituída pelo percurso real assim que chegar.
           const placeholder = L.polyline([from, to], { color: profile.color, weight: 3, dashArray: '7 7', opacity: 0.6 }).addTo(map);
-          fetchRoute(mode, [from, to]).then(routeLatLngs => {
+          const toStopId = points[i + 1].id;
+          fetchRoute(mode, [from, to]).then(result => {
+            const connectorEl = document.getElementById(`connector-${day.id}-${toStopId}`);
             if (dayMaps[day.id] !== map) return; // este mapa já foi substituído (mudou de tema, etc.)
-            if (routeLatLngs) {
+            if (result) {
               placeholder.remove();
-              L.polyline(routeLatLngs, { color: profile.color, weight: 4 }).addTo(map);
+              L.polyline(result.latlngs, { color: profile.color, weight: 4 }).addTo(map);
+              if (connectorEl) connectorEl.querySelector('.connector-text').textContent =
+                `${formatDuration(result.durationSec)} · ${formatDistance(result.distanceM)}`;
+            } else if (connectorEl) {
+              connectorEl.querySelector('.connector-text').textContent = 'não foi possível calcular';
             }
           });
         } else {
