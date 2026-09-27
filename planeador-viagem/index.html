@@ -1212,6 +1212,7 @@
   let dayMaps = {};
   let dayMapMarkers = {};
   let dayMapHomeView = {};
+  let dayHoverTimers = {};
   let geocodeQueue = Promise.resolve();
   function queueGeocode(query) {
     const run = geocodeQueue.then(() => geocodeAddress(query));
@@ -1649,6 +1650,7 @@
 
       row.addEventListener('mouseenter', () => {
         const dayId = row.dataset.day, stopId = row.dataset.stop;
+        if (dayHoverTimers[dayId]) { clearTimeout(dayHoverTimers[dayId]); delete dayHoverTimers[dayId]; }
         const marker = dayMapMarkers[dayId] && dayMapMarkers[dayId][stopId];
         const map = dayMaps[dayId];
         if (!marker || !map) return;
@@ -1660,13 +1662,18 @@
       row.addEventListener('mouseleave', () => {
         const dayId = row.dataset.day, stopId = row.dataset.stop;
         const marker = dayMapMarkers[dayId] && dayMapMarkers[dayId][stopId];
-        const map = dayMaps[dayId];
         if (!marker) return;
         const el = marker.getElement();
         if (el) el.classList.remove('highlighted');
         marker.closeTooltip();
-        const home = dayMapHomeView[dayId];
-        if (map && home) map.flyTo(home.center, home.zoom, { animate: true, duration: 0.5 });
+        // Só volta à vista geral se o rato não entrar logo a seguir noutra atividade do mesmo dia
+        // (evita o "salto" de ir para a vista geral e depois para o próximo ponto).
+        dayHoverTimers[dayId] = setTimeout(() => {
+          const map = dayMaps[dayId];
+          const home = dayMapHomeView[dayId];
+          if (map && home) map.flyTo(home.center, home.zoom, { animate: true, duration: 0.5 });
+          delete dayHoverTimers[dayId];
+        }, 80);
       });
     });
 
