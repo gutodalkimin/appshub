@@ -1788,6 +1788,12 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     return;
   }
 
+  // Mantém a ordem do JSON: cada pergunta recebe um createdAt crescente
+  // (antes todas tinham o mesmo milissegundo e a ordem ficava aleatória).
+  const lastExisting = questions.reduce((m, q) => Math.max(m, q.createdAt || 0), 0);
+  const importBase = Math.max(Date.now(), lastExisting + 1);
+  valid.forEach((q, i) => { q.createdAt = importBase + i; });
+
   statusEl.style.color = 'var(--ink-soft)';
   statusEl.textContent = `A importar ${valid.length} pergunta(s)…`;
   try{
