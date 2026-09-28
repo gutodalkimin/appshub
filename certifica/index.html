@@ -181,6 +181,20 @@
   }
   .subtab.active{ color:var(--accent); border-bottom-color:var(--accent); }
 
+  /* ---------- Filtro de origem das perguntas (manuais vs importadas) ---------- */
+  .source-filter-tabs{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .source-filter-btn{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px;
+    font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer; font-family:inherit;
+  }
+  .source-filter-btn.active{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+  .source-badge{
+    display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase;
+    padding:2px 7px; border-radius:6px; margin-left:8px; vertical-align:middle;
+  }
+  .source-badge.manual{ background:var(--accent-soft); color:var(--accent); }
+  .source-badge.import{ background:rgba(224,167,47,0.16); color:var(--gold); }
+
   /* ---------- Study card ---------- */
   .study-wrap{ max-width:640px; margin:0 auto; }
   .study-progress{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-family:'IBM Plex Mono',monospace; }
@@ -195,43 +209,7 @@
   .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
   .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
   .question-text{ font-size:calc(16.5px * var(--study-font-scale)); font-weight:500; line-height:1.42; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
-  .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); cursor:zoom-in; }
-  .image-modal-overlay{
-    position:fixed; inset:0; background:rgba(10,13,28,0.85); display:none;
-    align-items:center; justify-content:center; z-index:3000; cursor:zoom-out;
-    padding:calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l));
-  }
-  .image-modal-overlay.open{ display:flex; }
-  .image-modal-overlay img{
-    max-width:100%; max-height:100%; object-fit:contain; border-radius:10px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.4);
-  }
-  .image-modal-close{
-    position:fixed; top:calc(16px + var(--safe-t)); right:calc(16px + var(--safe-r));
-    width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,0.15);
-    color:#fff; font-size:20px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    z-index:3001;
-  }
-  .image-modal-close:hover{ background:rgba(255,255,255,0.28); }
-
-  /* ---------- Verificação por IA ---------- */
-  .ai-verify-btn{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; }
-  .ai-provider-grid{ display:flex; flex-direction:column; gap:10px; margin:16px 0; }
-  .ai-provider-btn{
-    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
-    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
-    padding:12px 14px; font-size:14px; font-weight:600; color:var(--ink); cursor:pointer; font-family:inherit;
-  }
-  .ai-provider-btn:hover{ border-color:var(--accent); }
-  .ai-provider-btn .ai-provider-icon{ font-size:18px; }
-  .ai-provider-btn .ai-provider-sub{ font-weight:400; font-size:12px; color:var(--ink-soft); display:block; }
-  .ai-result-box{
-    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
-    padding:14px 16px; font-size:14px; line-height:1.55; white-space:pre-wrap; margin-top:6px;
-  }
-  .ai-result-box.loading{ color:var(--ink-soft); font-style:italic; }
-  .ai-result-box.error{ background:var(--err-soft); border-color:var(--err); color:var(--err); }
-  .ai-back-link{ background:none; border:none; color:var(--accent); font-size:13px; cursor:pointer; padding:0; margin-bottom:12px; font-family:inherit; }
+  .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
   .option-row{
     display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
     border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .15s ease, background .15s ease;
@@ -320,22 +298,6 @@
   }
 
   /* ---------- Question list (manage) ---------- */
-  .q-group{
-    border:1px solid var(--border); border-radius:12px; margin-bottom:14px; overflow:hidden; background:var(--surface);
-  }
-  .q-group:last-child{ margin-bottom:0; }
-  .q-group-header{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:10px 14px; background:var(--surface-2); font-family:'IBM Plex Mono',monospace;
-    font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--ink-soft);
-    border-bottom:1px solid var(--border);
-  }
-  .q-group-import .q-group-header{ color:var(--accent); }
-  .q-group-count{
-    font-family:'IBM Plex Mono',monospace; font-weight:600; text-transform:none; letter-spacing:0;
-    color:var(--ink-faint); background:var(--surface); padding:2px 9px; border-radius:20px; flex-shrink:0;
-  }
-  .q-group .q-list-row{ padding:14px; }
   .q-list-row{
     display:flex; align-items:flex-start; gap:14px; padding:14px 4px; border-bottom:1px dashed var(--border);
   }
@@ -509,6 +471,11 @@
           <button class="btn-secondary" id="importQuestionsBtn">Importar perguntas</button>
           <button class="btn-primary" id="newQuestionBtn">+ Nova pergunta</button>
         </div>
+        <div class="source-filter-tabs" id="sourceFilterTabs">
+          <button class="source-filter-btn active" data-source-filter="all">Todas</button>
+          <button class="source-filter-btn" data-source-filter="manual">Manuais</button>
+          <button class="source-filter-btn" data-source-filter="import">Importadas</button>
+        </div>
         <div id="questionList"></div>
       </div>
     </div>
@@ -634,21 +601,6 @@
   </div>
 </div>
 
-<div class="image-modal-overlay" id="imageModalOverlay">
-  <button type="button" class="image-modal-close" id="imageModalCloseBtn" aria-label="Fechar">✕</button>
-  <img id="imageModalImg" src="" alt="">
-</div>
-
-<div class="overlay" id="aiVerifyOverlay">
-  <div class="modal" style="width:480px;">
-    <h3>Verificar resposta com IA</h3>
-    <div id="aiVerifyBody"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" id="aiVerifyCloseBtn">Fechar</button>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="importModalOverlay">
   <div class="modal" style="width:640px;">
     <h3>Importar perguntas</h3>
@@ -660,12 +612,6 @@
     Para perguntas do tipo <strong>Sim / Não</strong>: usa <code>"type": "yesno"</code> e <code>"statements": [{"label": "...", "correct": true}, ...]</code>.<br>
     Para incluir uma <strong>tabela</strong> na pergunta (qualquer tipo): usa <code>"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}</code>.<br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
-    <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-      <button type="button" class="btn-secondary" id="importFileBtn">📂 Carregar ficheiro .json</button>
-      <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
-      <button type="button" class="btn-secondary" id="importCopyPromptBtn">🤖 Copiar instruções para IA</button>
-    </div>
-    <div id="importFileStatus" style="font-size:12.5px;color:var(--ink-soft);margin:-8px 0 10px;"></div>
     <div class="field">
       <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
   {
@@ -744,6 +690,7 @@ let questionsUnsub = null;
 let progress = { currentIndex: 0, answers: {} };
 let progressUnsub = null;
 let editingQuestionId = null;
+let questionSourceFilter = 'all';
 let optionCount = 0;
 let pendingPhoto = null;
 let photoRemoved = false;
@@ -824,14 +771,6 @@ function isAnswerCorrect(q, answer){
 }
 function correctLettersLabel(q){
   return getCorrectIndexes(q).map(i => String.fromCharCode(65 + i)).join(', ');
-}
-
-function formatImportDate(ts){
-  if(!ts) return 'data desconhecida';
-  const d = new Date(ts);
-  const date = d.toLocaleDateString('pt-PT', { day:'2-digit', month:'2-digit', year:'numeric' });
-  const time = d.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
-  return `${date} às ${time}`;
 }
 
 /* Renderiza a tabela opcional de uma pergunta (ex: lista de dispositivos). */
@@ -1158,7 +1097,7 @@ function buildStudyHtml(wrap){
     </div>
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
     <div class="question-card">
-      ${q.image ? `<img src="${q.image}" class="question-image" alt="" onclick="openImageModal('${q.image}')">` : ''}
+      ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
       <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
@@ -1175,7 +1114,6 @@ function buildStudyHtml(wrap){
       ${isDrag && !answeredThisQuestion ? `<button class="btn-primary" id="confirmDragBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isYesNo && !answeredThisQuestion ? `<button class="btn-primary" id="confirmYesNoBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(q.explanation)}</div>` : ''}
-      ${answeredThisQuestion ? `<button type="button" class="btn-secondary ai-verify-btn" id="aiVerifyBtn">🤖 Verificar resposta com IA</button>` : ''}
     </div>
     <div class="study-actions">
       <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
@@ -1315,11 +1253,6 @@ function buildStudyHtml(wrap){
       renderStudy();
     });
   });
-
-  const aiVerifyBtn = document.getElementById('aiVerifyBtn');
-  if(aiVerifyBtn){
-    aiVerifyBtn.addEventListener('click', ()=> openAIVerify(q, savedAnswer));
-  }
 }
 
 function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected){
@@ -1453,12 +1386,44 @@ function yesNoRowHtml(stmt, i, savedAnswer, pendingSelected, answered){
 }
 
 /* ---------- Gerir perguntas ---------- */
-function qListRowHtml(q, i){
-  return `
+/* Determina e rotula a origem de uma pergunta (perguntas antigas sem
+   o campo "source" são tratadas como manuais, por serem a maioria). */
+function questionSourceInfo(q){
+  const src = q.source === 'import' ? 'import' : 'manual';
+  return { src, label: src === 'import' ? 'Importada' : 'Manual' };
+}
+
+function renderQuestionList(){
+  const root = document.getElementById('questionList');
+
+  const counts = { all: questions.length, manual: 0, import: 0 };
+  questions.forEach(q => { counts[questionSourceInfo(q).src]++; });
+  document.querySelectorAll('.source-filter-btn').forEach(btn=>{
+    const f = btn.dataset.sourceFilter;
+    btn.classList.toggle('active', f === questionSourceFilter);
+    const label = f === 'all' ? 'Todas' : f === 'manual' ? 'Manuais' : 'Importadas';
+    btn.textContent = `${label} (${counts[f]})`;
+  });
+
+  if(questions.length === 0){
+    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
+    return;
+  }
+  const filtered = questionSourceFilter === 'all'
+    ? questions
+    : questions.filter(q => questionSourceInfo(q).src === questionSourceFilter);
+  if(filtered.length === 0){
+    root.innerHTML = `<div class="empty-state">Não há perguntas ${questionSourceFilter === 'manual' ? 'manuais' : 'importadas'} neste módulo.</div>`;
+    return;
+  }
+
+  root.innerHTML = filtered.map((q, i) => {
+    const { src, label } = questionSourceInfo(q);
+    return `
     <div class="q-list-row">
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
-        <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)}</div>
+        <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)} <span class="source-badge ${src}">${label}</span></div>
         <div class="q-list-meta">${
           isSelectQuestion(q)
             ? `${(q.slots || []).length} seletor(es) · corretas: ${(q.slots || []).map(s => s.options[s.correctIndex] ?? '').join(' / ')}`
@@ -1475,50 +1440,7 @@ function qListRowHtml(q, i){
       </div>
     </div>
   `;
-}
-
-function renderQuestionList(){
-  const root = document.getElementById('questionList');
-  if(questions.length === 0){
-    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
-    return;
-  }
-
-  // Separa as perguntas adicionadas manualmente das importadas, e dentro
-  // destas, cada importação fica no seu próprio grupo — mantendo a
-  // numeração igual à ordem real do questionário (a mesma do modo estudo).
-  const manualGroup = { key: 'manual', label: 'Adicionadas manualmente', kind: 'manual', items: [] };
-  const importGroups = new Map();
-
-  questions.forEach((q, i) => {
-    if(q.source === 'import' && q.importBatchId){
-      if(!importGroups.has(q.importBatchId)){
-        importGroups.set(q.importBatchId, {
-          key: q.importBatchId, kind: 'import',
-          label: `Importação · ${formatImportDate(q.importedAt || q.createdAt)}`,
-          items: []
-        });
-      }
-      importGroups.get(q.importBatchId).items.push({ q, i });
-    } else {
-      manualGroup.items.push({ q, i });
-    }
-  });
-
-  const groups = [];
-  if(manualGroup.items.length) groups.push(manualGroup);
-  groups.push(...[...importGroups.values()].sort((a, b) => b.key.localeCompare(a.key)));
-
-  root.innerHTML = groups.map(group => `
-    <div class="q-group q-group-${group.kind}">
-      <div class="q-group-header">
-        <span>${escapeHtml(group.label)}</span>
-        <span class="q-group-count">${group.items.length} pergunta${group.items.length === 1 ? '' : 's'}</span>
-      </div>
-      ${group.items.map(({ q, i }) => qListRowHtml(q, i)).join('')}
-    </div>
-  `).join('');
-
+  }).join('');
   root.querySelectorAll('[data-action="edit-q"]').forEach(btn=>{
     btn.addEventListener('click', ()=> openQuestionModal(btn.dataset.id));
   });
@@ -1531,13 +1453,18 @@ function renderQuestionList(){
     });
   });
 }
+document.querySelectorAll('.source-filter-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    questionSourceFilter = btn.dataset.sourceFilter;
+    renderQuestionList();
+  });
+});
 
 document.getElementById('newQuestionBtn').addEventListener('click', ()=> openQuestionModal(null));
 
 document.getElementById('importQuestionsBtn').addEventListener('click', ()=>{
   document.getElementById('importTextarea').value = '';
   document.getElementById('importStatus').textContent = '';
-  document.getElementById('importFileStatus').textContent = '';
   document.getElementById('importModalOverlay').classList.add('open');
 });
 document.getElementById('importCancelBtn').addEventListener('click', ()=>{
@@ -1546,83 +1473,10 @@ document.getElementById('importCancelBtn').addEventListener('click', ()=>{
 document.getElementById('importModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'importModalOverlay') document.getElementById('importModalOverlay').classList.remove('open');
 });
-
-/* ---------- Carregar ficheiro .json para a caixa de importação ---------- */
-document.getElementById('importFileBtn').addEventListener('click', ()=>{
-  document.getElementById('importFileInput').click();
-});
-document.getElementById('importFileInput').addEventListener('change', (e)=>{
-  const file = e.target.files && e.target.files[0];
-  const fileStatusEl = document.getElementById('importFileStatus');
-  e.target.value = '';
-  if(!file) return;
-  if(!/\.json$/i.test(file.name) && file.type !== 'application/json'){
-    fileStatusEl.textContent = 'Escolhe um ficheiro .json.';
-    fileStatusEl.style.color = 'var(--err)';
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    document.getElementById('importTextarea').value = String(reader.result || '');
-    fileStatusEl.textContent = `Ficheiro "${file.name}" carregado. Revê o conteúdo e clica em Importar.`;
-    fileStatusEl.style.color = 'var(--ok)';
-  };
-  reader.onerror = ()=>{
-    fileStatusEl.textContent = 'Não foi possível ler o ficheiro.';
-    fileStatusEl.style.color = 'var(--err)';
-  };
-  reader.readAsText(file);
-});
-
-/* ---------- Instruções para colar numa IA (ChatGPT/Claude/Gemini) ---------- */
-const IMPORT_AI_PROMPT = `Vais ajudar-me a criar perguntas de quiz em formato JSON para uma app de estudo. Segue exatamente estas regras de formato:
-
-- O resultado final tem de ser APENAS uma lista JSON válida (começa com [ e acaba com ]), sem texto antes ou depois, sem comentários e sem markdown (sem \`\`\`).
-- Cada pergunta é um objeto com pelo menos o campo "text" (o enunciado).
-- Os campos "explanation" (string, explicação da resposta) e "table" (ver abaixo) são opcionais em qualquer tipo de pergunta.
-
-Tipos de pergunta possíveis (escolhe o que fizer sentido para cada pergunta):
-
-1) Resposta única (tipo por omissão, não precisa de "type"):
-{"text": "...", "options": ["...", "...", "...", "..."], "correctIndex": 0, "explanation": "..."}
-
-2) Várias respostas certas:
-{"text": "...", "options": ["...", "...", "...", "..."], "multiple": true, "correctIndexes": [0, 2], "explanation": "..."}
-
-3) Seletores / hotspot (vários dropdowns, cada um com as suas opções):
-{"text": "...", "type": "select", "slots": [{"label": "...", "options": ["...", "..."], "correctIndex": 0}, ...], "explanation": "..."}
-
-4) Drag and drop (associar itens a alvos):
-{"text": "...", "type": "dragdrop", "items": ["item 1", "item 2", "item 3"], "targets": [{"label": "...", "correctItemIndex": 0}, ...], "explanation": "..."}
-(o "correctItemIndex" refere-se à posição do item correto dentro de "items", começando em 0)
-
-5) Sim / Não (várias afirmações, cada uma verdadeira ou falsa):
-{"text": "...", "type": "yesno", "statements": [{"label": "...", "correct": true}, {"label": "...", "correct": false}], "explanation": "..."}
-
-Tabela opcional (podes incluir em qualquer tipo, quando a pergunta tiver uma tabela de apoio):
-"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}
-
-Agora, usa estas regras para transformar o seguinte conteúdo em perguntas de quiz nesse formato JSON (cria o número de perguntas que fizer sentido, cobrindo os pontos mais importantes):
-
-[COLA AQUI O TEU CONTEÚDO / TEMA / NOTAS DE ESTUDO]`;
-
-document.getElementById('importCopyPromptBtn').addEventListener('click', async ()=>{
-  const fileStatusEl = document.getElementById('importFileStatus');
-  try{
-    await navigator.clipboard.writeText(IMPORT_AI_PROMPT);
-    fileStatusEl.textContent = 'Instruções copiadas! Cola numa IA (ChatGPT, Claude, Gemini, ...), substitui a última linha pelo teu conteúdo, e depois cola o JSON que ela devolver aqui na caixa.';
-    fileStatusEl.style.color = 'var(--ok)';
-  }catch(e){
-    fileStatusEl.textContent = 'Não foi possível copiar automaticamente. Tenta novamente.';
-    fileStatusEl.style.color = 'var(--err)';
-  }
-});
-
 document.getElementById('importConfirmBtn').addEventListener('click', async ()=>{
   const statusEl = document.getElementById('importStatus');
   const raw = document.getElementById('importTextarea').value.trim();
   if(!raw){ statusEl.textContent = 'Cola a lista de perguntas em JSON primeiro.'; statusEl.style.color = 'var(--err)'; return; }
-  if(!currentModuleId){ statusEl.textContent = 'Nenhum módulo selecionado — fecha isto, entra num módulo e tenta outra vez.'; statusEl.style.color = 'var(--err)'; return; }
 
   let parsed;
   try{ parsed = JSON.parse(raw); }
@@ -1662,7 +1516,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         return;
       }
       valid.push({
-        type: 'select', text, slots, table,
+        type: 'select', text, slots, table, source: 'import',
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
@@ -1686,7 +1540,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         return;
       }
       valid.push({
-        type: 'dragdrop', text, items: rawItems, targets, table,
+        type: 'dragdrop', text, items: rawItems, targets, table, source: 'import',
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
@@ -1708,7 +1562,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         return;
       }
       valid.push({
-        type: 'yesno', text, statements, table,
+        type: 'yesno', text, statements, table, source: 'import',
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
@@ -1733,7 +1587,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     // senão infere-se automaticamente de haver mais que uma correta.
     const multiple = typeof (item && item.multiple) === 'boolean' ? item.multiple : correctIndexes.length > 1;
     valid.push({
-      type: 'choice', text, options, correctIndexes, multiple, correctIndex: correctIndexes[0], table,
+      type: 'choice', text, options, correctIndexes, multiple, correctIndex: correctIndexes[0], table, source: 'import',
       explanation: (item.explanation || '').toString().trim(),
       image: null,
       createdAt: Date.now()
@@ -1749,27 +1603,11 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
   statusEl.style.color = 'var(--ink-soft)';
   statusEl.textContent = `A importar ${valid.length} pergunta(s)…`;
   try{
-    // Marca todas as perguntas desta importação com a mesma origem (para
-    // as conseguir separar depois) e dá-lhes um createdAt sequencial —
-    // assim a ordem em que apareceram no JSON é preservada. Sem isto,
-    // como todas ficavam com o mesmo instante, o Firestore desempatava
-    // pelo ID aleatório do documento e a ordem saía embaralhada.
-    const baseTime = Date.now();
-    const importBatchId = 'imp_' + baseTime;
-    valid.forEach((q, idx) => {
-      q.createdAt = baseTime + idx;
-      q.source = 'import';
-      q.importBatchId = importBatchId;
-      q.importedAt = baseTime;
-    });
-
     const colRef = db.collection('quizModules').doc(currentModuleId).collection('questions');
     const batches = [];
     for(let i = 0; i < valid.length; i += 400){
       const batch = db.batch();
-      // JSON.parse(JSON.stringify(...)) remove quaisquer campos "undefined" que
-      // o Firestore rejeitaria (causa comum de "invalid-argument" ao gravar).
-      valid.slice(i, i + 400).forEach(q => batch.set(colRef.doc(), JSON.parse(JSON.stringify(q))));
+      valid.slice(i, i + 400).forEach(q => batch.set(colRef.doc(), q));
       batches.push(batch.commit());
     }
     await Promise.all(batches);
@@ -1783,8 +1621,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     }
   }catch(e){
     console.error(e);
-    const detail = (e && (e.code || e.message)) ? ` (${[e.code, e.message].filter(Boolean).join(' — ')})` : '';
-    statusEl.textContent = `Falha ao guardar no Firestore${detail}. Verifica a ligação à internet e as regras de segurança do Firestore.`;
+    statusEl.textContent = 'Falha ao guardar no Firestore. Tenta novamente.';
     statusEl.style.color = 'var(--err)';
   }
 });
@@ -2220,13 +2057,17 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
   }
 
   const payload = { type, text, explanation, image, table, ...typeFields };
+  // A origem (manual/importada) não é alterada ao editar — só é definida
+  // quando a pergunta é criada de raiz aqui no editor.
+  if(!editingQuestionId){
+    payload.source = 'manual';
+  }
 
   try{
     if(editingQuestionId){
       await db.collection('quizModules').doc(currentModuleId).collection('questions').doc(editingQuestionId).set(payload, { merge:true });
     } else {
       payload.createdAt = Date.now();
-      payload.source = 'manual';
       await db.collection('quizModules').doc(currentModuleId).collection('questions').add(payload);
     }
     document.getElementById('questionModalOverlay').classList.remove('open');
@@ -2236,135 +2077,12 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
   }
 });
 
-/* ---------- Modal de imagem (ver foto em tamanho grande) ---------- */
-function openImageModal(src){
-  if(!src) return;
-  document.getElementById('imageModalImg').src = src;
-  document.getElementById('imageModalOverlay').classList.add('open');
-}
-function closeImageModal(){
-  document.getElementById('imageModalOverlay').classList.remove('open');
-  document.getElementById('imageModalImg').src = '';
-}
-document.getElementById('imageModalOverlay').addEventListener('click', (e)=>{
-  if(e.target.id === 'imageModalOverlay') closeImageModal();
-});
-document.getElementById('imageModalCloseBtn').addEventListener('click', closeImageModal);
-
-/* ---------- Verificação de respostas com IA ---------- */
-/* Monta o texto da pergunta (com opções/afirmações e a resposta marcada como
-   correta nos dados) para enviar à IA, pedindo-lhe para confirmar ou não. */
-function buildAIVerifyPrompt(q, answer){
-  const lines = [];
-  lines.push('Sou um estudante a rever perguntas de um quiz de certificação. Aqui está uma pergunta, as opções, qual a resposta marcada como correta nos meus dados, e a resposta que eu dei. Confirma, de forma breve e direta, se a resposta marcada como correta está mesmo correta, e explica porquê em poucas frases. Se achares que está errada, diz isso claramente logo na primeira linha.');
-  lines.push('');
-  lines.push('Pergunta: ' + q.text);
-  if(q.table && Array.isArray(q.table.headers) && q.table.headers.length){
-    lines.push('Tabela: ' + q.table.headers.join(' | '));
-    (q.table.rows || []).forEach(r => lines.push('  ' + r.join(' | ')));
-  }
-
-  if(isSelectQuestion(q)){
-    (q.slots || []).forEach((slot, i)=>{
-      const correctOpt = slot.options[slot.correctIndex];
-      const givenIdx = Array.isArray(answer) ? answer[i] : undefined;
-      const givenOpt = Number.isInteger(givenIdx) ? slot.options[givenIdx] : '(sem resposta)';
-      lines.push(`Seletor "${slot.label}": opções [${slot.options.join(', ')}] — marcado como correto: "${correctOpt}" — resposta dada: "${givenOpt}"`);
-    });
-  } else if(isDragDropQuestion(q)){
-    lines.push('Itens disponíveis: ' + (q.items || []).join(', '));
-    (q.targets || []).forEach((t, i)=>{
-      const correctItem = q.items[t.correctItemIndex];
-      const givenIdx = Array.isArray(answer) ? answer[i] : undefined;
-      const givenItem = Number.isInteger(givenIdx) ? q.items[givenIdx] : '(sem resposta)';
-      lines.push(`Alvo "${t.label}": marcado como correto: "${correctItem}" — resposta dada: "${givenItem}"`);
-    });
-  } else if(isYesNoQuestion(q)){
-    (q.statements || []).forEach((s, i)=>{
-      const given = Array.isArray(answer) ? (answer[i] === true ? 'Sim' : answer[i] === false ? 'Não' : '(sem resposta)') : '(sem resposta)';
-      lines.push(`Afirmação: "${s.label}" — marcado como correto: ${s.correct ? 'Sim' : 'Não'} — resposta dada: ${given}`);
-    });
-  } else {
-    const correctIdx = getCorrectIndexes(q);
-    (q.options || []).forEach((opt, i)=>{
-      lines.push(`${String.fromCharCode(65+i)}) ${opt}${correctIdx.includes(i) ? '  [marcado como correto nos meus dados]' : ''}`);
-    });
-    const given = Array.isArray(answer) ? answer.map(i => String.fromCharCode(65+i)).join(', ') : (Number.isInteger(answer) ? String.fromCharCode(65+answer) : '(sem resposta)');
-    lines.push('Resposta que eu dei: ' + given);
-  }
-
-  if(q.explanation) lines.push('Explicação que já tenho: ' + q.explanation);
-  return lines.join('\n');
-}
-
-let aiVerifyCurrentPrompt = '';
-
-const AI_PROVIDERS = {
-  claude:  { label: 'Claude',  icon: '✳️', url: 'https://claude.ai/new?q=' },
-  gemini:  { label: 'Gemini',  icon: '✨', url: 'https://gemini.google.com/app?q=' },
-  chatgpt: { label: 'ChatGPT', icon: '💬', url: 'https://chatgpt.com/?q=' }
-};
-
-function showAIProviderPicker(){
-  document.getElementById('aiVerifyBody').innerHTML = `
-    <p style="font-size:13px;color:var(--ink-soft);margin:-4px 0 14px;">
-      A pergunta é copiada para a área de transferência e a IA escolhida abre numa nova aba — se o texto não aparecer já preenchido, cola-o (Ctrl/Cmd+V) na caixa de conversa.
-    </p>
-    <div class="ai-provider-grid">
-      ${Object.entries(AI_PROVIDERS).map(([key, p]) => `
-        <button type="button" class="ai-provider-btn" data-provider="${key}">
-          <span class="ai-provider-icon">${p.icon}</span>
-          <span>${p.label}</span>
-        </button>
-      `).join('')}
-    </div>
-  `;
-  document.querySelectorAll('#aiVerifyBody .ai-provider-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=> runAIVerify(btn.dataset.provider));
-  });
-}
-
-function openAIVerify(q, answer){
-  aiVerifyCurrentPrompt = buildAIVerifyPrompt(q, answer);
-  showAIProviderPicker();
-  document.getElementById('aiVerifyOverlay').classList.add('open');
-}
-
-function showAIVerifyResult(html){
-  document.getElementById('aiVerifyBody').innerHTML = `
-    <button type="button" class="ai-back-link" id="aiVerifyBackBtn">← Escolher outra IA</button>
-    ${html}
-  `;
-  const backBtn = document.getElementById('aiVerifyBackBtn');
-  if(backBtn) backBtn.addEventListener('click', showAIProviderPicker);
-}
-
-async function runAIVerify(provider){
-  const p = AI_PROVIDERS[provider];
-  if(!p) return;
-  const prompt = aiVerifyCurrentPrompt;
-
-  try{ await navigator.clipboard.writeText(prompt); }catch(e){}
-  window.open(p.url + encodeURIComponent(prompt), '_blank', 'noopener');
-
-  showAIVerifyResult(`<div class="ai-result-box">A pergunta foi copiada e o ${p.label} abriu numa nova aba. Se o texto não aparecer já preenchido na caixa de conversa, cola-o com Ctrl/Cmd+V.</div>`);
-}
-
-document.getElementById('aiVerifyCloseBtn').addEventListener('click', ()=>{
-  document.getElementById('aiVerifyOverlay').classList.remove('open');
-});
-document.getElementById('aiVerifyOverlay').addEventListener('click', (e)=>{
-  if(e.target.id === 'aiVerifyOverlay') document.getElementById('aiVerifyOverlay').classList.remove('open');
-});
-
-
 /* ---------- Atalhos de teclado ---------- */
 document.addEventListener('keydown', (e)=>{
   const tag = (e.target.tagName || '').toLowerCase();
   const isTyping = tag === 'input' || tag === 'textarea';
   if(e.key === 'Escape'){
     document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
-    closeImageModal();
     return;
   }
   if(isTyping) return;
