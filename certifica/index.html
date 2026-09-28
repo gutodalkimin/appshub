@@ -612,6 +612,11 @@
     Para perguntas do tipo <strong>Sim / Não</strong>: usa <code>"type": "yesno"</code> e <code>"statements": [{"label": "...", "correct": true}, ...]</code>.<br>
     Para incluir uma <strong>tabela</strong> na pergunta (qualquer tipo): usa <code>"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}</code>.<br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button type="button" class="btn-secondary" id="importFileBtn">Carregar ficheiro .json</button>
+      <button type="button" class="btn-secondary" id="copyAiPromptBtn">Copiar instruções para IA</button>
+      <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;">
+    </div>
     <div class="field">
       <textarea id="importTextarea" style="min-height:260px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;" placeholder='[
   {
@@ -1074,7 +1079,8 @@ function buildStudyHtml(wrap){
   const isSelect = isSelectQuestion(q);
   const isDrag = isDragDropQuestion(q);
   const isYesNo = isYesNoQuestion(q);
-  const multiple = !isSelect && !isDrag && !isYesNo && isMultipleQuestion(q);
+  const isChoice = !isSelect && !isDrag && !isYesNo;
+  const multiple = isChoice && isMultipleQuestion(q);
 
   if(pendingMultiAnswer.qid !== q.id){
     pendingMultiAnswer = { qid: q.id, selected: [] };
@@ -1118,7 +1124,7 @@ function buildStudyHtml(wrap){
         ? `<div id="yesnoWrap">${(q.statements || []).map((stmt, i) => yesNoRowHtml(stmt, i, savedAnswer, pendingYesNoAnswer.selected, answeredThisQuestion)).join('')}</div>`
         : `<div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>`
       }
-      ${multiple && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
+      ${isChoice && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isSelect && !answeredThisQuestion ? `<button class="btn-primary" id="confirmSelectBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isDrag && !answeredThisQuestion ? `<button class="btn-primary" id="confirmDragBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isYesNo && !answeredThisQuestion ? `<button class="btn-primary" id="confirmYesNoBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
@@ -1229,15 +1235,23 @@ function buildStudyHtml(wrap){
         });
       }
     } else {
+      // escolha única: clicar seleciona (podes mudar), "Confirmar resposta" grava
       wrap.querySelectorAll('.option-row').forEach(row=>{
         row.addEventListener('click', ()=>{
-          const chosen = parseInt(row.dataset.index, 10);
-          progress.answers = progress.answers || {};
-          progress.answers[q.id] = chosen;
-          saveProgress();
+          pendingMultiAnswer.selected = [parseInt(row.dataset.index, 10)];
           renderStudy();
         });
       });
+      const confirmSingleBtn = document.getElementById('confirmMultiBtn');
+      if(confirmSingleBtn){
+        confirmSingleBtn.addEventListener('click', ()=>{
+          if(pendingMultiAnswer.selected.length === 0){ alert('Escolhe uma opção.'); return; }
+          progress.answers = progress.answers || {};
+          progress.answers[q.id] = pendingMultiAnswer.selected[0];
+          saveProgress();
+          renderStudy();
+        });
+      }
     }
   }
 
@@ -1273,7 +1287,7 @@ function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected){
     const selectedIndexes = multiple ? (Array.isArray(savedAnswer) ? savedAnswer : []) : [savedAnswer];
     if(correctIndexes.includes(index)) cls += ' correct';
     else if(selectedIndexes.includes(index)) cls += ' incorrect';
-  } else if(multiple && pendingSelected.includes(index)){
+  } else if(pendingSelected.includes(index)){
     cls += ' selected';
   }
   return `
@@ -1476,6 +1490,84 @@ document.getElementById('importQuestionsBtn').addEventListener('click', ()=>{
   document.getElementById('importStatus').textContent = '';
   document.getElementById('importModalOverlay').classList.add('open');
 });
+
+/* ---------- Importar por ficheiro .json e copiar instruções para IA ---------- */
+const AI_JSON_PROMPT = `Converte as perguntas que te vou dar para JSON, seguindo EXATAMENTE este formato.
+Responde só com o JSON (uma lista []), sem texto extra nem blocos de markdown.
+
+REGRAS GERAIS
+- Cada pergunta é um objeto com "text" (obrigatório) e "explanation" (opcional, pode ser "").
+- Os índices começam em 0 (0 = primeira opção).
+- "table" é opcional e pode existir em qualquer tipo: {"headers": ["Col1","Col2"], "rows": [["a","b"],["c","d"]]}
+- Sem "type", a pergunta é de escolha (ver tipo 1).
+
+TIPO 1 - Escolha única
+{"text": "...", "options": ["A","B","C","D"], "correctIndex": 2, "explanation": ""}
+
+TIPO 2 - Escolha múltipla (várias corretas)
+{"text": "...", "options": ["A","B","C","D"], "multiple": true, "correctIndexes": [0,2]}
+
+TIPO 3 - Seletores / hotspot (vários dropdowns, cada um com as suas opções)
+{"type": "select", "text": "...", "slots": [
+  {"label": "Policy type:", "options": ["X","Y","Z"], "correctIndex": 1},
+  {"label": "Minimum number:", "options": ["1","2","3"], "correctIndex": 2}
+]}
+
+TIPO 4 - Drag and drop (associar itens a alvos; "correctItemIndex" é a posição em "items")
+{"type": "dragdrop", "text": "...", "items": ["Item A","Item B","Item C"], "targets": [
+  {"label": "Alvo 1", "correctItemIndex": 0},
+  {"label": "Alvo 2", "correctItemIndex": 2}
+]}
+
+TIPO 5 - Sim / Não (uma lista de afirmações)
+{"type": "yesno", "text": "...", "statements": [
+  {"label": "Afirmação 1", "correct": true},
+  {"label": "Afirmação 2", "correct": false}
+]}
+
+EXEMPLO COMPLETO
+[
+  {"text": "Qual comando lista as VMs?", "options": ["az vm list","az vm show"], "correctIndex": 0, "explanation": ""},
+  {"type": "yesno", "text": "Para cada afirmação, escolhe Sim ou Não.", "statements": [{"label": "Blob Storage guarda objetos.", "correct": true}]}
+]
+
+Mantém o texto das perguntas e opções no idioma original. Não inventes respostas: se não souberes a correta, usa a que o material indicar.
+
+PERGUNTAS A CONVERTER:
+`;
+
+document.getElementById('copyAiPromptBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('copyAiPromptBtn');
+  const original = btn.textContent;
+  try{
+    await navigator.clipboard.writeText(AI_JSON_PROMPT);
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = AI_JSON_PROMPT;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
+  btn.textContent = 'Copiado!';
+  setTimeout(()=>{ btn.textContent = original; }, 1800);
+});
+
+document.getElementById('importFileBtn').addEventListener('click', ()=> document.getElementById('importFileInput').click());
+document.getElementById('importFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('importStatus');
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    document.getElementById('importTextarea').value = String(reader.result || '');
+    statusEl.textContent = `Ficheiro "${file.name}" carregado. Revê e clica em Importar.`;
+  };
+  reader.onerror = ()=>{ statusEl.textContent = 'Não foi possível ler o ficheiro.'; };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
 document.getElementById('importCancelBtn').addEventListener('click', ()=>{
   document.getElementById('importModalOverlay').classList.remove('open');
 });
