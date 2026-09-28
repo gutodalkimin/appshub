@@ -774,12 +774,21 @@ function correctLettersLabel(q){
 }
 
 /* Renderiza a tabela opcional de uma pergunta (ex: lista de dispositivos). */
+/* O Firestore não aceita arrays dentro de arrays, por isso cada linha da
+   tabela é guardada como { cells: [...] }. Estas funções convertem entre
+   os dois formatos (e aceitam também o formato antigo de arrays simples). */
+function tableRowsToStored(rows){
+  return (rows || []).map(r => ({ cells: Array.isArray(r) ? r : ((r && r.cells) || []) }));
+}
+function tableRowsFromStored(rows){
+  return (rows || []).map(r => Array.isArray(r) ? r : ((r && r.cells) || []));
+}
 function renderQuestionTable(table){
   if(!table || !Array.isArray(table.headers) || !table.headers.length) return '';
   return `<table class="question-table"><thead><tr>${
     table.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')
   }</tr></thead><tbody>${
-    (table.rows || []).map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
+    tableRowsFromStored(table.rows).map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
   }</tbody></table>`;
 }
 
@@ -1492,7 +1501,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     const headers = Array.isArray(t.headers) ? t.headers.map(h => (h || '').toString().trim()).filter(Boolean) : [];
     const rows = Array.isArray(t.rows) ? t.rows.map(r => Array.isArray(r) ? r.map(c => (c || '').toString().trim()) : []) : [];
     if(headers.length === 0 || rows.length === 0) return { table: null, ok: false };
-    return { table: { headers, rows }, ok: true };
+    return { table: { headers, rows: tableRowsToStored(rows) }, ok: true };
   }
 
   parsed.forEach((item, i) => {
@@ -1879,7 +1888,7 @@ function openQuestionModal(questionId){
     document.getElementById('qTableToggle').checked = true;
     document.getElementById('tableEditWrap').style.display = 'block';
     q.table.headers.forEach(h => addTableColumn(h));
-    (q.table.rows || []).forEach(r => addTableDataRow(r));
+    tableRowsFromStored(q.table.rows).forEach(r => addTableDataRow(r));
   } else {
     document.getElementById('qTableToggle').checked = false;
     document.getElementById('tableEditWrap').style.display = 'none';
@@ -1990,7 +1999,7 @@ document.getElementById('qSaveBtn').addEventListener('click', async ()=>{
     );
     if(headers.some(h => !h)){ alert('Preenche o nome de todas as colunas da tabela ou remove-as.'); return; }
     if(rows.length === 0){ alert('Adiciona pelo menos uma linha à tabela ou desativa a opção de tabela.'); return; }
-    table = { headers, rows };
+    table = { headers, rows: tableRowsToStored(rows) };
   }
 
   // Campos específicos de cada tipo — começam todos a null; só os do tipo ativo são preenchidos.
