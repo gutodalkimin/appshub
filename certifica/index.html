@@ -302,6 +302,17 @@
     display:flex; align-items:flex-start; gap:14px; padding:14px 4px; border-bottom:1px dashed var(--border);
   }
   .q-list-row:last-child{ border-bottom:none; }
+  .question-card #confirmMultiBtn, .question-card #confirmSelectBtn,
+  .question-card #confirmDragBtn, .question-card #confirmYesNoBtn{ display:block; margin-left:auto; }
+  .q-bulk-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; padding:10px 12px; background:var(--surface-2); border-radius:10px; font-size:13px; }
+  .q-bulk-bar label{ display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--ink-soft); font-weight:600; }
+  .q-bulk-bar .bulk-spacer{ flex:1; }
+  .q-select-cb, #selectAllQ{ width:17px; height:17px; accent-color:var(--accent); flex-shrink:0; cursor:pointer; margin-top:2px; }
+  .btn-danger-outline{
+    background:none; border:1px solid var(--err); color:var(--err); padding:7px 12px; border-radius:8px;
+    font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;
+  }
+  .btn-danger-outline:disabled{ opacity:.4; cursor:default; }
   .q-list-thumb{ width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid var(--border); }
   .q-list-body{ flex:1; min-width:0; }
   .q-list-text{ font-size:14px; font-weight:500; margin-bottom:4px; white-space:pre-wrap; }
@@ -475,6 +486,12 @@
           <button class="source-filter-btn active" data-source-filter="all">Todas</button>
           <button class="source-filter-btn" data-source-filter="manual">Manuais</button>
           <button class="source-filter-btn" data-source-filter="import">Importadas</button>
+        </div>
+        <div class="q-bulk-bar" id="questionBulkBar" style="display:none;">
+          <label><input type="checkbox" id="selectAllQ"> Selecionar todas</label>
+          <span class="bulk-spacer"></span>
+          <button class="btn-danger-outline" id="deleteSelectedQBtn" disabled>Apagar selecionadas (0)</button>
+          <button class="btn-danger-outline" id="deleteGroupQBtn">Apagar grupo</button>
         </div>
         <div id="questionList"></div>
       </div>
@@ -696,6 +713,7 @@ let progress = { currentIndex: 0, answers: {} };
 let progressUnsub = null;
 let editingQuestionId = null;
 let questionSourceFilter = 'all';
+const selectedQuestionIds = new Set();
 let optionCount = 0;
 let pendingPhoto = null;
 let photoRemoved = false;
@@ -1419,6 +1437,9 @@ function questionSourceInfo(q){
 function renderQuestionList(){
   const root = document.getElementById('questionList');
 
+  const existingIds = new Set(questions.map(q => q.id));
+  [...selectedQuestionIds].forEach(id => { if(!existingIds.has(id)) selectedQuestionIds.delete(id); });
+
   const counts = { all: questions.length, manual: 0, import: 0 };
   questions.forEach(q => { counts[questionSourceInfo(q).src]++; });
   document.querySelectorAll('.source-filter-btn').forEach(btn=>{
@@ -1427,6 +1448,7 @@ function renderQuestionList(){
     const label = f === 'all' ? 'Todas' : f === 'manual' ? 'Manuais' : 'Importadas';
     btn.textContent = `${label} (${counts[f]})`;
   });
+  updateBulkBar();
 
   if(questions.length === 0){
     root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
@@ -1444,6 +1466,7 @@ function renderQuestionList(){
     const { src, label } = questionSourceInfo(q);
     return `
     <div class="q-list-row">
+      <input type="checkbox" class="q-select-cb" data-id="${q.id}" ${selectedQuestionIds.has(q.id) ? 'checked' : ''}>
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
         <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)} <span class="source-badge ${src}">${label}</span></div>
@@ -1481,6 +1504,70 @@ document.querySelectorAll('.source-filter-btn').forEach(btn=>{
     questionSourceFilter = btn.dataset.sourceFilter;
     renderQuestionList();
   });
+});
+
+/* ---------- Seleção e remoção em massa ---------- */
+function getFilteredQuestions(){
+  return questionSourceFilter === 'all'
+    ? questions
+    : questions.filter(q => questionSourceInfo(q).src === questionSourceFilter);
+}
+function updateBulkBar(){
+  const bar = document.getElementById('questionBulkBar');
+  bar.style.display = questions.length ? 'flex' : 'none';
+  const filtered = getFilteredQuestions();
+  const selCount = filtered.filter(q => selectedQuestionIds.has(q.id)).length;
+  const all = document.getElementById('selectAllQ');
+  all.checked = filtered.length > 0 && selCount === filtered.length;
+  all.indeterminate = selCount > 0 && selCount < filtered.length;
+  const delSel = document.getElementById('deleteSelectedQBtn');
+  delSel.textContent = `Apagar selecionadas (${selCount})`;
+  delSel.disabled = selCount === 0;
+  const groupName = questionSourceFilter === 'manual' ? 'manuais' : questionSourceFilter === 'import' ? 'importadas' : 'todas';
+  const delGroup = document.getElementById('deleteGroupQBtn');
+  delGroup.textContent = `Apagar ${questionSourceFilter === 'all' ? 'todas' : 'todas as ' + groupName} (${filtered.length})`;
+  delGroup.disabled = filtered.length === 0;
+}
+async function deleteQuestionsByIds(ids){
+  const col = db.collection('quizModules').doc(currentModuleId).collection('questions');
+  try{
+    for(let i = 0; i < ids.length; i += 400){
+      const batch = db.batch();
+      ids.slice(i, i + 400).forEach(id => batch.delete(col.doc(id)));
+      await batch.commit();
+    }
+    ids.forEach(id => selectedQuestionIds.delete(id));
+  }catch(e){
+    console.error(e);
+    alert('Não foi possível remover todas as perguntas.');
+  }
+}
+document.getElementById('questionList').addEventListener('change', (e)=>{
+  if(!e.target.classList.contains('q-select-cb')) return;
+  if(e.target.checked) selectedQuestionIds.add(e.target.dataset.id);
+  else selectedQuestionIds.delete(e.target.dataset.id);
+  updateBulkBar();
+});
+document.getElementById('selectAllQ').addEventListener('change', (e)=>{
+  getFilteredQuestions().forEach(q => {
+    if(e.target.checked) selectedQuestionIds.add(q.id);
+    else selectedQuestionIds.delete(q.id);
+  });
+  renderQuestionList();
+});
+document.getElementById('deleteSelectedQBtn').addEventListener('click', ()=>{
+  const ids = getFilteredQuestions().filter(q => selectedQuestionIds.has(q.id)).map(q => q.id);
+  if(!ids.length) return;
+  openConfirm(`Apagar ${ids.length} pergunta(s) selecionada(s)?`, 'Esta ação não pode ser desfeita.', ()=> deleteQuestionsByIds(ids));
+});
+document.getElementById('deleteGroupQBtn').addEventListener('click', ()=>{
+  const ids = getFilteredQuestions().map(q => q.id);
+  if(!ids.length) return;
+  const groupName = questionSourceFilter === 'manual' ? 'manuais' : questionSourceFilter === 'import' ? 'importadas' : 'as perguntas deste módulo';
+  const title = questionSourceFilter === 'all'
+    ? `Apagar TODAS as ${ids.length} perguntas deste módulo?`
+    : `Apagar todas as ${ids.length} perguntas ${groupName}?`;
+  openConfirm(title, 'Esta ação não pode ser desfeita.', ()=> deleteQuestionsByIds(ids));
 });
 
 document.getElementById('newQuestionBtn').addEventListener('click', ()=> openQuestionModal(null));
