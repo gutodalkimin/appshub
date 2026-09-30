@@ -188,6 +188,31 @@
     font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer; font-family:inherit;
   }
   .source-filter-btn.active{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+  .study-toolbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .study-toolbar .bulk-spacer{ flex:1; }
+  .flag-star-btn{
+    background:none; border:none; font-size:17px; line-height:1; cursor:pointer; color:var(--ink-faint);
+    vertical-align:middle; margin-left:6px; padding:0 2px; font-family:inherit;
+  }
+  .flag-star-btn.active{ color:var(--gold); }
+
+  /* ---------- Modo exame ---------- */
+  .exam-bar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:10px; font-size:13px; color:var(--ink-soft); }
+  .exam-bar .bulk-spacer{ flex:1; }
+  .exam-clock{ font-weight:700; font-size:15px; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .exam-clock.low{ color:var(--err); }
+  .exam-results{ text-align:center; padding:24px 12px; }
+  .exam-score-big{ font-size:44px; font-weight:800; margin:8px 0 4px; }
+  .exam-score-big.is-ok{ color:var(--ok); }
+  .exam-score-big.is-err{ color:var(--err); }
+
+  /* ---------- Estatísticas ---------- */
+  .stats-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:8px; }
+  .stats-card{ background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+  .stats-num{ font-size:26px; font-weight:800; color:var(--ink); }
+  .stats-label{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
+  .stats-table{ display:flex; flex-direction:column; gap:6px; }
+  .stats-table-row{ display:flex; justify-content:space-between; gap:10px; padding:9px 12px; background:var(--surface-2); border-radius:8px; font-size:13px; flex-wrap:wrap; }
   .source-badge{
     display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase;
     padding:2px 7px; border-radius:6px; margin-left:8px; vertical-align:middle;
@@ -471,10 +496,15 @@
       <div class="subtabs">
         <button class="subtab active" data-subtab="study">Estudar</button>
         <button class="subtab" data-subtab="manage">Perguntas</button>
+        <button class="subtab" data-subtab="stats">Estatísticas</button>
       </div>
 
       <div id="studyTab">
         <div class="study-wrap" id="studyWrap"></div>
+      </div>
+
+      <div id="statsTab" style="display:none;">
+        <div id="statsWrap"></div>
       </div>
 
       <div id="manageTab" style="display:none;">
@@ -482,6 +512,7 @@
           <button class="btn-secondary" id="importQuestionsBtn">Importar perguntas</button>
           <button class="btn-primary" id="newQuestionBtn">+ Nova pergunta</button>
         </div>
+        <input type="text" id="questionSearchInput" placeholder="Pesquisar perguntas por texto..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13.5px;font-family:inherit;color:var(--ink);outline:none;margin-bottom:12px;box-sizing:border-box;">
         <div class="source-filter-tabs" id="sourceFilterTabs">
           <button class="source-filter-btn active" data-source-filter="all">Todas</button>
           <button class="source-filter-btn" data-source-filter="manual">Manuais</button>
@@ -629,6 +660,9 @@
     Para perguntas do tipo <strong>Sim / Não</strong>: usa <code>"type": "yesno"</code> e <code>"statements": [{"label": "...", "correct": true}, ...]</code>.<br>
     Para incluir uma <strong>tabela</strong> na pergunta (qualquer tipo): usa <code>"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}</code>.<br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
+    <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;cursor:pointer;">
+      <input type="checkbox" id="importDuplicatesToggle" style="width:16px;height:16px;accent-color:var(--accent);"> Importar mesmo que o texto já exista neste módulo
+    </label>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
       <button type="button" class="btn-secondary" id="importFileBtn">Carregar ficheiro .json</button>
       <button type="button" class="btn-secondary" id="copyAiPromptBtn">Copiar instruções para IA</button>
@@ -689,6 +723,42 @@
   </div>
 </div>
 
+<div class="overlay" id="examSetupOverlay">
+  <div class="modal" style="width:440px;">
+    <h3>Modo exame</h3>
+    <div class="field">
+      <label for="examProfileSelect">Tipo de exame</label>
+      <select id="examProfileSelect">
+        <option value="microsoft">Microsoft (AZ / MS / SC…)</option>
+        <option value="aws">AWS</option>
+        <option value="comptia">CompTIA</option>
+        <option value="custom">Personalizado</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="examNumQInput">Número de perguntas</label>
+      <input type="number" id="examNumQInput" min="1">
+    </div>
+    <div class="field">
+      <label for="examMinutesInput">Tempo total (minutos)</label>
+      <input type="number" id="examMinutesInput" min="1">
+    </div>
+    <div class="field">
+      <label for="examPassInput">Nota de corte (%)</label>
+      <input type="number" id="examPassInput" min="1" max="100">
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="examShuffleToggle" checked style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+      <label for="examShuffleToggle" style="margin:0;font-size:13px;color:var(--ink);">Baralhar a ordem das perguntas</label>
+    </div>
+    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:-6px;">Tempo e nota de corte são valores típicos aproximados (a nota de corte real costuma ser numa escala 0–1000, não em %) — ajusta-os se souberes os do teu exame real.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="examSetupCancelBtn">Cancelar</button>
+      <button class="btn-primary" id="examSetupStartBtn">Começar exame</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ---------- Firebase (mesmo projeto do hub / planeador de viagem) ---------- */
 const firebaseConfig = {
@@ -714,6 +784,7 @@ let progressUnsub = null;
 let editingQuestionId = null;
 let questionSourceFilter = 'all';
 const selectedQuestionIds = new Set();
+let questionSearchQuery = '';
 let optionCount = 0;
 let pendingPhoto = null;
 let photoRemoved = false;
@@ -722,6 +793,477 @@ let pendingMultiAnswer = { qid: null, selected: [] };
 let pendingSelectAnswer = { qid: null, selected: [] };
 let pendingDragAnswer = { qid: null, placements: [], selectedChip: null };
 let pendingYesNoAnswer = { qid: null, selected: [] };
+
+/* ---------- Baralhar, marcar para rever e sequência de estudo ---------- */
+let shuffleEnabled = localStorage.getItem('quizShuffle') === '1';
+let studyFilterMode = 'all'; // 'all' | 'flagged'
+let studySequence = [];
+let lastSequenceSignature = null;
+let optionOrderMap = {};
+
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+// Só reconstrói (e só rebaralha) a sequência quando o conjunto de perguntas
+// elegíveis realmente muda — assim não se reordena a cada clique/resposta.
+function ensureStudySequence(){
+  const flaggedMap = (progress && progress.flagged) || {};
+  let pool = questions.map(q => q.id);
+  if(studyFilterMode === 'flagged') pool = pool.filter(id => flaggedMap[id]);
+  const signature = studyFilterMode + '|' + shuffleEnabled + '|' + pool.join(',');
+  if(signature !== lastSequenceSignature){
+    studySequence = shuffleEnabled ? shuffleArray(pool) : pool;
+    lastSequenceSignature = signature;
+  }
+}
+function getOptionOrder(q){
+  if(!Array.isArray(q.options)) return [];
+  if(!shuffleEnabled) return q.options.map((_, i) => i);
+  if(!optionOrderMap[q.id]) optionOrderMap[q.id] = shuffleArray(q.options.map((_, i) => i));
+  return optionOrderMap[q.id];
+}
+
+/* ---------- Modo exame cronometrado ---------- */
+// Valores típicos aproximados por "família" de certificação — não são os
+// valores oficiais de nenhum exame específico, servem de ponto de partida
+// e são sempre editáveis antes de começar.
+const EXAM_PROFILES = {
+  microsoft: { label: 'Microsoft', minutesPerQuestion: 2.5, passPercent: 70 },
+  aws:       { label: 'AWS', minutesPerQuestion: 2, passPercent: 72 },
+  comptia:   { label: 'CompTIA', minutesPerQuestion: 1, passPercent: 75 },
+  custom:    { label: 'Personalizado', minutesPerQuestion: 2, passPercent: 70 }
+};
+let examState = null;
+let examTimerHandle = null;
+
+function formatExamClock(ms){
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+function startExamTimer(){
+  stopExamTimer();
+  examTimerHandle = setInterval(()=>{
+    if(!examState || !examState.active){ stopExamTimer(); return; }
+    const remaining = examState.startedAt + examState.durationMs - Date.now();
+    const clockEl = document.getElementById('examClock');
+    if(clockEl){
+      clockEl.textContent = `⏱ ${formatExamClock(remaining)}`;
+      clockEl.classList.toggle('low', remaining < 60000);
+    }
+    if(remaining <= 0){
+      stopExamTimer();
+      finishExam(true);
+    }
+  }, 1000);
+}
+function stopExamTimer(){
+  if(examTimerHandle){ clearInterval(examTimerHandle); examTimerHandle = null; }
+}
+function primeExamPendingFromAnswer(q, ans){
+  if(ans === undefined) return;
+  if(isSelectQuestion(q)){
+    pendingSelectAnswer.selected = Array.isArray(ans) ? [...ans] : (q.slots || []).map(()=> '');
+  } else if(isDragDropQuestion(q)){
+    pendingDragAnswer.placements = Array.isArray(ans) ? [...ans] : (q.targets || []).map(()=> null);
+  } else if(isYesNoQuestion(q)){
+    pendingYesNoAnswer.selected = Array.isArray(ans) ? ans.map(v => v ? 'yes' : 'no') : (q.statements || []).map(()=> '');
+  } else if(isMultipleQuestion(q)){
+    pendingMultiAnswer.selected = Array.isArray(ans) ? [...ans] : [];
+  } else {
+    pendingMultiAnswer.selected = (typeof ans === 'number') ? [ans] : [];
+  }
+}
+function openExamSetup(){
+  if(questions.length === 0) return;
+  const numInput = document.getElementById('examNumQInput');
+  numInput.max = questions.length;
+  numInput.value = questions.length;
+  applyExamProfileDefaults();
+  document.getElementById('examSetupOverlay').classList.add('open');
+}
+function applyExamProfileDefaults(){
+  const profile = EXAM_PROFILES[document.getElementById('examProfileSelect').value];
+  const numQ = parseInt(document.getElementById('examNumQInput').value, 10) || questions.length;
+  document.getElementById('examMinutesInput').value = Math.max(1, Math.round(numQ * profile.minutesPerQuestion));
+  document.getElementById('examPassInput').value = profile.passPercent;
+}
+document.getElementById('examProfileSelect').addEventListener('change', applyExamProfileDefaults);
+document.getElementById('examNumQInput').addEventListener('input', applyExamProfileDefaults);
+document.getElementById('examSetupCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('examSetupOverlay').classList.remove('open');
+});
+document.getElementById('examSetupOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'examSetupOverlay') document.getElementById('examSetupOverlay').classList.remove('open');
+});
+document.getElementById('examSetupStartBtn').addEventListener('click', ()=>{
+  const numQ = Math.min(questions.length, Math.max(1, parseInt(document.getElementById('examNumQInput').value, 10) || 1));
+  const minutes = Math.max(1, parseInt(document.getElementById('examMinutesInput').value, 10) || 1);
+  const passPercent = Math.min(100, Math.max(1, parseInt(document.getElementById('examPassInput').value, 10) || 70));
+  const doShuffle = document.getElementById('examShuffleToggle').checked;
+  const profileLabel = EXAM_PROFILES[document.getElementById('examProfileSelect').value].label;
+
+  let ids = questions.map(q => q.id);
+  if(doShuffle) ids = shuffleArray(ids);
+  ids = ids.slice(0, numQ);
+
+  document.getElementById('examSetupOverlay').classList.remove('open');
+  pendingMultiAnswer = { qid: null, selected: [] };
+  pendingSelectAnswer = { qid: null, selected: [] };
+  pendingDragAnswer = { qid: null, placements: [], selectedChip: null };
+  pendingYesNoAnswer = { qid: null, selected: [] };
+  examState = {
+    active: true, results: false,
+    ids, index: 0, answers: {},
+    startedAt: Date.now(), durationMs: minutes * 60000,
+    passPercent, profileLabel
+  };
+  startExamTimer();
+  renderStudy();
+});
+
+function saveExamAttempt(attempt){
+  if(!currentModuleId || !currentUser) return;
+  db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(currentModuleId)
+    .collection('examAttempts').add(attempt)
+    .catch(e => console.error('Erro a guardar tentativa de exame', e));
+}
+function finishExam(timedOut){
+  stopExamTimer();
+  const total = examState.ids.length;
+  let correct = 0;
+  examState.ids.forEach(id=>{
+    const qq = questions.find(x => x.id === id);
+    if(qq && examState.answers[id] !== undefined && isAnswerCorrect(qq, examState.answers[id])) correct++;
+  });
+  const percent = total ? Math.round((correct / total) * 1000) / 10 : 0;
+  const passed = percent >= examState.passPercent;
+  const attempt = {
+    date: Date.now(), profileLabel: examState.profileLabel,
+    total, correct, percent, passed,
+    passPercent: examState.passPercent, durationMs: examState.durationMs,
+    timedOut: !!timedOut
+  };
+  saveExamAttempt(attempt);
+  examState = { active: false, results: true, ids: examState.ids, answers: examState.answers, attempt };
+  renderStudy();
+}
+
+function buildExamRunnerHtml(wrap){
+  const q = questions.find(x => x.id === examState.ids[examState.index]);
+  if(!q){
+    // a pergunta pode ter sido apagada entretanto — avança/recua para uma que exista
+    const validPos = examState.ids.map((id,i)=>({id,i})).find(x => questions.some(qq=>qq.id===x.id));
+    if(!validPos){ examState = null; renderStudy(); return; }
+    examState.index = validPos.i;
+    buildExamRunnerHtml(wrap);
+    return;
+  }
+  const isSelect = isSelectQuestion(q);
+  const isDrag = isDragDropQuestion(q);
+  const isYesNo = isYesNoQuestion(q);
+  const isChoice = !isSelect && !isDrag && !isYesNo;
+  const multiple = isChoice && isMultipleQuestion(q);
+
+  if(pendingMultiAnswer.qid !== q.id) pendingMultiAnswer = { qid: q.id, selected: [] };
+  if(pendingSelectAnswer.qid !== q.id) pendingSelectAnswer = { qid: q.id, selected: (q.slots || []).map(()=> '') };
+  if(pendingDragAnswer.qid !== q.id) pendingDragAnswer = { qid: q.id, placements: (q.targets || []).map(()=> null), selectedChip: null };
+  if(pendingYesNoAnswer.qid !== q.id) pendingYesNoAnswer = { qid: q.id, selected: (q.statements || []).map(()=> '') };
+  primeExamPendingFromAnswer(q, examState.answers[q.id]);
+
+  const optionOrder = isChoice ? getOptionOrder(q) : [];
+  const answeredExamCount = Object.keys(examState.answers).length;
+  const remainingMs = examState.startedAt + examState.durationMs - Date.now();
+
+  wrap.innerHTML = `
+    <div class="exam-bar">
+      <span class="exam-clock ${remainingMs < 60000 ? 'low' : ''}" id="examClock">⏱ ${formatExamClock(remainingMs)}</span>
+      <span>Pergunta ${examState.index + 1} de ${examState.ids.length} · ${answeredExamCount} respondida(s)</span>
+      <span class="bulk-spacer"></span>
+      <button type="button" class="btn-danger-outline" id="examExitBtn">Sair sem terminar</button>
+      <button type="button" class="btn-primary" id="examFinishBtn">Terminar exame</button>
+    </div>
+    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((examState.index) / examState.ids.length * 100)}%"></div></div>
+    <div class="question-card">
+      ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
+      ${q.table ? renderQuestionTable(q.table) : ''}
+      <div class="question-text">${formatQuestionText(q.text)}</div>
+      ${multiple ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas.</div>` : ''}
+      ${isSelect
+        ? `<div id="slotsWrap">${(q.slots || []).map((slot, i) => selectSlotHtml(slot, i, undefined, pendingSelectAnswer.selected, false)).join('')}</div>`
+        : isDrag
+        ? dragDropStudyHtml(q, undefined, pendingDragAnswer, false)
+        : isYesNo
+        ? `<div id="yesnoWrap">${(q.statements || []).map((stmt, i) => yesNoRowHtml(stmt, i, undefined, pendingYesNoAnswer.selected, false)).join('')}</div>`
+        : `<div id="optionsWrap">${optionOrder.map((origIdx, pos) => optionRowHtml(q, q.options[origIdx], origIdx, undefined, multiple, pendingMultiAnswer.selected, pos)).join('')}</div>`
+      }
+    </div>
+    <div class="study-actions">
+      <button class="btn-secondary" id="examPrevBtn" ${examState.index === 0 ? 'disabled' : ''}>← Anterior</button>
+      <span style="font-size:11.5px;color:var(--ink-soft);align-self:center;">A escolha fica guardada ao clicares numa opção.</span>
+      <button class="btn-primary" id="examNextBtn">${examState.index === examState.ids.length - 1 ? 'Rever e terminar' : 'Seguinte →'}</button>
+    </div>
+  `;
+
+  function commitExamAnswer(){
+    if(isSelect){
+      if(pendingSelectAnswer.selected.every(v => v !== '' && v !== undefined)) examState.answers[q.id] = [...pendingSelectAnswer.selected];
+      else delete examState.answers[q.id];
+    } else if(isDrag){
+      if(pendingDragAnswer.placements.every(v => v !== null && v !== undefined)) examState.answers[q.id] = [...pendingDragAnswer.placements];
+      else delete examState.answers[q.id];
+    } else if(isYesNo){
+      if(pendingYesNoAnswer.selected.every(v => v === 'yes' || v === 'no')) examState.answers[q.id] = pendingYesNoAnswer.selected.map(v => v === 'yes');
+      else delete examState.answers[q.id];
+    } else if(multiple){
+      if(pendingMultiAnswer.selected.length) examState.answers[q.id] = [...pendingMultiAnswer.selected].sort((a,b)=>a-b);
+      else delete examState.answers[q.id];
+    } else {
+      if(pendingMultiAnswer.selected.length) examState.answers[q.id] = pendingMultiAnswer.selected[0];
+      else delete examState.answers[q.id];
+    }
+  }
+
+  if(isSelect){
+    wrap.querySelectorAll('.select-slot select').forEach(sel=>{
+      sel.addEventListener('change', ()=>{
+        const i = parseInt(sel.dataset.slotIndex, 10);
+        pendingSelectAnswer.selected[i] = sel.value === '' ? '' : parseInt(sel.value, 10);
+        commitExamAnswer();
+        renderStudy();
+      });
+    });
+  } else if(isDrag){
+    wrap.querySelectorAll('.drag-chip[data-item-index]').forEach(chip=>{
+      chip.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const i = parseInt(chip.dataset.itemIndex, 10);
+        pendingDragAnswer.selectedChip = pendingDragAnswer.selectedChip === i ? null : i;
+        renderStudy();
+      });
+      chip.addEventListener('dragstart', (e)=> e.dataTransfer.setData('text/plain', chip.dataset.itemIndex));
+    });
+    wrap.querySelectorAll('.drag-target-slot').forEach(slot=>{
+      slot.addEventListener('click', ()=>{
+        const ti = parseInt(slot.dataset.targetIndex, 10);
+        if(pendingDragAnswer.selectedChip !== null){
+          pendingDragAnswer.placements = pendingDragAnswer.placements.map(v => v === pendingDragAnswer.selectedChip ? null : v);
+          pendingDragAnswer.placements[ti] = pendingDragAnswer.selectedChip;
+          pendingDragAnswer.selectedChip = null;
+        } else if(pendingDragAnswer.placements[ti] !== null && pendingDragAnswer.placements[ti] !== undefined){
+          pendingDragAnswer.placements[ti] = null;
+        }
+        commitExamAnswer();
+        renderStudy();
+      });
+      slot.addEventListener('dragover', (e)=> e.preventDefault());
+      slot.addEventListener('drop', (e)=>{
+        e.preventDefault();
+        const ti = parseInt(slot.dataset.targetIndex, 10);
+        const itemIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        if(Number.isInteger(itemIndex)){
+          pendingDragAnswer.placements = pendingDragAnswer.placements.map(v => v === itemIndex ? null : v);
+          pendingDragAnswer.placements[ti] = itemIndex;
+        }
+        commitExamAnswer();
+        renderStudy();
+      });
+    });
+  } else if(isYesNo){
+    wrap.querySelectorAll('.yesno-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const i = parseInt(btn.dataset.stmtIndex, 10);
+        pendingYesNoAnswer.selected[i] = btn.dataset.value;
+        commitExamAnswer();
+        renderStudy();
+      });
+    });
+  } else if(multiple){
+    wrap.querySelectorAll('.option-row').forEach(row=>{
+      row.addEventListener('click', ()=>{
+        const i = parseInt(row.dataset.index, 10);
+        const pos = pendingMultiAnswer.selected.indexOf(i);
+        if(pos === -1) pendingMultiAnswer.selected.push(i);
+        else pendingMultiAnswer.selected.splice(pos, 1);
+        commitExamAnswer();
+        renderStudy();
+      });
+    });
+  } else {
+    wrap.querySelectorAll('.option-row').forEach(row=>{
+      row.addEventListener('click', ()=>{
+        pendingMultiAnswer.selected = [parseInt(row.dataset.index, 10)];
+        commitExamAnswer();
+        renderStudy();
+      });
+    });
+  }
+
+  document.getElementById('examPrevBtn').addEventListener('click', ()=>{
+    examState.index = Math.max(0, examState.index - 1);
+    renderStudy();
+  });
+  document.getElementById('examNextBtn').addEventListener('click', ()=>{
+    examState.index = Math.min(examState.ids.length - 1, examState.index + 1);
+    renderStudy();
+  });
+  document.getElementById('examExitBtn').addEventListener('click', ()=>{
+    openConfirm('Sair do exame?', 'As respostas dadas até agora são perdidas e o cronómetro para.', ()=>{
+      stopExamTimer();
+      examState = null;
+      renderStudy();
+    });
+  });
+  document.getElementById('examFinishBtn').addEventListener('click', ()=>{
+    const missing = examState.ids.length - Object.keys(examState.answers).length;
+    const msg = missing > 0
+      ? `Ainda há ${missing} pergunta(s) por responder. Queres mesmo terminar o exame?`
+      : 'Queres terminar o exame e ver o resultado?';
+    openConfirm('Terminar exame?', msg, ()=> finishExam(false));
+  });
+}
+
+function buildExamResultsHtml(wrap){
+  const { attempt, ids, answers } = examState;
+  const passClass = attempt.passed ? 'is-ok' : 'is-err';
+  wrap.innerHTML = `
+    <div class="exam-results">
+      <h3>${attempt.passed ? '✅ Aprovado' : '❌ Reprovado'}</h3>
+      <div class="exam-score-big ${passClass}">${attempt.percent}%</div>
+      <div style="color:var(--ink-soft);margin-bottom:14px;">${attempt.correct} de ${attempt.total} corretas · nota de corte: ${attempt.passPercent}% · ${escapeHtml(attempt.profileLabel || '')}${attempt.timedOut ? ' · tempo esgotado' : ''}</div>
+      <button class="btn-primary" id="examReviewBtn">Rever respostas</button>
+      <button class="btn-secondary" id="examCloseResultsBtn">Fechar</button>
+    </div>
+    <div id="examReviewList" style="display:none;margin-top:18px;"></div>
+  `;
+  document.getElementById('examReviewBtn').addEventListener('click', ()=>{
+    const listEl = document.getElementById('examReviewList');
+    listEl.style.display = listEl.style.display === 'none' ? 'block' : 'none';
+    if(listEl.style.display === 'block' && !listEl.dataset.built){
+      listEl.dataset.built = '1';
+      listEl.innerHTML = ids.map((id, i) => {
+        const qq = questions.find(x => x.id === id);
+        if(!qq) return '';
+        const ans = answers[id];
+        const ok = ans !== undefined && isAnswerCorrect(qq, ans);
+        let bodyHtml;
+        if(ans === undefined){
+          bodyHtml = `<div style="color:var(--ink-faint);font-size:13px;">Não respondeste a esta pergunta.</div>`;
+        } else if(isSelectQuestion(qq)){
+          bodyHtml = (qq.slots || []).map((slot, si) => selectSlotHtml(slot, si, ans, [], true)).join('');
+        } else if(isDragDropQuestion(qq)){
+          bodyHtml = dragDropStudyHtml(qq, ans, { placements: [], selectedChip: null }, true);
+        } else if(isYesNoQuestion(qq)){
+          bodyHtml = (qq.statements || []).map((st, si) => yesNoRowHtml(st, si, ans, [], true)).join('');
+        } else {
+          bodyHtml = (qq.options || []).map((opt, oi) => optionRowHtml(qq, opt, oi, ans, isMultipleQuestion(qq), [])).join('');
+        }
+        return `
+          <div class="question-card" style="margin-bottom:14px;">
+            <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:${ok ? 'var(--ok)' : (ans === undefined ? 'var(--ink-faint)' : 'var(--err)')};">
+              ${i + 1}. ${ok ? '✓ Correta' : (ans === undefined ? '— Não respondida' : '✗ Incorreta')}
+            </div>
+            ${qq.table ? renderQuestionTable(qq.table) : ''}
+            <div class="question-text">${formatQuestionText(qq.text)}</div>
+            ${bodyHtml}
+            ${qq.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(qq.explanation)}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+  });
+  document.getElementById('examCloseResultsBtn').addEventListener('click', ()=>{
+    examState = null;
+    renderStudy();
+  });
+}
+
+/* ---------- Estatísticas ---------- */
+async function renderStats(){
+  const wrap = document.getElementById('statsWrap');
+  if(!wrap || !currentModuleId) return;
+  if(questions.length === 0){
+    wrap.innerHTML = `<div class="empty-state">Este módulo ainda não tem perguntas.</div>`;
+    return;
+  }
+  const total = questions.length;
+  const answers = progress.answers || {};
+  const answeredIds = Object.keys(answers).filter(id => questions.some(q => q.id === id));
+  const answeredCount = answeredIds.length;
+  const correctCount = answeredIds.filter(id=>{
+    const qq = questions.find(q => q.id === id);
+    return qq && isAnswerCorrect(qq, answers[id]);
+  }).length;
+  const pct = answeredCount ? Math.round((correctCount / answeredCount) * 1000) / 10 : 0;
+  const flaggedCount = Object.keys(progress.flagged || {}).filter(id => questions.some(q => q.id === id)).length;
+
+  const typeDefs = [
+    { label: 'Escolha', test: q => !isSelectQuestion(q) && !isDragDropQuestion(q) && !isYesNoQuestion(q) },
+    { label: 'Seletores', test: isSelectQuestion },
+    { label: 'Drag and drop', test: isDragDropQuestion },
+    { label: 'Sim / Não', test: isYesNoQuestion }
+  ];
+  const typeRows = typeDefs.map(t=>{
+    const qs = questions.filter(t.test);
+    const ansIds = qs.filter(q => answers[q.id] !== undefined).map(q => q.id);
+    const c = ansIds.filter(id=>{ const qq = questions.find(q => q.id === id); return qq && isAnswerCorrect(qq, answers[id]); }).length;
+    return { label: t.label, total: qs.length, answered: ansIds.length, correct: c };
+  }).filter(r => r.total > 0);
+
+  wrap.innerHTML = `
+    <div class="stats-grid">
+      <div class="stats-card"><div class="stats-num">${total}</div><div class="stats-label">Perguntas no módulo</div></div>
+      <div class="stats-card"><div class="stats-num">${answeredCount}/${total}</div><div class="stats-label">Respondidas</div></div>
+      <div class="stats-card"><div class="stats-num" style="color:${pct >= 70 ? 'var(--ok)' : 'var(--err)'};">${pct}%</div><div class="stats-label">Taxa de acerto</div></div>
+      <div class="stats-card"><div class="stats-num">★ ${flaggedCount}</div><div class="stats-label">Marcadas para rever</div></div>
+    </div>
+    <h4 style="margin:20px 0 10px;">Por tipo de pergunta</h4>
+    <div class="stats-table">
+      ${typeRows.map(r => `
+        <div class="stats-table-row">
+          <span>${r.label}</span>
+          <span>${r.answered}/${r.total} respondidas</span>
+          <span>${r.answered ? Math.round((r.correct / r.answered) * 100) : 0}% acerto</span>
+        </div>
+      `).join('')}
+    </div>
+    <h4 style="margin:20px 0 10px;">Últimas tentativas de exame</h4>
+    <div id="examHistoryWrap"><div class="empty-state" style="padding:20px;">A carregar…</div></div>
+  `;
+
+  try{
+    const snap = await db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(currentModuleId)
+      .collection('examAttempts').orderBy('date', 'desc').limit(10).get();
+    const histWrap = document.getElementById('examHistoryWrap');
+    if(!histWrap) return; // o utilizador pode ter mudado de separador entretanto
+    if(snap.empty){
+      histWrap.innerHTML = `<div class="empty-state" style="padding:20px;">Ainda não fizeste nenhum exame neste módulo.</div>`;
+      return;
+    }
+    histWrap.innerHTML = snap.docs.map(d=>{
+      const a = d.data();
+      const date = new Date(a.date).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div class="stats-table-row">
+          <span>${date}</span>
+          <span>${escapeHtml(a.profileLabel || '')}</span>
+          <span>${a.correct}/${a.total} (${a.percent}%)</span>
+          <span style="color:${a.passed ? 'var(--ok)' : 'var(--err)'};font-weight:700;">${a.passed ? 'Aprovado' : 'Reprovado'}</span>
+        </div>
+      `;
+    }).join('');
+  }catch(e){
+    console.error(e);
+    const histWrap = document.getElementById('examHistoryWrap');
+    if(histWrap) histWrap.innerHTML = `<div class="empty-state" style="padding:20px;">Não foi possível carregar o histórico de exames.</div>`;
+  }
+}
 let studyFontScale = 1;
 
 /* ---------- Tamanho do texto no modo de estudo ---------- */
@@ -1029,6 +1571,8 @@ document.getElementById('confirmOkBtn').addEventListener('click', async ()=>{
 
 /* ---------- Navegação módulo ---------- */
 function goToModules(){
+  stopExamTimer();
+  examState = null;
   currentModuleId = null;
   if(questionsUnsub){ questionsUnsub(); questionsUnsub = null; }
   if(progressUnsub){ progressUnsub(); progressUnsub = null; }
@@ -1046,6 +1590,19 @@ function openModule(moduleId){
   document.getElementById('modulePage').style.display = 'block';
   switchSubtab('study');
 
+  // Reinicia estado de UI específico do módulo anterior
+  stopExamTimer();
+  studyFilterMode = 'all';
+  studySequence = [];
+  lastSequenceSignature = null;
+  optionOrderMap = {};
+  examState = null;
+  questionSearchQuery = '';
+  questionSourceFilter = 'all';
+  selectedQuestionIds.clear();
+  const searchInput = document.getElementById('questionSearchInput');
+  if(searchInput) searchInput.value = '';
+
   if(questionsUnsub) questionsUnsub();
   questionsUnsub = db.collection('quizModules').doc(moduleId).collection('questions').orderBy('createdAt', 'asc').onSnapshot(snap=>{
     questions = snap.docs.map(d => ({ id:d.id, ...d.data() }));
@@ -1055,7 +1612,7 @@ function openModule(moduleId){
 
   if(progressUnsub) progressUnsub();
   progressUnsub = db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).onSnapshot(doc=>{
-    progress = doc.exists ? Object.assign({ currentIndex:0, answers:{} }, doc.data()) : { currentIndex:0, answers:{} };
+    progress = doc.exists ? Object.assign({ currentIndex:0, answers:{}, flagged:{} }, doc.data()) : { currentIndex:0, answers:{}, flagged:{} };
     renderStudy();
   }, err=>console.error('Erro a carregar progresso', err));
 }
@@ -1067,12 +1624,14 @@ function switchSubtab(name){
   document.querySelectorAll('.subtab').forEach(b => b.classList.toggle('active', b.dataset.subtab === name));
   document.getElementById('studyTab').style.display = name === 'study' ? 'block' : 'none';
   document.getElementById('manageTab').style.display = name === 'manage' ? 'block' : 'none';
+  document.getElementById('statsTab').style.display = name === 'stats' ? 'block' : 'none';
+  if(name === 'stats') renderStats();
 }
 
 function saveProgress(){
   if(!currentModuleId || !currentUser) return;
   db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(currentModuleId)
-    .set({ currentIndex: progress.currentIndex, answers: progress.answers, updatedAt: Date.now() }, { merge:true })
+    .set({ currentIndex: progress.currentIndex, answers: progress.answers, flagged: progress.flagged || {}, updatedAt: Date.now() }, { merge:true })
     .catch(e => console.error('Erro a guardar progresso', e));
 }
 
@@ -1083,15 +1642,56 @@ function renderStudy(){
 }
 
 function buildStudyHtml(wrap){
+  if(examState && examState.active){ buildExamRunnerHtml(wrap); return; }
+  if(examState && examState.results){ buildExamResultsHtml(wrap); return; }
+
   if(questions.length === 0){
     wrap.innerHTML = `<div class="empty-state">Este módulo ainda não tem perguntas.<span>Vai a "Perguntas" para adicionares a primeira.</span></div>`;
     return;
   }
-  if(progress.currentIndex >= questions.length) progress.currentIndex = questions.length - 1;
+
+  ensureStudySequence();
+  const flaggedMap = progress.flagged || {};
+  const flaggedCount = Object.keys(flaggedMap).filter(id => questions.some(qq => qq.id === id)).length;
+  const toolbarHtml = `
+    <div class="study-toolbar">
+      <button type="button" class="source-filter-btn ${shuffleEnabled ? 'active' : ''}" id="shuffleToggleBtn" title="Baralha a ordem das perguntas e das opções">🔀 Baralhar</button>
+      <button type="button" class="source-filter-btn ${studyFilterMode === 'all' ? 'active' : ''}" data-study-filter="all">Todas (${questions.length})</button>
+      <button type="button" class="source-filter-btn ${studyFilterMode === 'flagged' ? 'active' : ''}" data-study-filter="flagged">★ Marcadas (${flaggedCount})</button>
+      <span class="bulk-spacer"></span>
+      <button type="button" class="btn-secondary" id="openExamSetupBtn">⏱ Modo exame</button>
+    </div>`;
+
+  function wireToolbar(){
+    document.getElementById('shuffleToggleBtn').addEventListener('click', ()=>{
+      shuffleEnabled = !shuffleEnabled;
+      localStorage.setItem('quizShuffle', shuffleEnabled ? '1' : '0');
+      optionOrderMap = {};
+      progress.currentIndex = 0;
+      renderStudy();
+    });
+    wrap.querySelectorAll('[data-study-filter]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        studyFilterMode = btn.dataset.studyFilter;
+        progress.currentIndex = 0;
+        renderStudy();
+      });
+    });
+    document.getElementById('openExamSetupBtn').addEventListener('click', openExamSetup);
+  }
+
+  if(studySequence.length === 0){
+    wrap.innerHTML = toolbarHtml + `<div class="empty-state">Não há perguntas marcadas para rever.<span>Marca perguntas com a estrela enquanto estudas, ou muda para "Todas".</span></div>`;
+    wireToolbar();
+    return;
+  }
+
+  if(progress.currentIndex >= studySequence.length) progress.currentIndex = studySequence.length - 1;
   if(progress.currentIndex < 0) progress.currentIndex = 0;
 
   const idx = progress.currentIndex;
-  const q = questions[idx];
+  const qid = studySequence[idx];
+  const q = questions.find(x => x.id === qid);
   const savedAnswer = progress.answers && progress.answers[q.id];
   answeredThisQuestion = savedAnswer !== undefined;
   const isSelect = isSelectQuestion(q);
@@ -1099,6 +1699,7 @@ function buildStudyHtml(wrap){
   const isYesNo = isYesNoQuestion(q);
   const isChoice = !isSelect && !isDrag && !isYesNo;
   const multiple = isChoice && isMultipleQuestion(q);
+  const isFlagged = !!flaggedMap[q.id];
 
   if(pendingMultiAnswer.qid !== q.id){
     pendingMultiAnswer = { qid: q.id, selected: [] };
@@ -1113,22 +1714,25 @@ function buildStudyHtml(wrap){
     pendingYesNoAnswer = { qid: q.id, selected: (q.statements || []).map(()=> '') };
   }
 
-  const correctCount = Object.keys(progress.answers || {}).filter(qid=>{
-    const qq = questions.find(x => x.id === qid);
-    return qq && isAnswerCorrect(qq, progress.answers[qid]);
+  const correctCount = Object.keys(progress.answers || {}).filter(qid2=>{
+    const qq = questions.find(x => x.id === qid2);
+    return qq && isAnswerCorrect(qq, progress.answers[qid2]);
   }).length;
   const answeredCount = Object.keys(progress.answers || {}).length;
+  const optionOrder = isChoice ? getOptionOrder(q) : [];
 
-  wrap.innerHTML = `
+  wrap.innerHTML = toolbarHtml + `
     <div class="study-progress">
-      <span>Pergunta ${idx + 1} de ${questions.length}</span>
+      <span>Pergunta ${idx + 1} de ${studySequence.length}
+        <button type="button" id="flagQBtn" class="flag-star-btn ${isFlagged ? 'active' : ''}" title="${isFlagged ? 'Remover marca' : 'Marcar para rever'}">${isFlagged ? '★' : '☆'}</button>
+      </span>
       <div class="font-size-toggle">
         <button type="button" id="fontDecBtn" title="Diminuir tamanho do texto">A-</button>
         <button type="button" id="fontIncBtn" title="Aumentar tamanho do texto">A+</button>
       </div>
       <span class="score-pill">✓ ${correctCount} / ${answeredCount} respondidas</span>
     </div>
-    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / questions.length * 100)}%"></div></div>
+    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / studySequence.length * 100)}%"></div></div>
     <div class="question-card">
       ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
@@ -1140,7 +1744,7 @@ function buildStudyHtml(wrap){
         ? dragDropStudyHtml(q, savedAnswer, pendingDragAnswer, answeredThisQuestion)
         : isYesNo
         ? `<div id="yesnoWrap">${(q.statements || []).map((stmt, i) => yesNoRowHtml(stmt, i, savedAnswer, pendingYesNoAnswer.selected, answeredThisQuestion)).join('')}</div>`
-        : `<div id="optionsWrap">${(q.options || []).map((opt, i) => optionRowHtml(q, opt, i, savedAnswer, multiple, pendingMultiAnswer.selected)).join('')}</div>`
+        : `<div id="optionsWrap">${optionOrder.map((origIdx, pos) => optionRowHtml(q, q.options[origIdx], origIdx, savedAnswer, multiple, pendingMultiAnswer.selected, pos)).join('')}</div>`
       }
       ${isChoice && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
       ${isSelect && !answeredThisQuestion ? `<button class="btn-primary" id="confirmSelectBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
@@ -1151,9 +1755,18 @@ function buildStudyHtml(wrap){
     <div class="study-actions">
       <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
       <button class="btn-secondary" id="resetProgressBtn">Recomeçar módulo</button>
-      <button class="btn-primary" id="nextQBtn" ${idx === questions.length - 1 ? 'disabled' : ''}>Seguinte →</button>
+      <button class="btn-primary" id="nextQBtn" ${idx === studySequence.length - 1 ? 'disabled' : ''}>Seguinte →</button>
     </div>
   `;
+
+  wireToolbar();
+  document.getElementById('flagQBtn').addEventListener('click', ()=>{
+    progress.flagged = progress.flagged || {};
+    if(progress.flagged[q.id]) delete progress.flagged[q.id];
+    else progress.flagged[q.id] = true;
+    saveProgress();
+    renderStudy();
+  });
 
   if(!answeredThisQuestion){
     if(isSelect){
@@ -1282,22 +1895,21 @@ function buildStudyHtml(wrap){
     renderStudy();
   });
   document.getElementById('nextQBtn').addEventListener('click', ()=>{
-    progress.currentIndex = Math.min(questions.length - 1, progress.currentIndex + 1);
+    progress.currentIndex = Math.min(studySequence.length - 1, progress.currentIndex + 1);
     saveProgress();
     renderStudy();
   });
   document.getElementById('resetProgressBtn').addEventListener('click', ()=>{
-    openConfirm('Recomeçar módulo?', 'Isto apaga as tuas respostas guardadas neste módulo e volta à primeira pergunta.', ()=>{
-      progress = { currentIndex: 0, answers: {} };
+    openConfirm('Recomeçar módulo?', 'Isto apaga as tuas respostas guardadas neste módulo e volta à primeira pergunta. As perguntas marcadas com estrela mantêm-se.', ()=>{
+      progress = { currentIndex: 0, answers: {}, flagged: progress.flagged || {} };
       pendingMultiAnswer = { qid: null, selected: [] };
       saveProgress();
       renderStudy();
     });
   });
 }
-
-function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected){
-  const letter = String.fromCharCode(65 + index);
+function optionRowHtml(q, text, index, savedAnswer, multiple, pendingSelected, displayPos){
+  const letter = String.fromCharCode(65 + (displayPos !== undefined ? displayPos : index));
   const correctIndexes = getCorrectIndexes(q);
   let cls = 'option-row';
   if(savedAnswer !== undefined){
@@ -1454,11 +2066,13 @@ function renderQuestionList(){
     root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
     return;
   }
-  const filtered = questionSourceFilter === 'all'
-    ? questions
-    : questions.filter(q => questionSourceInfo(q).src === questionSourceFilter);
+  const filtered = getFilteredQuestions();
   if(filtered.length === 0){
-    root.innerHTML = `<div class="empty-state">Não há perguntas ${questionSourceFilter === 'manual' ? 'manuais' : 'importadas'} neste módulo.</div>`;
+    root.innerHTML = `<div class="empty-state">${
+      questionSearchQuery
+        ? `Nenhuma pergunta contém "${escapeHtml(questionSearchQuery)}".`
+        : `Não há perguntas ${questionSourceFilter === 'manual' ? 'manuais' : 'importadas'} neste módulo.`
+    }</div>`;
     return;
   }
 
@@ -1508,10 +2122,18 @@ document.querySelectorAll('.source-filter-btn').forEach(btn=>{
 
 /* ---------- Seleção e remoção em massa ---------- */
 function getFilteredQuestions(){
-  return questionSourceFilter === 'all'
+  let list = questionSourceFilter === 'all'
     ? questions
     : questions.filter(q => questionSourceInfo(q).src === questionSourceFilter);
+  if(questionSearchQuery){
+    list = list.filter(q => (q.text || '').toLowerCase().includes(questionSearchQuery));
+  }
+  return list;
 }
+document.getElementById('questionSearchInput').addEventListener('input', (e)=>{
+  questionSearchQuery = e.target.value.trim().toLowerCase();
+  renderQuestionList();
+});
 function updateBulkBar(){
   const bar = document.getElementById('questionBulkBar');
   bar.style.display = questions.length ? 'flex' : 'none';
@@ -1673,6 +2295,22 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
 
   const valid = [];
   const problems = [];
+  const duplicates = [];
+  const importDuplicatesAnyway = document.getElementById('importDuplicatesToggle').checked;
+  const existingTextSet = new Set(questions.map(q => normalizeImportText(q.text)));
+  const seenInBatch = new Set();
+  function normalizeImportText(t){ return (t || '').toString().trim().toLowerCase().replace(/\s+/g, ' '); }
+  // Adiciona à lista de importação, a menos que o texto já exista (no módulo
+  // ou já visto neste mesmo lote) e a opção de importar duplicados esteja desligada.
+  function pushIfNotDuplicate(obj, i){
+    const norm = normalizeImportText(obj.text);
+    if((existingTextSet.has(norm) || seenInBatch.has(norm)) && !importDuplicatesAnyway){
+      duplicates.push(i + 1);
+      return;
+    }
+    seenInBatch.add(norm);
+    valid.push(obj);
+  }
 
   function parseImportTable(item){
     if(!item || item.table === undefined || item.table === null) return { table: null, ok: true };
@@ -1703,12 +2341,12 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         problems.push(i + 1);
         return;
       }
-      valid.push({
+      pushIfNotDuplicate({
         type: 'select', text, slots, table, source: 'import',
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
-      });
+      }, i);
       return;
     }
 
@@ -1727,12 +2365,12 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         problems.push(i + 1);
         return;
       }
-      valid.push({
+      pushIfNotDuplicate({
         type: 'dragdrop', text, items: rawItems, targets, table, source: 'import',
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
-      });
+      }, i);
       return;
     }
 
@@ -1749,12 +2387,12 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
         problems.push(i + 1);
         return;
       }
-      valid.push({
+      pushIfNotDuplicate({
         type: 'yesno', text, statements, table, source: 'import',
         explanation: (item.explanation || '').toString().trim(),
         image: null,
         createdAt: Date.now()
-      });
+      }, i);
       return;
     }
 
@@ -1774,16 +2412,18 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
     // "multiple" no JSON é opcional: se vier explícito usa-se esse valor,
     // senão infere-se automaticamente de haver mais que uma correta.
     const multiple = typeof (item && item.multiple) === 'boolean' ? item.multiple : correctIndexes.length > 1;
-    valid.push({
+    pushIfNotDuplicate({
       type: 'choice', text, options, correctIndexes, multiple, correctIndex: correctIndexes[0], table, source: 'import',
       explanation: (item.explanation || '').toString().trim(),
       image: null,
       createdAt: Date.now()
-    });
+    }, i);
   });
 
   if(valid.length === 0){
-    statusEl.textContent = 'Nenhuma pergunta válida encontrada. Confirma o formato de cada campo.';
+    statusEl.textContent = duplicates.length && !problems.length
+      ? `Todas as ${duplicates.length} pergunta(s) já existem neste módulo (mesmo texto). Marca "Importar mesmo assim" se quiseres importar na mesma.`
+      : 'Nenhuma pergunta válida encontrada. Confirma o formato de cada campo.';
     statusEl.style.color = 'var(--err)';
     return;
   }
@@ -1805,12 +2445,13 @@ document.getElementById('importConfirmBtn').addEventListener('click', async ()=>
       batches.push(batch.commit());
     }
     await Promise.all(batches);
-    const msg = problems.length
-      ? `${valid.length} importadas. ${problems.length} ignoradas (posições: ${problems.join(', ')}) por faltar texto, opções ou índice correto válido.`
-      : `${valid.length} pergunta(s) importada(s) com sucesso.`;
+    const msgParts = [`${valid.length} pergunta(s) importada(s) com sucesso.`];
+    if(duplicates.length) msgParts.push(`${duplicates.length} ignorada(s) por já existir texto igual (posições: ${duplicates.join(', ')}).`);
+    if(problems.length) msgParts.push(`${problems.length} ignorada(s) por erro de formato (posições: ${problems.join(', ')}).`);
+    const msg = msgParts.join(' ');
     statusEl.textContent = msg;
-    statusEl.style.color = problems.length ? 'var(--gold)' : 'var(--ok)';
-    if(!problems.length){
+    statusEl.style.color = (problems.length || duplicates.length) ? 'var(--gold)' : 'var(--ok)';
+    if(!problems.length && !duplicates.length){
       setTimeout(()=> document.getElementById('importModalOverlay').classList.remove('open'), 900);
     }
   }catch(e){
