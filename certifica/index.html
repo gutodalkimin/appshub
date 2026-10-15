@@ -138,6 +138,8 @@
   .btn-secondary:hover{ border-color:var(--ink-faint); color:var(--ink); }
   .btn-danger{ background:var(--err); color:#fff; border:none; padding:9px 16px; border-radius:9px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit; }
   .btn-danger-text{ background:none; border:none; color:var(--err); font-size:12.5px; cursor:pointer; padding:0; }
+  .btn-link{ background:none; border:none; color:var(--ink-faint); font-size:12.5px; cursor:pointer; text-decoration:underline; font-family:inherit; padding:6px; }
+  .btn-link:hover{ color:var(--ink-soft); }
 
   /* ---------- Module grid ---------- */
   .module-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px; }
@@ -156,12 +158,6 @@
   .module-meta{ font-size:12px; color:var(--ink-soft); }
   .module-progress-bar{ height:5px; border-radius:4px; background:var(--surface-2); overflow:hidden; }
   .module-progress-fill{ height:100%; background:var(--accent); border-radius:4px; }
-  .module-delete{
-    position:absolute; top:14px; right:14px; background:none; border:none; color:var(--ink-faint);
-    cursor:pointer; font-size:13px;
-  }
-  .module-card{ position:relative; }
-  .module-delete:hover{ color:var(--err); }
 
   .empty-state{
     border:1px dashed var(--border); border-radius:var(--radius); padding:44px 20px;
@@ -174,27 +170,39 @@
   .back-link:hover{ color:var(--accent); }
   .module-header{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:6px; }
   .module-header h1{ font-size:22px; }
-  .subtabs{ display:flex; gap:6px; margin:18px 0 22px; border-bottom:1px solid var(--border); }
+  .subtabs{ display:flex; gap:4px; margin:16px 0 22px; padding:4px; background:var(--surface-2); border-radius:12px; }
   .subtab{
-    background:none; border:none; padding:10px 4px; margin-right:22px; font-size:14px; font-weight:600;
-    color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; font-family:inherit;
+    flex:1; background:none; border:none; padding:9px 12px; font-size:13.5px; font-weight:600;
+    color:var(--ink-soft); cursor:pointer; border-radius:9px; font-family:inherit; text-align:center;
+    transition:background .15s ease, color .15s ease;
   }
-  .subtab.active{ color:var(--accent); border-bottom-color:var(--accent); }
+  .subtab.active{ background:var(--surface); color:var(--accent); box-shadow:0 1px 3px rgba(27,35,64,0.12); }
 
-  /* ---------- Filtro de origem das perguntas (manuais vs importadas) ---------- */
-  .source-filter-tabs{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  /* ---------- Chips, segmentado e etiquetas ---------- */
+  .source-filter-tabs{ display:flex; gap:8px; flex-wrap:wrap; }
   .source-filter-btn{
     background:var(--surface-2); border:1px solid var(--border); border-radius:20px; padding:6px 14px;
     font-size:12.5px; font-weight:600; color:var(--ink-soft); cursor:pointer; font-family:inherit;
   }
   .source-filter-btn.active{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
-  .study-toolbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .seg{ display:inline-flex; background:var(--surface-2); border-radius:10px; padding:3px; gap:2px; }
+  .seg button{
+    border:none; background:none; padding:6px 12px; border-radius:8px; font-size:12.5px; font-weight:600;
+    color:var(--ink-soft); cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  .seg button.active{ background:var(--surface); color:var(--accent); box-shadow:0 1px 3px rgba(27,35,64,0.12); }
+  .study-toolbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
   .study-toolbar .bulk-spacer{ flex:1; }
   .flag-star-btn{
-    background:none; border:none; font-size:17px; line-height:1; cursor:pointer; color:var(--ink-faint);
-    vertical-align:middle; margin-left:6px; padding:0 2px; font-family:inherit;
+    background:none; border:none; font-size:19px; line-height:1; cursor:pointer; color:var(--ink-faint);
+    vertical-align:middle; padding:0 2px; font-family:inherit;
   }
   .flag-star-btn.active{ color:var(--gold); }
+  .q-tags{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .q-tag{
+    display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase;
+    padding:3px 8px; border-radius:6px; background:var(--surface-2); color:var(--ink-soft);
+  }
 
   /* ---------- Modo exame ---------- */
   .exam-bar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:10px; font-size:13px; color:var(--ink-soft); }
@@ -215,22 +223,25 @@
   .stats-table-row{ display:flex; justify-content:space-between; gap:10px; padding:9px 12px; background:var(--surface-2); border-radius:8px; font-size:13px; flex-wrap:wrap; }
   .source-badge{
     display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase;
-    padding:2px 7px; border-radius:6px; margin-left:8px; vertical-align:middle;
+    padding:2px 7px; border-radius:6px; vertical-align:middle;
   }
   .source-badge.manual{ background:var(--accent-soft); color:var(--accent); }
   .source-badge.import{ background:rgba(224,167,47,0.16); color:var(--gold); }
 
   /* ---------- Study card ---------- */
   .study-wrap{ max-width:640px; margin:0 auto; }
-  .study-progress{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); margin-bottom:10px; font-family:'IBM Plex Mono',monospace; }
+  .study-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .study-head-left, .study-head-right{ display:flex; align-items:center; gap:10px; }
+  .study-counter{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; }
+  .study-counter small{ font-size:13px; font-weight:500; color:var(--ink-faint); }
   .font-size-toggle{ display:flex; gap:4px; }
   .font-size-toggle button{
-    width:25px; height:25px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
+    width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
     color:var(--ink-soft); font-size:11px; font-weight:700; cursor:pointer; font-family:'IBM Plex Mono',monospace;
     display:flex; align-items:center; justify-content:center; padding:0;
   }
   .font-size-toggle button:hover{ border-color:var(--accent); color:var(--accent); }
-  .study-progress-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-bottom:24px; }
+  .study-progress-bar{ height:6px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-bottom:18px; }
   .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
   .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
   .question-text{ font-size:calc(16.5px * var(--study-font-scale)); font-weight:500; line-height:1.42; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
@@ -246,6 +257,7 @@
     display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0;
   }
   .option-row.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .option-row.selected .option-letter{ background:var(--accent); color:#fff; }
   .option-row.correct{ border-color:var(--ok); background:var(--ok-soft); }
   .option-row.correct .option-letter{ background:var(--ok); color:#fff; }
   .option-row.incorrect{ border-color:var(--err); background:var(--err-soft); }
@@ -316,23 +328,48 @@
     margin-top:14px; padding:14px 16px; background:var(--surface-2); border-radius:10px;
     font-size:calc(13px * var(--study-font-scale)); color:var(--ink-soft); line-height:1.45; white-space:pre-wrap;
   }
-  .study-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
+  .study-actions{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:20px; }
+  .study-actions.sticky-actions{
+    position:sticky; bottom:0; z-index:5; margin-top:14px;
+    padding:12px 0 calc(12px + var(--safe-b));
+    background:linear-gradient(to top, var(--bg) 70%, transparent);
+  }
+  .study-actions.sticky-actions button{ flex:1; padding:12px 16px; }
+  .study-footer{ text-align:center; margin-top:2px; }
   .score-pill{
     font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);
     background:var(--surface-2); padding:6px 12px; border-radius:20px;
   }
 
   /* ---------- Question list (manage) ---------- */
+  .manage-actions{ display:flex; gap:10px; justify-content:flex-end; margin-bottom:14px; }
+  .manage-panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px; margin-bottom:12px; display:flex; flex-direction:column; gap:12px;
+  }
+  .search-input{
+    width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:10px 14px; font-size:13.5px; font-family:inherit; color:var(--ink); outline:none;
+  }
+  .search-input:focus{ border-color:var(--accent); }
+  .q-list-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0 14px;
+  }
   .q-list-row{
-    display:flex; align-items:flex-start; gap:14px; padding:14px 4px; border-bottom:1px dashed var(--border);
+    display:flex; align-items:flex-start; gap:12px; padding:14px 0; border-bottom:1px solid var(--border);
   }
   .q-list-row:last-child{ border-bottom:none; }
+  .q-num{
+    min-width:26px; height:26px; border-radius:8px; background:var(--surface-2); color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0 6px;
+  }
   .question-card #confirmMultiBtn, .question-card #confirmSelectBtn,
-  .question-card #confirmDragBtn, .question-card #confirmYesNoBtn{ display:block; margin-left:auto; }
-  .q-bulk-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; padding:10px 12px; background:var(--surface-2); border-radius:10px; font-size:13px; }
+  .question-card #confirmDragBtn, .question-card #confirmYesNoBtn{ display:block; width:100%; padding:12px 16px; }
+  .q-bulk-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; padding:10px 14px; background:var(--surface-2); border-radius:10px; font-size:13px; }
   .q-bulk-bar label{ display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--ink-soft); font-weight:600; }
   .q-bulk-bar .bulk-spacer{ flex:1; }
-  .q-select-cb, #selectAllQ{ width:17px; height:17px; accent-color:var(--accent); flex-shrink:0; cursor:pointer; margin-top:2px; }
+  .q-select-cb, #selectAllQ{ width:17px; height:17px; accent-color:var(--accent); flex-shrink:0; cursor:pointer; margin-top:4px; }
   .btn-danger-outline{
     background:none; border:1px solid var(--err); color:var(--err); padding:7px 12px; border-radius:8px;
     font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;
@@ -340,14 +377,23 @@
   .btn-danger-outline:disabled{ opacity:.4; cursor:default; }
   .q-list-thumb{ width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid var(--border); }
   .q-list-body{ flex:1; min-width:0; }
-  .q-list-text{ font-size:14px; font-weight:500; margin-bottom:4px; white-space:pre-wrap; }
-  .q-list-meta{ font-size:11.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; }
+  .q-list-text{
+    font-size:14px; font-weight:500; margin-bottom:6px; line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word;
+  }
+  .q-list-meta{ display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; font-size:11.5px; color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; }
   .q-list-actions{ display:flex; gap:6px; flex-shrink:0; }
   .icon-btn{
-    width:28px; height:28px; border-radius:7px; border:1px solid var(--border); background:var(--surface);
+    width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
     color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px;
   }
   .icon-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .danger-zone{
+    margin-top:28px; padding:16px; border:1px solid var(--err); border-radius:var(--radius);
+    background:var(--err-soft); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  }
+  .danger-zone-title{ font-weight:700; font-size:14px; color:var(--err); margin-bottom:3px; }
+  .danger-zone-text{ font-size:12.5px; color:var(--ink-soft); }
 
   /* ---------- Modal ---------- */
   .overlay{
@@ -437,9 +483,13 @@
     .modal-actions{ flex-wrap:wrap; }
     .modal-actions button{ flex:1 1 auto; min-width:110px; }
     .login-card{ padding:34px 24px; }
-    .subtabs{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    .study-actions{ flex-wrap:wrap; gap:10px; }
-    .study-actions button{ flex:1 1 auto; }
+    .study-toolbar .bulk-spacer{ display:none; }
+    #openExamSetupBtn{ flex:1 1 100%; }
+    .manage-actions button{ flex:1; }
+    .q-list-card{ padding:0 12px; }
+    .q-list-row{ gap:10px; }
+    .q-num{ display:none; }
+    .danger-zone .btn-danger-outline{ width:100%; padding:10px 12px; }
   }
 
   @media (max-width:380px){
@@ -491,7 +541,6 @@
       <button class="back-link" id="backToModulesBtn">← Módulos</button>
       <div class="module-header">
         <h1 id="moduleTitle"></h1>
-        <button class="btn-danger-text" id="deleteModuleBtn">Eliminar módulo</button>
       </div>
       <div class="subtabs">
         <button class="subtab active" data-subtab="study">Estudar</button>
@@ -508,15 +557,17 @@
       </div>
 
       <div id="manageTab" style="display:none;">
-        <div class="page-head" style="margin-bottom:14px;">
-          <button class="btn-secondary" id="importQuestionsBtn">Importar perguntas</button>
+        <div class="manage-actions">
+          <button class="btn-secondary" id="importQuestionsBtn">⬆ Importar perguntas</button>
           <button class="btn-primary" id="newQuestionBtn">+ Nova pergunta</button>
         </div>
-        <input type="text" id="questionSearchInput" placeholder="Pesquisar perguntas por texto..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13.5px;font-family:inherit;color:var(--ink);outline:none;margin-bottom:12px;box-sizing:border-box;">
-        <div class="source-filter-tabs" id="sourceFilterTabs">
-          <button class="source-filter-btn active" data-source-filter="all">Todas</button>
-          <button class="source-filter-btn" data-source-filter="manual">Manuais</button>
-          <button class="source-filter-btn" data-source-filter="import">Importadas</button>
+        <div class="manage-panel">
+          <input type="text" class="search-input" id="questionSearchInput" placeholder="🔍 Pesquisar perguntas por texto...">
+          <div class="source-filter-tabs" id="sourceFilterTabs">
+            <button class="source-filter-btn active" data-source-filter="all">Todas</button>
+            <button class="source-filter-btn" data-source-filter="manual">Manuais</button>
+            <button class="source-filter-btn" data-source-filter="import">Importadas</button>
+          </div>
         </div>
         <div class="q-bulk-bar" id="questionBulkBar" style="display:none;">
           <label><input type="checkbox" id="selectAllQ"> Selecionar todas</label>
@@ -525,6 +576,14 @@
           <button class="btn-danger-outline" id="deleteGroupQBtn">Apagar grupo</button>
         </div>
         <div id="questionList"></div>
+
+        <div class="danger-zone">
+          <div>
+            <div class="danger-zone-title">Eliminar módulo</div>
+            <div class="danger-zone-text">Remove este módulo e todas as suas perguntas. Não pode ser desfeito.</div>
+          </div>
+          <button class="btn-danger-outline" id="deleteModuleBtn">Eliminar módulo</button>
+        </div>
       </div>
     </div>
   </div>
@@ -991,6 +1050,7 @@ function buildExamRunnerHtml(wrap){
     </div>
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((examState.index) / examState.ids.length * 100)}%"></div></div>
     <div class="question-card">
+      <div class="q-tags"><span class="q-tag">${questionTypeLabel(q)}</span></div>
       ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
       <div class="question-text">${formatQuestionText(q.text)}</div>
@@ -1004,11 +1064,11 @@ function buildExamRunnerHtml(wrap){
         : `<div id="optionsWrap">${optionOrder.map((origIdx, pos) => optionRowHtml(q, q.options[origIdx], origIdx, undefined, multiple, pendingMultiAnswer.selected, pos)).join('')}</div>`
       }
     </div>
-    <div class="study-actions">
+    <div class="study-actions sticky-actions">
       <button class="btn-secondary" id="examPrevBtn" ${examState.index === 0 ? 'disabled' : ''}>← Anterior</button>
-      <span style="font-size:11.5px;color:var(--ink-soft);align-self:center;">A escolha fica guardada ao clicares numa opção.</span>
       <button class="btn-primary" id="examNextBtn">${examState.index === examState.ids.length - 1 ? 'Rever e terminar' : 'Seguinte →'}</button>
     </div>
+    <div class="study-footer"><span style="font-size:11.5px;color:var(--ink-faint);">A escolha fica guardada ao clicares numa opção.</span></div>
   `;
 
   function commitExamAnswer(){
@@ -1296,6 +1356,12 @@ function isDragDropQuestion(q){
 function isYesNoQuestion(q){
   return q && q.type === 'yesno';
 }
+function questionTypeLabel(q){
+  if(isSelectQuestion(q)) return 'Seletores';
+  if(isDragDropQuestion(q)) return 'Drag and drop';
+  if(isYesNoQuestion(q)) return 'Sim / Não';
+  return isMultipleQuestion(q) ? 'Escolha múltipla' : 'Escolha única';
+}
 function getCorrectIndexes(q){
   if(Array.isArray(q.correctIndexes)) return q.correctIndexes;
   if(Number.isInteger(q.correctIndex)) return [q.correctIndex];
@@ -1466,7 +1532,6 @@ async function renderModuleGrid(){
   }
   grid.innerHTML = modules.map(m => `
     <div class="module-card" data-id="${m.id}">
-      <button class="module-delete" data-action="delete-module" data-id="${m.id}" title="Eliminar módulo">✕</button>
       <span class="module-code">${escapeHtml(m.code)}</span>
       <div class="module-name">${escapeHtml(m.name || m.code)}</div>
       <div class="module-meta" data-meta="${m.id}">a carregar…</div>
@@ -1475,13 +1540,7 @@ async function renderModuleGrid(){
   `).join('');
 
   grid.querySelectorAll('.module-card').forEach(card=>{
-    card.addEventListener('click', (e)=>{
-      if(e.target.closest('[data-action="delete-module"]')) return;
-      openModule(card.dataset.id);
-    });
-  });
-  grid.querySelectorAll('[data-action="delete-module"]').forEach(btn=>{
-    btn.addEventListener('click', ()=> confirmDeleteModule(btn.dataset.id));
+    card.addEventListener('click', ()=> openModule(card.dataset.id));
   });
 
   modules.forEach(async m=>{
@@ -1516,18 +1575,7 @@ document.getElementById('moduleSaveBtn').addEventListener('click', async ()=>{
   }catch(e){ console.error(e); alert('Não foi possível criar o módulo.'); }
 });
 
-function confirmDeleteModule(moduleId){
-  openConfirm('Eliminar módulo?', 'Isto remove o módulo e todas as suas perguntas. Não pode ser desfeito.', async ()=>{
-    try{
-      const qSnap = await db.collection('quizModules').doc(moduleId).collection('questions').get();
-      const batch = db.batch();
-      qSnap.docs.forEach(d => batch.delete(d.ref));
-      batch.delete(db.collection('quizModules').doc(moduleId));
-      await batch.commit();
-      db.collection('quizProgress').doc(currentUser.uid).collection('modules').doc(moduleId).delete().catch(()=>{});
-    }catch(e){ console.error(e); alert('Não foi possível eliminar o módulo.'); }
-  });
-}
+/* O botão "Eliminar módulo" vive agora no separador "Perguntas" (zona de perigo). */
 document.getElementById('deleteModuleBtn').addEventListener('click', ()=>{
   if(!currentModuleId) return;
   const m = modules.find(x => x.id === currentModuleId);
@@ -1655,9 +1703,11 @@ function buildStudyHtml(wrap){
   const flaggedCount = Object.keys(flaggedMap).filter(id => questions.some(qq => qq.id === id)).length;
   const toolbarHtml = `
     <div class="study-toolbar">
+      <div class="seg">
+        <button type="button" class="${studyFilterMode === 'all' ? 'active' : ''}" data-study-filter="all">Todas (${questions.length})</button>
+        <button type="button" class="${studyFilterMode === 'flagged' ? 'active' : ''}" data-study-filter="flagged">★ Marcadas (${flaggedCount})</button>
+      </div>
       <button type="button" class="source-filter-btn ${shuffleEnabled ? 'active' : ''}" id="shuffleToggleBtn" title="Baralha a ordem das perguntas e das opções">🔀 Baralhar</button>
-      <button type="button" class="source-filter-btn ${studyFilterMode === 'all' ? 'active' : ''}" data-study-filter="all">Todas (${questions.length})</button>
-      <button type="button" class="source-filter-btn ${studyFilterMode === 'flagged' ? 'active' : ''}" data-study-filter="flagged">★ Marcadas (${flaggedCount})</button>
       <span class="bulk-spacer"></span>
       <button type="button" class="btn-secondary" id="openExamSetupBtn">⏱ Modo exame</button>
     </div>`;
@@ -1722,18 +1772,22 @@ function buildStudyHtml(wrap){
   const optionOrder = isChoice ? getOptionOrder(q) : [];
 
   wrap.innerHTML = toolbarHtml + `
-    <div class="study-progress">
-      <span>Pergunta ${idx + 1} de ${studySequence.length}
+    <div class="study-head">
+      <div class="study-head-left">
+        <span class="study-counter">${idx + 1}<small> / ${studySequence.length}</small></span>
         <button type="button" id="flagQBtn" class="flag-star-btn ${isFlagged ? 'active' : ''}" title="${isFlagged ? 'Remover marca' : 'Marcar para rever'}">${isFlagged ? '★' : '☆'}</button>
-      </span>
-      <div class="font-size-toggle">
-        <button type="button" id="fontDecBtn" title="Diminuir tamanho do texto">A-</button>
-        <button type="button" id="fontIncBtn" title="Aumentar tamanho do texto">A+</button>
       </div>
-      <span class="score-pill">✓ ${correctCount} / ${answeredCount} respondidas</span>
+      <div class="study-head-right">
+        <span class="score-pill">✓ ${correctCount} / ${answeredCount}</span>
+        <div class="font-size-toggle">
+          <button type="button" id="fontDecBtn" title="Diminuir tamanho do texto">A-</button>
+          <button type="button" id="fontIncBtn" title="Aumentar tamanho do texto">A+</button>
+        </div>
+      </div>
     </div>
-    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx) / studySequence.length * 100)}%"></div></div>
+    <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx + 1) / studySequence.length * 100)}%"></div></div>
     <div class="question-card">
+      <div class="q-tags"><span class="q-tag">${questionTypeLabel(q)}</span></div>
       ${q.image ? `<img src="${q.image}" class="question-image" alt="">` : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
       <div class="question-text">${formatQuestionText(q.text)}</div>
@@ -1746,17 +1800,17 @@ function buildStudyHtml(wrap){
         ? `<div id="yesnoWrap">${(q.statements || []).map((stmt, i) => yesNoRowHtml(stmt, i, savedAnswer, pendingYesNoAnswer.selected, answeredThisQuestion)).join('')}</div>`
         : `<div id="optionsWrap">${optionOrder.map((origIdx, pos) => optionRowHtml(q, q.options[origIdx], origIdx, savedAnswer, multiple, pendingMultiAnswer.selected, pos)).join('')}</div>`
       }
-      ${isChoice && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
-      ${isSelect && !answeredThisQuestion ? `<button class="btn-primary" id="confirmSelectBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
-      ${isDrag && !answeredThisQuestion ? `<button class="btn-primary" id="confirmDragBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
-      ${isYesNo && !answeredThisQuestion ? `<button class="btn-primary" id="confirmYesNoBtn" style="margin-top:2px;margin-bottom:4px;">Confirmar resposta</button>` : ''}
+      ${isChoice && !answeredThisQuestion ? `<button class="btn-primary" id="confirmMultiBtn" style="margin-top:2px;">Confirmar resposta</button>` : ''}
+      ${isSelect && !answeredThisQuestion ? `<button class="btn-primary" id="confirmSelectBtn" style="margin-top:2px;">Confirmar resposta</button>` : ''}
+      ${isDrag && !answeredThisQuestion ? `<button class="btn-primary" id="confirmDragBtn" style="margin-top:2px;">Confirmar resposta</button>` : ''}
+      ${isYesNo && !answeredThisQuestion ? `<button class="btn-primary" id="confirmYesNoBtn" style="margin-top:2px;">Confirmar resposta</button>` : ''}
       ${answeredThisQuestion && q.explanation ? `<div class="explanation-box"><strong>Porquê:</strong> ${formatQuestionText(q.explanation)}</div>` : ''}
     </div>
-    <div class="study-actions">
+    <div class="study-actions sticky-actions">
       <button class="btn-secondary" id="prevQBtn" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
-      <button class="btn-secondary" id="resetProgressBtn">Recomeçar módulo</button>
       <button class="btn-primary" id="nextQBtn" ${idx === studySequence.length - 1 ? 'disabled' : ''}>Seguinte →</button>
     </div>
+    <div class="study-footer"><button type="button" class="btn-link" id="resetProgressBtn">Recomeçar módulo</button></div>
   `;
 
   wireToolbar();
@@ -2046,6 +2100,13 @@ function questionSourceInfo(q){
   return { src, label: src === 'import' ? 'Importada' : 'Manual' };
 }
 
+function questionMetaText(q){
+  if(isSelectQuestion(q)) return `${(q.slots || []).length} seletor(es) · corretas: ${(q.slots || []).map(s => s.options[s.correctIndex] ?? '').join(' / ')}`;
+  if(isDragDropQuestion(q)) return `${(q.targets || []).length} alvo(s)`;
+  if(isYesNoQuestion(q)) return `${(q.statements || []).length} afirmação(ões)`;
+  return `${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}`;
+}
+
 function renderQuestionList(){
   const root = document.getElementById('questionList');
 
@@ -2054,7 +2115,7 @@ function renderQuestionList(){
 
   const counts = { all: questions.length, manual: 0, import: 0 };
   questions.forEach(q => { counts[questionSourceInfo(q).src]++; });
-  document.querySelectorAll('.source-filter-btn').forEach(btn=>{
+  document.querySelectorAll('.source-filter-btn[data-source-filter]').forEach(btn=>{
     const f = btn.dataset.sourceFilter;
     btn.classList.toggle('active', f === questionSourceFilter);
     const label = f === 'all' ? 'Todas' : f === 'manual' ? 'Manuais' : 'Importadas';
@@ -2063,7 +2124,7 @@ function renderQuestionList(){
   updateBulkBar();
 
   if(questions.length === 0){
-    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.</div>`;
+    root.innerHTML = `<div class="empty-state">Ainda não há perguntas neste módulo.<span>Usa "+ Nova pergunta" ou "Importar perguntas".</span></div>`;
     return;
   }
   const filtered = getFilteredQuestions();
@@ -2076,23 +2137,20 @@ function renderQuestionList(){
     return;
   }
 
-  root.innerHTML = filtered.map((q, i) => {
+  root.innerHTML = `<div class="q-list-card">${filtered.map((q, i) => {
     const { src, label } = questionSourceInfo(q);
     return `
     <div class="q-list-row">
       <input type="checkbox" class="q-select-cb" data-id="${q.id}" ${selectedQuestionIds.has(q.id) ? 'checked' : ''}>
+      <span class="q-num">${i + 1}</span>
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
-        <div class="q-list-text">${i + 1}. ${escapeHtml(q.text)} <span class="source-badge ${src}">${label}</span></div>
-        <div class="q-list-meta">${
-          isSelectQuestion(q)
-            ? `${(q.slots || []).length} seletor(es) · corretas: ${(q.slots || []).map(s => s.options[s.correctIndex] ?? '').join(' / ')}`
-            : isDragDropQuestion(q)
-            ? `${(q.targets || []).length} alvo(s) · drag and drop`
-            : isYesNoQuestion(q)
-            ? `${(q.statements || []).length} afirmação(ões) · Sim/Não`
-            : `${(q.options || []).length} opções · ${isMultipleQuestion(q) ? 'corretas' : 'correta'}: ${correctLettersLabel(q)}`
-        }</div>
+        <div class="q-list-text">${escapeHtml(q.text)}</div>
+        <div class="q-list-meta">
+          <span class="q-tag">${questionTypeLabel(q)}</span>
+          <span class="source-badge ${src}">${label}</span>
+          <span>${escapeHtml(questionMetaText(q))}</span>
+        </div>
       </div>
       <div class="q-list-actions">
         <button class="icon-btn" title="Editar" data-action="edit-q" data-id="${q.id}">✎</button>
@@ -2100,7 +2158,7 @@ function renderQuestionList(){
       </div>
     </div>
   `;
-  }).join('');
+  }).join('')}</div>`;
   root.querySelectorAll('[data-action="edit-q"]').forEach(btn=>{
     btn.addEventListener('click', ()=> openQuestionModal(btn.dataset.id));
   });
@@ -2113,7 +2171,7 @@ function renderQuestionList(){
     });
   });
 }
-document.querySelectorAll('.source-filter-btn').forEach(btn=>{
+document.querySelectorAll('.source-filter-btn[data-source-filter]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     questionSourceFilter = btn.dataset.sourceFilter;
     renderQuestionList();
