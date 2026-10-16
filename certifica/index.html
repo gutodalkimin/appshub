@@ -1816,6 +1816,7 @@ function buildStudyHtml(wrap){
         <div class="font-size-toggle">
           <button type="button" id="fontDecBtn" title="Diminuir tamanho do texto">A-</button>
           <button type="button" id="fontIncBtn" title="Aumentar tamanho do texto">A+</button>
+          <button type="button" id="editQBtn" title="Editar esta pergunta" style="font-size:13px;">✎</button>
         </div>
       </div>
     </div>
@@ -1974,6 +1975,7 @@ function buildStudyHtml(wrap){
     }
   }
 
+  document.getElementById('editQBtn').addEventListener('click', ()=> openQuestionModal(q.id));
   document.getElementById('fontDecBtn').addEventListener('click', ()=> changeStudyFontScale(-0.1));
   document.getElementById('fontIncBtn').addEventListener('click', ()=> changeStudyFontScale(0.1));
 
