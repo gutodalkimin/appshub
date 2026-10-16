@@ -245,6 +245,7 @@
   .study-progress-fill{ height:100%; background:var(--accent); border-radius:4px; transition:width .2s ease; }
   .question-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px; }
   .question-text{ font-size:calc(16.5px * var(--study-font-scale)); font-weight:500; line-height:1.42; margin-bottom:18px; letter-spacing:0.1px; white-space:pre-wrap; }
+  .q-hint{ font-style:italic; font-weight:400; font-size:0.94em; color:var(--ink-soft); }
   .question-image{ width:100%; max-height:280px; object-fit:contain; border-radius:10px; margin-bottom:16px; background:var(--surface-2); }
   .option-row{
     display:flex; align-items:center; gap:12px; padding:13px 16px; border:1px solid var(--border);
@@ -648,8 +649,12 @@
   <div class="modal">
     <h3 id="questionModalTitle">Nova pergunta</h3>
     <div class="field">
-      <label for="qTextInput">Pergunta</label>
+      <label for="qTextInput" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <span>Pergunta</span>
+        <button type="button" class="btn-secondary" id="qItalicBtn" title="Seleciona um pedaço do texto e clica para o marcar como dica (itálico)" style="padding:3px 10px;font-size:12px;"><em>I</em> Dica em itálico</button>
+      </label>
       <textarea id="qTextInput" placeholder="Escreve a pergunta..."></textarea>
+      <div style="font-size:11.5px;color:var(--ink-soft);margin-top:5px;">Para dicas/informações em itálico, põe o texto entre asteriscos: <code>*isto é uma dica*</code></div>
     </div>
     <div class="field">
       <label>Imagem (opcional)</label>
@@ -744,6 +749,7 @@
     Para perguntas do tipo <strong>drag and drop</strong>: usa <code>"type": "dragdrop"</code>, <code>"items": ["texto item 1", "texto item 2", ...]</code> e <code>"targets": [{"label": "...", "correctItemIndex": N}, ...]</code> (o índice refere-se à posição em <code>items</code>).<br>
     Para perguntas do tipo <strong>Sim / Não</strong>: usa <code>"type": "yesno"</code> e <code>"statements": [{"label": "...", "correct": true}, ...]</code>.<br>
     Para incluir uma <strong>tabela</strong> na pergunta (qualquer tipo): usa <code>"table": {"headers": ["Coluna 1", "Coluna 2"], "rows": [["a", "b"], ["c", "d"]]}</code>.<br>
+    Para pôr <strong>dicas em itálico</strong> dentro de <code>text</code>, envolve o pedaço com asteriscos: <code>"Qual é a opção correta? *Escolhe duas.*"</code><br>
     Imagens não são importadas em massa — adiciona-as depois, editando cada pergunta.</p>
     <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;cursor:pointer;">
       <input type="checkbox" id="importDuplicatesToggle" style="width:16px;height:16px;accent-color:var(--accent);"> Importar mesmo que o texto já exista neste módulo
@@ -1463,9 +1469,15 @@ function renderQuestionTable(table){
    reticências, etc.). Quebras de linha manuais (\n) continuam a funcionar. */
 function formatQuestionText(text){
   const escaped = escapeHtml(text);
-  // quebra depois de ".", "?" ou "!" seguido de espaço e de maiúscula/número/aspas
+  // quebra depois de ".", "?" ou "!" seguido de espaço e de maiúscula/número/aspas/asterisco
   // (evita cortar decimais como "3.5" ou abreviaturas seguidas de minúscula)
-  return escaped.replace(/([.?!])(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(])/g, '$1<br>');
+  const withBreaks = escaped.replace(/([.?!]\*?)(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(*])/g, '$1<br>');
+  // *texto* => dica / informação em itálico e com letra mais fina
+  return withBreaks.replace(/\*([^*]+?)\*/g, '<span class="q-hint">$1</span>');
+}
+/* Remove a marcação das dicas (usado em listas/pré-visualizações em texto simples). */
+function stripHintMarks(text){
+  return String(text || '').replace(/\*([^*]+?)\*/g, '$1');
 }
 
 /* ---------- Tema ---------- */
@@ -2181,7 +2193,7 @@ function renderQuestionList(){
       <span class="q-num">${i + 1}</span>
       ${q.image ? `<img src="${q.image}" class="q-list-thumb">` : ''}
       <div class="q-list-body">
-        <div class="q-list-text">${escapeHtml(q.text)}</div>
+        <div class="q-list-text">${escapeHtml(stripHintMarks(q.text))}</div>
         <div class="q-list-meta">
           <span class="q-tag">${questionTypeLabel(q)}</span>
           <span class="source-badge ${src}">${label}</span>
@@ -2300,6 +2312,7 @@ Responde só com o JSON (uma lista []), sem texto extra nem blocos de markdown.
 
 REGRAS GERAIS
 - Cada pergunta é um objeto com "text" (obrigatório) e "explanation" (opcional, pode ser "").
+- Dentro de "text", dicas e informações auxiliares (ex: "Choose two", "Note:") vão entre asteriscos: *dica*. Aparecem em itálico e com letra mais fina.
 - Os índices começam em 0 (0 = primeira opção).
 - "table" é opcional e pode existir em qualquer tipo: {"headers": ["Col1","Col2"], "rows": [["a","b"],["c","d"]]}
 - Sem "type", a pergunta é de escolha (ver tipo 1).
@@ -2575,6 +2588,15 @@ function addOptionRow(value, checked){
   });
   list.appendChild(row);
 }
+document.getElementById('qItalicBtn').addEventListener('click', ()=>{
+  const ta = document.getElementById('qTextInput');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const selected = ta.value.slice(start, end);
+  ta.value = ta.value.slice(0, start) + '*' + selected + '*' + ta.value.slice(end);
+  ta.focus();
+  if(selected) ta.setSelectionRange(start, end + 2);
+  else ta.setSelectionRange(start + 1, start + 1);
+});
 document.getElementById('addOptionBtn').addEventListener('click', ()=>{
   if(document.querySelectorAll('.option-edit-row').length >= 6){ alert('Máximo de 6 opções.'); return; }
   addOptionRow('', false);
