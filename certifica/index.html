@@ -1484,7 +1484,10 @@ function formatQuestionText(text){
   const escaped = escapeHtml(text);
   // quebra depois de ".", "?" ou "!" seguido de espaço e de maiúscula/número/aspas/asterisco
   // (evita cortar decimais como "3.5" ou abreviaturas seguidas de minúscula)
-  const withBreaks = escaped.replace(/([.?!]\*?)(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(*])/g, '$1<br>');
+  const withBreaks = escaped.replace(/([.?!]\*?)(\s+)(?=[A-ZÀ-ÖØ-Þ0-9"“(*])/g,
+    // se o espaço já tem uma quebra de linha escrita por ti, respeita-a tal como está;
+    // só acrescenta a quebra automática quando as frases estão na mesma linha
+    (m, punct, space) => /\n/.test(space) ? m : punct + '<br>');
   // *texto* => dica / informação em itálico e com letra mais fina
   return withBreaks.replace(/\*([^*]+?)\*/g, '<span class="q-hint">$1</span>');
 }
