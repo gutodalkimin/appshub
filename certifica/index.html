@@ -1091,9 +1091,9 @@ function buildExamRunnerHtml(wrap){
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((examState.index) / examState.ids.length * 100)}%"></div></div>
     <div class="question-card">
       <div class="q-tags"><span class="q-tag">${questionTypeLabel(q)}</span></div>
+      <div class="question-text">${formatQuestionText(q.text)}</div>
       ${q.image ? questionImageHtml(q.image) : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
-      <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas.</div>` : ''}
       ${isSelect
         ? `<div id="slotsWrap">${(q.slots || []).map((slot, i) => selectSlotHtml(slot, i, undefined, pendingSelectAnswer.selected, false)).join('')}</div>`
@@ -1835,9 +1835,9 @@ function buildStudyHtml(wrap){
     <div class="study-progress-bar"><div class="study-progress-fill" style="width:${Math.round((idx + 1) / studySequence.length * 100)}%"></div></div>
     <div class="question-card">
       <div class="q-tags"><span class="q-tag">${questionTypeLabel(q)}</span></div>
+      <div class="question-text">${formatQuestionText(q.text)}</div>
       ${q.image ? questionImageHtml(q.image) : ''}
       ${q.table ? renderQuestionTable(q.table) : ''}
-      <div class="question-text">${formatQuestionText(q.text)}</div>
       ${multiple && !answeredThisQuestion ? `<div style="font-size:12px;color:var(--ink-soft);margin:-8px 0 12px;">Esta pergunta tem várias respostas certas — escolhe todas e depois confirma.</div>` : ''}
       ${isSelect
         ? `<div id="slotsWrap">${(q.slots || []).map((slot, i) => selectSlotHtml(slot, i, savedAnswer, pendingSelectAnswer.selected, answeredThisQuestion)).join('')}</div>`
