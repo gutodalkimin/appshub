@@ -281,11 +281,20 @@
   .select-slot-note.is-err{ color:var(--err); }
 
   /* ---------- Tabela dentro da pergunta ---------- */
-  .question-table{
-    width:100%; border-collapse:collapse; margin-bottom:16px; font-size:calc(13px * var(--study-font-scale));
-    border:1px solid var(--border); border-radius:8px; overflow:hidden;
+  .question-table-wrap{
+    border:1px solid var(--border); border-radius:10px; margin-bottom:16px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; background:var(--surface);
   }
-  .question-table th, .question-table td{ padding:8px 12px; border:1px solid var(--border); text-align:left; }
+  .question-table{
+    width:100%; border-collapse:separate; border-spacing:0;
+    font-size:calc(13px * var(--study-font-scale));
+  }
+  .question-table th, .question-table td{
+    padding:9px 12px; text-align:left;
+    border-right:1px solid var(--border); border-bottom:1px solid var(--border);
+  }
+  .question-table th:last-child, .question-table td:last-child{ border-right:none; }
+  .question-table tbody tr:last-child td{ border-bottom:none; }
   .question-table th{ background:var(--surface-2); font-weight:600; }
 
   /* ---------- Pergunta tipo "drag and drop" ---------- */
@@ -1456,11 +1465,11 @@ function tableRowsFromStored(rows){
 }
 function renderQuestionTable(table){
   if(!table || !Array.isArray(table.headers) || !table.headers.length) return '';
-  return `<table class="question-table"><thead><tr>${
+  return `<div class="question-table-wrap"><table class="question-table"><thead><tr>${
     table.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')
   }</tr></thead><tbody>${
     tableRowsFromStored(table.rows).map(r => `<tr>${r.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
-  }</tbody></table>`;
+  }</tbody></table></div>`;
 }
 
 /* Formata o texto de uma pergunta/explicação: escapa HTML e, quando o texto
